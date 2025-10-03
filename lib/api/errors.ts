@@ -6,20 +6,20 @@ export const ErrorCode = z.enum([
 	"internal_server_error",
 	"unauthorized",
 	"forbidden",
-	"rate_limit_exceeded",
+	"too_many_requests",
 	"conflict",
-	"unprocessable_entity",
+	"unprocessable_content",
 ]);
 
 const errorCodeToHttpStatus: Record<z.infer<typeof ErrorCode>, number> = {
 	bad_request: 400,
+	not_found: 404,
+	internal_server_error: 500,
 	unauthorized: 401,
 	forbidden: 403,
-	not_found: 404,
+	too_many_requests: 429,
 	conflict: 409,
-	unprocessable_entity: 422,
-	rate_limit_exceeded: 429,
-	internal_server_error: 500,
+	unprocessable_content: 422,
 };
 
 const ErrorSchema = z.object({
@@ -39,11 +39,11 @@ export const handleApiError = (
 	if (error instanceof ZodError) {
 		return {
 			error: {
-				code: "unprocessable_entity",
+				code: "unprocessable_content",
 				message: error.issues[0]?.message || "Validation failed",
 			},
 
-			status: errorCodeToHttpStatus.unprocessable_entity,
+			status: errorCodeToHttpStatus.unprocessable_content,
 		};
 	}
 
