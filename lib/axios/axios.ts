@@ -1,5 +1,6 @@
 import axios from "axios";
-import { BACKEND_URL } from "../utils";
+import Cookies from "js-cookie";
+import { BACKEND_URL, ROUTES } from "../utils";
 
 const apiClient = axios.create({
 	baseURL: BACKEND_URL,
@@ -8,11 +9,11 @@ const apiClient = axios.create({
 		"Content-Type": "application/json",
 		Accept: "application/json",
 	},
-	// withCredentials: true,
+	withCredentials: true,
 });
 
-apiClient.interceptors.response.use((config) => {
-	const accessToken = localStorage.getItem("accessToken");
+apiClient.interceptors.request.use((config) => {
+	const accessToken = Cookies.get("accessToken");
 
 	if (accessToken) {
 		config.headers.Authorization = `Bearer ${accessToken}`;
@@ -20,5 +21,18 @@ apiClient.interceptors.response.use((config) => {
 
 	return config;
 });
+
+apiClient.interceptors.response.use(
+	(res) => res,
+	(err) => {
+		if (err.response?.status === 401) {
+			Cookies.remove("accessToken");
+
+			window.location.href = ROUTES.signin;
+		}
+
+		return Promise.reject(err);
+	},
+);
 
 export default apiClient;
