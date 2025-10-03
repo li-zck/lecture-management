@@ -1,13 +1,34 @@
+import { AxiosResponse } from "axios";
 import apiClient from "./axios";
 
-export const POST = async (route: string, data?: any) => {
-	const res = await apiClient.post(route, data);
-
-	return res.data;
+// if no type passed, the default is 'any'
+export type ApiResponse<T = unknown> = {
+	data: T;
+	status: number;
+	res: AxiosResponse<T>;
 };
 
-export const GET = async (route: string) => {
-	const res = await apiClient.get(route);
+export const POST = async <TResponse = unknown, TBody = unknown>(
+	route: string,
+	data: TBody,
+): Promise<ApiResponse<TResponse>> => {
+	const res: AxiosResponse<TResponse> = await apiClient.post(route, data);
 
-	return res.data;
+	return {
+		data: res.data,
+		status: res.status,
+		res,
+	};
+};
+
+export const GET = async <T = unknown>(
+	route: string,
+): Promise<ApiResponse<T>> => {
+	const res: AxiosResponse<T> = await apiClient.get(route);
+
+	return {
+		data: res.data,
+		status: res.status,
+		res,
+	};
 };
