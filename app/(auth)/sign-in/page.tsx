@@ -1,151 +1,110 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import Cookies from "js-cookie";
-import { Eye, EyeClosed } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import { z } from "zod";
-import { Button } from "@/components/ui/button";
-import {
-	Form,
-	FormControl,
-	FormField,
-	FormItem,
-	FormLabel,
-	FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { signInAdmin } from "@/lib/auth";
-import { signInSchema } from "@/lib/zod";
-import RoleSelector from "@/components/utils/RoleSelector";
-
-type SignInFormData = z.infer<typeof signInSchema>;
+import { Suspense, useState } from "react";
+import { signInLecturer, signInStudent } from "@/lib/auth";
+import { signInLecturerSchema, signInStudentSchema } from "@/lib/zod";
+import { SignInForm } from "@/components/auth/SignInForm";
+import RoleSelector from "@/components/ui/RoleSelector";
+import { Button } from "@/components/ui";
 
 const SignInPage = () => {
-	const form = useForm<SignInFormData>({
-		resolver: zodResolver(signInSchema),
-		defaultValues: {
-			username: "",
-			password: "",
+	const [role, setRole] = useState<"student" | "lecturer">("student");
+
+	const schema =
+		role === "student" ? signInStudentSchema : signInLecturerSchema;
+
+	const fields = [
+		{
+			name: role === "student" ? "studentId" : "lecturerId",
+			label: role === "student" ? "Student ID" : "Lecturer ID",
+			placeholder: "johndoe",
 		},
-	});
+		{
+			name: "password",
+			label: "Password",
+			placeholder: "********",
+			type: "password",
+		},
+	];
 
-	const router = useRouter();
-	const [showPassword, setShowPassword] = useState(false);
+	const defaultValues =
+		role === "student"
+			? { studentId: "", password: "" }
+			: { lecturerId: "", password: "" };
 
-	const onSubmit = async (values: SignInFormData) => {
+	const handleSubmit = async (values: any) => {
 		try {
-			const res = await signInAdmin(values);
+			const res =
+				role === "student"
+					? await signInStudent(values)
+					: await signInLecturer(values);
 
 			if ("data" in res) {
-				if (res.status !== 200) {
-					toast.error("Sign in failed. Please try again.");
+				console.log(res.status);
 
-					return;
+				// NOTE: check return status code from backend to match
+				if (res.status === 401) {
+					throw new Error("Invalid email or password.");
+				}
+
+				if (res.status !== 201) {
+					throw new Error("Sign in failed. Please try again.");
 				}
 
 				Cookies.set("accessToken", res.data.accessToken, {
+					path: "/",
 					expires: 365,
 					secure: process.env.NODE_ENV === "production",
 					sameSite: "strict",
 				});
 
-				toast.success("Sign in successful!");
-
-				router.push("/");
-
-				return;
+				// Success toast and redirect handled by SignInForm
+			} else {
+				throw new Error("Sign in failed. Please try again.");
 			}
-
-			const msg = res.error.message ?? "Sign in failed. Please try again.";
-
-			toast.error(msg);
 		} catch (error) {
-			const msg =
-				(error as { message?: string }).message ??
-				"Unexpected error. Please try again.";
-
-			toast.error(msg);
+			throw error; // Re-throw to let SignInForm handle the error
 		}
 	};
 
 	return (
-		<div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+		<div className="min-h-screen flex items-center justify-center">
 			<div className="max-w-md w-full space-y-8">
+				<div className="text-center">
+					<Link href="/">
+						<Button variant="outline">Logo</Button>
+					</Link>
+				</div>
+
 				<div>
-					<h2 className="mt-6 mb-6 text-center text-3xl font-extrabold">
+					<h2 className="mt-6 mb-3 text-center text-3xl font-extrabold">
 						Welcome Back
 					</h2>
 
-					<RoleSelector />
+					<Suspense fallback={<div>Loading...</div>}>
+						<RoleSelector value={role} onChange={setRole} />
+					</Suspense>
 
-					<Form {...form}>
-						<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-							<FormField
-								control={form.control}
-								name="username"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Username</FormLabel>
-										<FormControl>
-											<Input placeholder="johndoe" {...field} />
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
+					<SignInForm
+						schema={schema}
+						fields={fields}
+						onSubmit={handleSubmit}
+						defaultValues={defaultValues}
+					/>
 
-							<FormField
-								control={form.control}
-								name="password"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Password</FormLabel>
-										<FormControl>
-											<div className="relative">
-												<Input
-													type={showPassword ? "text" : "password"}
-													placeholder="********"
-													{...field}
-													className="pr-10"
-												/>
-												<button
-													type="button"
-													onClick={() => {
-														setShowPassword(!showPassword);
-													}}
-													className="absolute inset-y-0 right-0 p-2 flex items-center text-gray-400 hover:text-gray-600"
-												>
-													{showPassword ? (
-														<Eye className="h-5 w-5" />
-													) : (
-														<EyeClosed className="h-5 w-5" />
-													)}
-												</button>
-											</div>
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-
-							<Button type="submit">Submit</Button>
-						</form>
-					</Form>
-
-					<p className="text-center">
-						Or{" "}
-						<Link
-							href="/sign-up"
-							className="font-medium text-indigo-600 hover:text-indigo-500"
-						>
-							create a new account
-						</Link>
-					</p>
+					<div className="pt-4">
+						<p className="text-center">
+							Or{" "}
+							<Link
+								href="/sign-up"
+								className="font-medium text-indigo-600 hover:text-indigo-500"
+							>
+								create a new account
+							</Link>
+						</p>
+					</div>
 				</div>
 			</div>
 		</div>
