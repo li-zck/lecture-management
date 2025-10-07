@@ -121,3 +121,12 @@
     @apply bg-background text-foreground;
   }
 }
+
+body {
+  margin: 0 auto;
+  padding: 0.5rem 2rem;
+}
+
+body::-webkit-scrollbar {
+  display: none;
+}
