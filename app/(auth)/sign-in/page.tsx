@@ -35,38 +35,17 @@ const SignInPage = () => {
 			: { lecturerId: "", password: "" };
 
 	const handleSubmit = async (values: any) => {
-		try {
-			const res =
-				role === "student"
-					? await signInStudent(values)
-					: await signInLecturer(values);
+		const res =
+			role === "student"
+				? await signInStudent(values)
+				: await signInLecturer(values);
 
-			if ("data" in res) {
-				console.log(res.status);
-
-				// NOTE: check return status code from backend to match
-				if (res.status === 401) {
-					throw new Error("Invalid email or password.");
-				}
-
-				if (res.status !== 201) {
-					throw new Error("Sign in failed. Please try again.");
-				}
-
-				Cookies.set("accessToken", res.data.accessToken, {
-					path: "/",
-					expires: 365,
-					secure: process.env.NODE_ENV === "production",
-					sameSite: "strict",
-				});
-
-				// Success toast and redirect handled by SignInForm
-			} else {
-				throw new Error("Sign in failed. Please try again.");
-			}
-		} catch (error) {
-			throw error; // Re-throw to let SignInForm handle the error
-		}
+		Cookies.set("accessToken", res.data.accessToken, {
+			path: "/",
+			expires: 365,
+			secure: process.env.NODE_ENV === "production",
+			sameSite: "strict",
+		});
 	};
 
 	return (
