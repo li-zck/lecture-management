@@ -1,9 +1,7 @@
 import { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import "./globals.css";
-import { Toaster } from "sonner";
-import ThemeProvider from "@/components/provider/ThemeProvider";
-import { ModeToggle } from "@/components/utils/ModeToggle";
+import RootProviders from "./providers";
 
 const robotoMono = Roboto({
 	variable: "--font-roboto-mono",
@@ -23,18 +21,7 @@ export default function RootLayout({
 	return (
 		<html lang="en" suppressHydrationWarning>
 			<body className={`${robotoMono.variable} antialiased`}>
-				<ThemeProvider
-					attribute="class"
-					defaultTheme="system"
-					enableSystem
-					disableTransitionOnChange
-				>
-					<ModeToggle />
-
-					{children}
-				</ThemeProvider>
-
-				<Toaster />
+				<RootProviders>{children}</RootProviders>
 			</body>
 		</html>
 	);
