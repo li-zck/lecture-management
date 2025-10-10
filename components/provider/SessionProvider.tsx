@@ -6,14 +6,14 @@ import { decodeAccessToken } from "@/lib/utils/decodeToken";
 import Cookies from "js-cookie";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-interface SessionContextType {
+type SessionContextType = {
 	isAuthenticated: boolean;
 	user: AccessTokenPayload | null;
 	role: string | undefined;
 	login: (token: string) => void;
 	logout: () => void;
 	isLoading: boolean;
-}
+};
 
 const SessionContext = createContext<SessionContextType | undefined>(undefined);
 
