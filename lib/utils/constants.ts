@@ -5,7 +5,87 @@ export const BACKEND_URL =
 	"http://localhost:8080/api";
 
 export const ROUTES = {
-	signup: "sign-up",
-	signin: "sign-in",
-	signout: "sign-out",
+	mainSite: {
+		signup: "/sign-up",
+		signin: "/sign-in",
+		signout: "/sign-out",
+	},
+
+	adminSite: {
+		auth: {
+			signup: "/admin/sign-up",
+			signin: "/admin/sign-in",
+		},
+		management: {
+			student: "/admin/management/student",
+			lecturer: "/admin/management/lecturer",
+			department: "/admin/management/department",
+		},
+	},
+};
+
+export const APIROUTES = {
+	auth: {
+		student: {
+			signup: "/auth/student/signup",
+			signin: "/auth/student/signin",
+		},
+
+		lecturer: {
+			signup: "/auth/lecturer/signup",
+			signin: "/auth/lecturer/signin",
+		},
+	},
+
+	admin: {
+		auth: {
+			signup: "/auth/admin/signup",
+			signin: "/auth/admin/signin",
+		},
+
+		create: {
+			student: {
+				each: "/admin/student/create",
+				multiple: "/admin/student/create/multiple",
+			},
+			lecturer: {
+				each: "/admin/lecturer/create",
+				multiple: "/admin/lecturer/create/multiple",
+			},
+			department: {
+				each: "/admin/department/create",
+				multiple: "/admin/department/create/multiple",
+			},
+		},
+
+		view: {
+			student: {
+				each: "/admin/student/find/:id",
+				all: "/admin/student/all",
+			},
+			lecturer: {
+				each: "/admin/lecturer/find/:id",
+				all: "/admin/lecturer/all",
+			},
+			department: {
+				each: "/admin/department/find/:id",
+				all: "/admin/department/all",
+			},
+		},
+
+		delete: {
+			student: {
+				each: "/admin/student/delete/:id",
+				many: "/admin/student/delete",
+			},
+			lecturer: {
+				each: "/admin/lecturer/delete/:id",
+				many: "/admin/lecturer/delete",
+			},
+			department: {
+				each: "/admin/department/delete/:id",
+				many: "/admin/department/delete",
+			},
+		},
+	},
 };
