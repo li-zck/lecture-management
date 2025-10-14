@@ -1,7 +1,7 @@
 "use client";
 
 import { getAllLecturerAccounts } from "@/lib/admin/api/read/method";
-import { ReadAllLecturerAccountResponse } from "@/lib/types/dto/api/admin/response/read/read-account.dto";
+import { ReadAllLecturerAccountResponse } from "@/lib/types/dto/api/admin/response/read/read.dto";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 

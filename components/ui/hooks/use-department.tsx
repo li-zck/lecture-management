@@ -1,7 +1,7 @@
 "use client";
 
 import { getAllDepartments } from "@/lib/admin/api/read/method";
-import { ReadAllDepartmentResponse } from "@/lib/types/dto/api/admin/response/read/read-account.dto";
+import { ReadAllDepartmentResponse } from "@/lib/types/dto/api/admin/response/read/read.dto";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
