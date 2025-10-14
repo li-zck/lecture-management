@@ -12,27 +12,23 @@ const apiClient = axios.create({
 	withCredentials: true,
 });
 
-apiClient.interceptors.request.use((config) => {
-	const accessToken = Cookies.get("accessToken");
+apiClient.defaults.withCredentials = true;
 
-	if (accessToken) {
-		config.headers.Authorization = `Bearer ${accessToken}`;
-	}
-
-	return config;
-});
-
-apiClient.interceptors.response.use(
-	(res) => res,
-	(err) => {
-		if (err.response?.status === 401) {
-			Cookies.remove("accessToken");
-
-			window.location.href = ROUTES.signin;
-		}
-
-		return Promise.reject(err);
-	},
-);
+// apiClient.interceptors.response.use(
+// 	(res) => res,
+// 	(err) => {
+// 		if (err.response?.status === 401) {
+// 			Cookies.remove("accessToken");
+//
+// 			const isAdminRoutes = window.location.pathname.startsWith("/admin");
+//
+// 			window.location.href = isAdminRoutes
+// 				? ROUTES.adminSite.signin
+// 				: ROUTES.mainSite.signin;
+// 		}
+//
+// 		return Promise.reject(err);
+// 	},
+// );
 
 export default apiClient;
