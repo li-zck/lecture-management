@@ -1,12 +1,12 @@
+"use client";
+
 import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/shadcn/checkbox";
 import {
 	DropdownMenu,
 	DropdownMenuTrigger,
 	DropdownMenuItem,
-	DropdownMenuSeparator,
 	DropdownMenuContent,
-	DropdownMenuLabel,
 } from "@/components/ui/shadcn/dropdown-menu";
 import { Button } from "@/components/ui/shadcn/button";
 import { MoreHorizontal } from "lucide-react";
@@ -14,7 +14,79 @@ import {
 	DepartmentResponse,
 	LecturerAccountResponse,
 	StudentAccountResponse,
-} from "@/lib/types/dto/api/admin/response/read/read-account.dto";
+} from "@/lib/types/dto/api/admin/response/read/read.dto";
+import {
+	deleteDepartmentById,
+	deleteLecturerById,
+	deleteMultipleDepartments,
+	deleteMultipleLecturers,
+	deleteMultipleStudents,
+	deleteStudentById,
+} from "@/lib/admin/api/delete/method";
+import { toast } from "sonner";
+import { EntityWithIds, getEntityId } from "@/lib/utils/idMapping";
+
+const createDeleteHandler = <T extends EntityWithIds>(
+	deleteFn: (id: string) => void,
+	entityName: string,
+) => {
+	return async (item: T) => {
+		try {
+			const internalId = getEntityId(item);
+
+			deleteFn(internalId);
+
+			toast.success(`${entityName} deleted successfully`);
+
+			setTimeout(() => window.location.reload(), 1500);
+		} catch (error: any) {
+			toast.error(
+				error.message || `Failed to delete ${entityName.toLowerCase()}`,
+			);
+		}
+	};
+};
+
+const createBulkDeleteHandler = (
+	deleteFn: (ids: string[]) => void,
+	entityName: string,
+) => {
+	return async (selectedItems: EntityWithIds[]) => {
+		try {
+			const internalIds = selectedItems.map((item) => getEntityId(item));
+
+			deleteFn(internalIds);
+
+			toast.success(
+				`${selectedItems.length} ${entityName.toLowerCase()}s deleted successfully`,
+			);
+
+			setTimeout(() => window.location.reload(), 1500);
+		} catch (error: any) {
+			toast.error(
+				error.message || `Failed to delete ${entityName.toLowerCase()}s`,
+			);
+		}
+	};
+};
+
+export const handleDeleteStudent = () =>
+	createDeleteHandler(deleteStudentById, "Student");
+
+export const handleBulkDeleteStudents = () =>
+	createBulkDeleteHandler(deleteMultipleStudents, "Student");
+
+export const handleDeleteLecturer = () =>
+	createDeleteHandler(deleteLecturerById, "Lecturer");
+
+export const handleBulkDeleteLecturers = () =>
+	createBulkDeleteHandler(deleteMultipleLecturers, "Lecturer");
+
+export const handleDeleteDepartment = () =>
+	createDeleteHandler(deleteDepartmentById, "Department");
+
+export const handleBulkDeleteDepartments = () =>
+	createBulkDeleteHandler(deleteMultipleDepartments, "Department");
 
 /**
  * Creates column definitions for entity tables with selection and actions
@@ -31,6 +103,7 @@ export const createEntityColumns = <
 		sortable?: boolean;
 	}>;
 	actions?: Array<{ label: string; onClick: (item: T) => void }>;
+	router: any;
 }): ColumnDef<T>[] => {
 	const columns: ColumnDef<T>[] = [
 		{
@@ -49,6 +122,7 @@ export const createEntityColumns = <
 				<Checkbox
 					checked={row.getIsSelected()}
 					onCheckedChange={(value) => row.toggleSelected(!!value)}
+					onClick={(e) => e.stopPropagation()}
 				/>
 			),
 			enableSorting: false,
@@ -77,7 +151,16 @@ export const createEntityColumns = <
 							{config.actions?.map((action) => (
 								<DropdownMenuItem
 									key={action.label}
-									onClick={() => action.onClick(item)}
+									className={
+										action.label === "Delete"
+											? "text-red-600 focus:text-red-500"
+											: ""
+									}
+									onClick={(e) => {
+										// prevent events bubbling
+										e.stopPropagation();
+										action.onClick(item);
+									}}
 								>
 									{action.label}
 								</DropdownMenuItem>
@@ -92,56 +175,80 @@ export const createEntityColumns = <
 	return columns;
 };
 
-export const studentColumns = createEntityColumns<StudentAccountResponse>({
-	fields: [
-		{ key: "studentId", header: "Student ID" },
-		{ key: "fullName", header: "Full Name" },
-		{ key: "email", header: "Email" },
-		{ key: "active", header: "Active" },
-	],
+export const studentColumns = (router: any) =>
+	createEntityColumns<StudentAccountResponse>({
+		fields: [
+			{ key: "studentId", header: "Student ID" },
+			{ key: "fullName", header: "Full Name" },
+			{ key: "email", header: "Email" },
+			{ key: "active", header: "Active" },
+		],
 
-	actions: [
-		{
-			label: "View Details",
-			onClick: (student) => console.log(student),
-		},
-		{
-			label: "Edit",
-			onClick(student) {
-				console.log("edit");
+		actions: [
+			{
+				label: "Copy Details",
+				onClick: (student) => console.log(`Copying ${student}`),
 			},
-		},
-	],
-});
+			{
+				label: "Edit",
+				onClick: (student) => console.log(`Editing: ${student}`),
+			},
+			{
+				label: "Delete",
+				onClick: handleDeleteStudent(),
+			},
+		],
+		router,
+	});
 
-export const lecturerColumns = createEntityColumns<LecturerAccountResponse>({
-	fields: [
-		{ key: "id", header: "Lecturer ID" },
-		{ key: "fullName", header: "Full Name" },
-		{ key: "email", header: "Email" },
-		{ key: "active", header: "Active" },
-	],
+export const lecturerColumns = (router: any) =>
+	createEntityColumns<LecturerAccountResponse>({
+		fields: [
+			{ key: "lecturerId", header: "Lecturer ID" },
+			{ key: "fullName", header: "Full Name" },
+			{ key: "email", header: "Email" },
+			{ key: "active", header: "Active" },
+		],
 
-	actions: [
-		{
-			label: "View Profile",
-			onClick: (lecturer) => console.log(lecturer),
-		},
-	],
-});
+		actions: [
+			{
+				label: "Copy Details",
+				onClick: (lecturer) => console.log(`Copying ${lecturer}`),
+			},
+			{
+				label: "Edit",
+				onClick: (lecturer) => console.log(`Editing: ${lecturer}`),
+			},
+			{
+				label: "Delete",
+				onClick: handleDeleteLecturer(),
+			},
+		],
+		router,
+	});
 
-export const departmentColumns = createEntityColumns<DepartmentResponse>({
-	fields: [
-		{ key: "id", header: "Department ID" },
-		{ key: "name", header: "Department name" },
-		{ key: "headId", header: "Department head" },
-		{ key: "description", header: "Description" },
-	],
+export const departmentColumns = (router: any) =>
+	createEntityColumns<DepartmentResponse>({
+		fields: [
+			{ key: "departmentId", header: "Department ID" },
+			{ key: "name", header: "Department name" },
+			{ key: "headId", header: "Department head" },
+			{ key: "description", header: "Description" },
+		],
 
-	actions: [
-		{
-			label: "View Department",
-			onClick: (department) => console.log(department),
-		},
-	],
-});
+		actions: [
+			{
+				label: "Copy Details",
+				onClick: (department) => console.log(`Copying ${department}`),
+			},
+			{
+				label: "Edit",
+				onClick: (department) => console.log(`Editing: ${department}`),
+			},
+			{
+				label: "Delete",
+				onClick: handleDeleteDepartment(),
+			},
+		],
+		router,
+	});

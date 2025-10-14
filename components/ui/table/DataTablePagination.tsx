@@ -17,16 +17,35 @@ import {
 
 type DataTablePaginationProps<TData> = {
 	table: Table<TData>;
+	bulkDeleteHandlerAction?: (selectedItems: TData[]) => void;
 };
 
 export function DataTablePagination<TData>({
 	table,
+	bulkDeleteHandlerAction,
 }: DataTablePaginationProps<TData>) {
 	return (
 		<div className="flex items-center justify-between px-2">
-			<div className="text-muted-foreground flex-1 text-sm">
+			<div className="text-muted-foreground flex-1 text-sm flex items-center gap-2">
 				{table.getFilteredSelectedRowModel().rows.length} of{" "}
 				{table.getFilteredRowModel().rows.length} row(s) selected.
+				{table.getFilteredSelectedRowModel().rows.length > 0 &&
+					bulkDeleteHandlerAction && (
+						<Button
+							variant="destructive"
+							size="sm"
+							onClick={() => {
+								const selectedItems = table
+									.getFilteredSelectedRowModel()
+									.rows.map((row) => row.original);
+								bulkDeleteHandlerAction(selectedItems);
+								table.toggleAllPageRowsSelected(false);
+							}}
+							className="ml-5"
+						>
+							Delete Selected
+						</Button>
+					)}
 			</div>
 			<div className="flex items-center space-x-6 lg:space-x-8">
 				<div className="flex items-center space-x-2">

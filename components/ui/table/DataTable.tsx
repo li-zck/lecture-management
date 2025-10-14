@@ -21,6 +21,7 @@ import {
 	useReactTable,
 	VisibilityState,
 } from "@tanstack/react-table";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { DataTablePagination } from "./DataTablePagination";
 import { DataTableViewOptions } from "./DataTableViewOptions";
@@ -36,18 +37,33 @@ type DataTableProps<TData, TValue> = {
 	data: TData[];
 	filterColumn?: string;
 	filterPlaceholder?: string;
+	entityType?: "student" | "lecturer" | "department";
+	bulkDeleteHandlerAction?: (selectedItems: TData[]) => void;
 };
 
-export function DataTable<TData, TValue>({
+export function DataTable<TData extends { id: string }, TValue>({
 	columns,
 	data,
 	filterColumn = "fullName",
 	filterPlaceholder = "Filter...",
+	entityType,
+	bulkDeleteHandlerAction,
 }: DataTableProps<TData, TValue>) {
+	const router = useRouter();
 	const [sorting, setSorting] = useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 	const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
 	const [rowSelection, setRowSelection] = useState({});
+
+	const getDetailUrl = (entityType: string, id: string) => {
+		return `/admin/management/${entityType}/${id}`;
+	};
+
+	const handleRowClick = (row: any) => {
+		if (entityType) {
+			router.push(getDetailUrl(entityType, row.original.id));
+		}
+	};
 
 	const table = useReactTable({
 		data,
@@ -118,7 +134,13 @@ export function DataTable<TData, TValue>({
 						table.getRowModel().rows.map((row) => (
 							<TableRow
 								key={row.id}
+								className={
+									entityType
+										? "cursor-pointer hover:bg-gray-800 transition-colors"
+										: ""
+								}
 								data-state={row.getIsSelected() && "selected"}
+								onClick={() => handleRowClick(row)}
 							>
 								{row.getVisibleCells().map((cell) => (
 									<TableCell key={cell.id}>
@@ -137,7 +159,10 @@ export function DataTable<TData, TValue>({
 				</TableBody>
 			</Table>
 
-			<DataTablePagination table={table} />
+			<DataTablePagination
+				table={table}
+				bulkDeleteHandlerAction={bulkDeleteHandlerAction}
+			/>
 		</div>
 	);
 }
