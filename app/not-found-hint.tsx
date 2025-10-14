@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/shadcn";
+import { Button } from "@/components/ui/shadcn/button";
 import { Spinner } from "@/components/ui/shadcn/spinner";
 import { signOut } from "@/lib/auth";
 import { getUserRole } from "@/lib/utils/decodeToken";
@@ -32,7 +32,11 @@ const NotFoundHintChild = () => {
 	}, []);
 
 	if (accessToken === undefined || null) {
-		return <Spinner />;
+		return (
+			<div className="flex items-center justify-center">
+				<Spinner />
+			</div>
+		);
 	}
 
 	const handleSignOut = async () => {
