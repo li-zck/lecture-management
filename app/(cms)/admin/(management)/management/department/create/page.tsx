@@ -15,11 +15,10 @@ import {
 import { Input } from "@/components/ui/shadcn/input";
 import { Textarea } from "@/components/ui/shadcn/textarea";
 import { createDepartmentSchema } from "@/lib/zod/schemas/create/department";
-import Link from "next/link";
 import { createDepartment } from "@/lib/admin/api/create/method";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { ROUTES } from "@/lib/utils";
+import { useFormPersistence } from "@/components/ui/hooks";
 
 type CreateDepartmentFormData = z.infer<typeof createDepartmentSchema>;
 
@@ -35,13 +34,20 @@ export default function DepartmentCreationPage() {
 		},
 	});
 
+	const { clearSavedData } = useFormPersistence({
+		form,
+		storageKey: "department-create-form-data",
+	});
+
 	const onSubmit = async (values: CreateDepartmentFormData) => {
 		try {
 			await createDepartment(values);
 
 			toast.success("New department created successfully");
 
-			router.push(ROUTES.adminSite.management.department);
+			clearSavedData();
+
+			router.back();
 		} catch (error: any) {
 			if (error.message === "Authentication required") return;
 
@@ -110,11 +116,17 @@ export default function DepartmentCreationPage() {
 							/>
 
 							<div className="flex justify-end space-x-4">
-								<Link href="/admin/management/department">
-									<Button type="button" variant="outline">
-										Cancel
-									</Button>
-								</Link>
+								<Button
+									type="button"
+									variant="outline"
+									onClick={() => {
+										clearSavedData();
+
+										router.back();
+									}}
+								>
+									Cancel
+								</Button>
 
 								<Button type="submit">Create Department</Button>
 							</div>
