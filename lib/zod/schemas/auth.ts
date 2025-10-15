@@ -32,15 +32,26 @@ export const updatePasswordSchema = z
 		path: ["newPassword"],
 	});
 
-export const signInSchema = z.object({
+export const signInStudentSchema = z.object({
+	studentId: z.string().min(1, "Student ID is required"),
+	password: z.string(),
+});
+
+export const signInLecturerSchema = z.object({
+	lecturerId: z.string().min(1, "Lecturer ID is required"),
+	password: z.string(),
+});
+
+export const signInAdminSchema = z.object({
 	username: z.string(),
-	password: passwordSchema,
+	password: z.string(),
 });
 
 export const signUpSchema = z
 	.object({
-		username: z.string(),
-		password: passwordSchema,
+		username: z.string().min(1, "Username cannot be blank"),
+		// password: passwordSchema,
+		password: z.string().min(1, "Password cannot be blank"),
 		confirmPassword: z.string(),
 	})
 	.refine((data) => data.confirmPassword === data.password, {
