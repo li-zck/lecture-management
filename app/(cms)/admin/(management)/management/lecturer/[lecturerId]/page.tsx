@@ -10,7 +10,6 @@ export default async function StudentDetailsPage({
 	return (
 		<div>
 			<DetailsPage entityId={lecturerId} entityType="lecturer" />
-			Lecturer ID: {lecturerId}
 		</div>
 	);
 }
