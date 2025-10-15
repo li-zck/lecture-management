@@ -17,7 +17,10 @@ import {
 
 type DataTablePaginationProps<TData> = {
 	table: Table<TData>;
-	bulkDeleteHandlerAction?: (selectedItems: TData[]) => void;
+	bulkDeleteHandlerAction?: (
+		selectedItems: TData[],
+		onSuccess?: () => void,
+	) => void;
 };
 
 export function DataTablePagination<TData>({
@@ -38,8 +41,9 @@ export function DataTablePagination<TData>({
 								const selectedItems = table
 									.getFilteredSelectedRowModel()
 									.rows.map((row) => row.original);
-								bulkDeleteHandlerAction(selectedItems);
-								table.toggleAllPageRowsSelected(false);
+								bulkDeleteHandlerAction(selectedItems, () => {
+									table.toggleAllPageRowsSelected(false);
+								});
 							}}
 							className="ml-5"
 						>
