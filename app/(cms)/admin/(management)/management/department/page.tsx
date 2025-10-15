@@ -1,25 +1,39 @@
 "use client";
 
-import { Button } from "@/components/ui";
-import { useDepartments } from "@/components/ui/hooks/use-department";
-import { Spinner } from "@/components/ui/shadcn/spinner";
-import { departmentColumns } from "@/components/ui/table/columns";
-import { DataTable } from "@/components/ui/table/DataTable";
-import { DataTableSkeleton } from "@/components/ui/table/DataTableSkeleton";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useDepartments } from "@/components/ui/hooks/use-department";
+import { Button } from "@/components/ui/shadcn/button";
+import { Spinner } from "@/components/ui/shadcn/spinner";
+import { departmentColumns } from "@/components/ui/table/columns";
+import { useDeleteConfirmation } from "@/components/ui/hooks/use-delete-confirmation";
+import { DataTable } from "@/components/ui/table/DataTable";
+import { DataTableSkeleton } from "@/components/ui/table/DataTableSkeleton";
+import {
+	deleteDepartmentById,
+	deleteMultipleDepartments,
+} from "@/lib/admin/api/delete/method";
 
 export default function DepartmentManagementPage() {
 	const { departments, totalDepartments, loading } = useDepartments();
+	const router = useRouter();
+	const { createDeleteHandler, createBulkDeleteHandler, deleteDialog } =
+		useDeleteConfirmation();
+
+	const deleteHandler = createDeleteHandler(deleteDepartmentById, "Department");
+	const bulkDeleteHandler = createBulkDeleteHandler(
+		deleteMultipleDepartments,
+		"Department",
+	);
 
 	return (
 		<div className="min-h-screen p-6">
 			<div className="max-w-4xl mx-auto">
-				<Link href="/admin/management">
-					<Button size="icon" className="mb-6">
-						<ArrowLeft />
-					</Button>
-				</Link>
+				<Button size="icon" className="mb-6" onClick={() => router.back()}>
+					<ArrowLeft />
+				</Button>
+
 				<h1 className="text-2xl font-bold mb-6">Department Management</h1>
 
 				<div className="mb-8">
@@ -39,11 +53,14 @@ export default function DepartmentManagementPage() {
 					<DataTableSkeleton rows={5} columns={4} />
 				) : (
 					<DataTable
-						columns={departmentColumns}
+						columns={departmentColumns(router, deleteHandler)}
 						data={departments}
 						filterColumn="name"
+						entityType="department"
+						bulkDeleteHandlerAction={bulkDeleteHandler}
 					/>
 				)}
+				{deleteDialog}
 			</div>
 		</div>
 	);
