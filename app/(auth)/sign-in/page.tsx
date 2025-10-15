@@ -7,7 +7,7 @@ import { signInLecturer, signInStudent } from "@/lib/auth";
 import { signInLecturerSchema, signInStudentSchema } from "@/lib/zod";
 import { SignInForm } from "@/components/auth/SignInForm";
 import RoleSelector from "@/components/ui/RoleSelector";
-import { Button } from "@/components/ui";
+import { Button } from "@/components/ui/shadcn/button";
 
 const SignInPage = () => {
 	const [role, setRole] = useState<"student" | "lecturer">("student");
@@ -69,7 +69,7 @@ const SignInPage = () => {
 					<SignInForm
 						schema={schema}
 						fields={fields}
-						onSubmit={handleSubmit}
+						onSubmitAction={handleSubmit}
 						defaultValues={defaultValues}
 					/>
 
