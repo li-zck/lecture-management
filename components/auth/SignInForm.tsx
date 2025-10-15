@@ -18,24 +18,24 @@ import {
 } from "@/components/ui/shadcn/form";
 import { Input } from "@/components/ui/shadcn/input";
 
-interface SignInField {
+type SignInField = {
 	name: string;
 	label: string;
 	placeholder: string;
 	type?: string;
-}
+};
 
-interface SignInFormProps {
+type SignInFormProps = {
 	schema: z.ZodSchema<any>;
 	fields: SignInField[];
-	onSubmit: (values: FieldValues) => Promise<void>;
+	onSubmitAction: (values: FieldValues) => Promise<void>;
 	defaultValues?: Record<string, any>;
-}
+};
 
 export function SignInForm({
 	schema,
 	fields,
-	onSubmit,
+	onSubmitAction,
 	defaultValues,
 }: SignInFormProps) {
 	const [showPassword, setShowPassword] = useState(false);
@@ -48,7 +48,7 @@ export function SignInForm({
 
 	const handleSubmit = async (values: any) => {
 		try {
-			await onSubmit(values);
+			await onSubmitAction(values);
 
 			toast.success("Sign in successful!");
 			router.push("/");
