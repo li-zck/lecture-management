@@ -14,11 +14,10 @@ import {
 } from "@/components/ui/shadcn/form";
 import { Input } from "@/components/ui/shadcn/input";
 import { createLecturerSchema } from "@/lib/zod/schemas/create/account";
-import Link from "next/link";
 import { createLecturerAccount } from "@/lib/admin/api/create/method";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { ROUTES } from "@/lib/utils";
+import { useFormPersistence } from "@/components/ui/hooks";
 
 type CreateLecturerFormData = z.infer<typeof createLecturerSchema>;
 
@@ -30,9 +29,15 @@ export default function LectureCreationPage() {
 		defaultValues: {
 			username: "",
 			email: "",
-			password: "",
 			fullName: "",
+			password: "",
 		},
+	});
+
+	const { clearSavedData } = useFormPersistence({
+		form,
+		storageKey: "lecturer-create-form-data",
+		excludeFields: ["password"],
 	});
 
 	const onSubmit = async (values: CreateLecturerFormData) => {
@@ -43,7 +48,9 @@ export default function LectureCreationPage() {
 
 			toast.success("New lecturer created successfully");
 
-			router.push(ROUTES.adminSite.management.lecturer);
+			clearSavedData();
+
+			router.back();
 		} catch (error: any) {
 			if (error.message === "Authentication required") return;
 
@@ -128,15 +135,19 @@ export default function LectureCreationPage() {
 							</div>
 
 							<div className="flex justify-end space-x-4">
-								<Link href={`${ROUTES.adminSite.management.lecturer}`}>
-									<Button type="button" variant="outline">
-										Cancel
-									</Button>
-								</Link>
+								<Button
+									type="button"
+									variant="outline"
+									onClick={() => {
+										clearSavedData();
 
-								<Button type="submit" onClick={() => onSubmit}>
-									Create Lecturer
+										router.back();
+									}}
+								>
+									Cancel
 								</Button>
+
+								<Button type="submit">Create Lecturer</Button>
 							</div>
 						</form>
 					</Form>
