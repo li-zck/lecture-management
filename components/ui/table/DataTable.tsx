@@ -38,7 +38,10 @@ type DataTableProps<TData, TValue> = {
 	filterColumn?: string;
 	filterPlaceholder?: string;
 	entityType?: "student" | "lecturer" | "department";
-	bulkDeleteHandlerAction?: (selectedItems: TData[]) => void;
+	bulkDeleteHandlerAction?: (
+		selectedItems: TData[],
+		onSuccess?: () => void,
+	) => void;
 };
 
 export function DataTable<TData extends { id: string }, TValue>({
