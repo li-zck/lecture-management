@@ -1,9 +1,15 @@
 "use client";
 
-import { Button } from "@/components/ui";
+import { Button } from "@/components/ui/shadcn/button";
 import { useStudents } from "@/components/ui/hooks/use-students";
 import { Spinner } from "@/components/ui/shadcn/spinner";
 import { studentColumns } from "@/components/ui/table/columns";
+import { useDeleteConfirmation } from "@/components/ui/hooks/use-delete-confirmation";
+import {
+	deleteStudentById,
+	deleteMultipleStudents,
+} from "@/lib/admin/api/delete/method";
+import { useRouter } from "next/navigation";
 import { DataTable } from "@/components/ui/table/DataTable";
 import { DataTableSkeleton } from "@/components/ui/table/DataTableSkeleton";
 import { ArrowLeft } from "lucide-react";
@@ -11,15 +17,23 @@ import Link from "next/link";
 
 export default function StudentManagementPage() {
 	const { students, totalStudents, loading } = useStudents();
+	const router = useRouter();
+	const { createDeleteHandler, createBulkDeleteHandler, deleteDialog } =
+		useDeleteConfirmation();
+
+	const deleteHandler = createDeleteHandler(deleteStudentById, "Student");
+	const bulkDeleteHandler = createBulkDeleteHandler(
+		deleteMultipleStudents,
+		"Student",
+	);
 
 	return (
 		<div className="min-h-screen p-6">
 			<div className="max-w-4xl mx-auto">
-				<Link href="/admin/management">
-					<Button size="icon" className="mb-6">
-						<ArrowLeft />
-					</Button>
-				</Link>
+				<Button size="icon" className="mb-6" onClick={() => router.back()}>
+					<ArrowLeft />
+				</Button>
+
 				<h1 className="text-2xl font-bold mb-6">Student Management</h1>
 
 				<div className="mb-8">
@@ -38,8 +52,14 @@ export default function StudentManagementPage() {
 				{loading ? (
 					<DataTableSkeleton rows={5} columns={5} />
 				) : (
-					<DataTable columns={studentColumns} data={students} />
+					<DataTable
+						columns={studentColumns(router, deleteHandler)}
+						data={students}
+						entityType="student"
+						bulkDeleteHandlerAction={bulkDeleteHandler}
+					/>
 				)}
+				{deleteDialog}
 			</div>
 		</div>
 	);
