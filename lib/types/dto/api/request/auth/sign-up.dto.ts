@@ -1,8 +1,8 @@
-export interface SignUpAdminRequest {
+export type SignUpAdminRequest = {
 	username: string;
 	password: string;
 	confirmPassword: string;
-}
+};
 
 export type SignUpStudentRequest = SignUpAdminRequest;
 

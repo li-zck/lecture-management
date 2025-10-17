@@ -1,8 +1,14 @@
-export interface SignInAdminRequest {
+export type SignInAdminRequest = {
 	username: string;
 	password: string;
-}
+};
 
-export type SignInStudentRequest = SignInAdminRequest;
+export type SignInStudentRequest = {
+	studentId: string;
+	password: string;
+};
 
-export type SignInLecturerRequest = SignInAdminRequest;
+export type SignInLecturerRequest = {
+	lecturerId: string;
+	password: string;
+};
