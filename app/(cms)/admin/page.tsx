@@ -1,5 +1,5 @@
 import { SignOutButton } from "@/components/admin";
-import { Button } from "@/components/ui";
+import { Button } from "@/components/ui/shadcn/button";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
@@ -19,18 +19,18 @@ export default function AdminHomepage() {
 					</Button>
 				</Link>
 
-				<div className="rounded-lg shadow p-6">
-					<h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
-					<div className="space-y-4">
-						<div className="flex items-center justify-between py-2 border-b">
-							<div>
-								<p className="text-sm font-medium">New user registered</p>
-								<p className="text-sm">2 hours ago</p>
-							</div>
-							<span className="text-sm">View</span>
-						</div>
-					</div>
-				</div>
+				{/* <div className="rounded-lg shadow p-6"> */}
+				{/* 	<h2 className="text-xl font-semibold mb-4">Recent Activity</h2> */}
+				{/* 	<div className="space-y-4"> */}
+				{/* 		<div className="flex items-center justify-between py-2 border-b"> */}
+				{/* 			<div> */}
+				{/* 				<p className="text-sm font-medium">New user registered</p> */}
+				{/* 				<p className="text-sm">2 hours ago</p> */}
+				{/* 			</div> */}
+				{/* 			<span className="text-sm">View</span> */}
+				{/* 		</div> */}
+				{/* 	</div> */}
+				{/* </div> */}
 			</div>
 		</div>
 	);
