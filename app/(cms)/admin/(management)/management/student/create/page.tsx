@@ -2,8 +2,8 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Button } from "@/components/ui/shadcn/button";
 import { useForm } from "react-hook-form";
+import { Button } from "@/components/ui/shadcn/button";
 import {
 	Form,
 	FormControl,
@@ -23,11 +23,10 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/shadcn/select";
-import Link from "next/link";
 import { createStudentAccount } from "@/lib/admin/api/create/method";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { ROUTES } from "@/lib/utils";
+import { useFormPersistence } from "@/components/ui/hooks";
 
 type CreateStudentFormData = z.infer<typeof createStudentSchema>;
 
@@ -51,6 +50,12 @@ export default function StudentCreationPage() {
 		},
 	});
 
+	const { clearSavedData } = useFormPersistence({
+		form,
+		storageKey: "student-create-form-data",
+		excludeFields: ["password"],
+	});
+
 	const onSubmit = async (values: CreateStudentFormData) => {
 		try {
 			await createStudentAccount(values);
@@ -59,7 +64,9 @@ export default function StudentCreationPage() {
 
 			toast.success("New student created successfully");
 
-			router.push(ROUTES.adminSite.management.student);
+			clearSavedData();
+
+			router.back();
 		} catch (error: any) {
 			if (error.message === "Authentication required") return;
 
@@ -301,15 +308,19 @@ export default function StudentCreationPage() {
 							/>
 
 							<div className="flex justify-end space-x-4">
-								<Link href={`${ROUTES.adminSite.management.student}`}>
-									<Button type="button" variant="outline">
-										Cancel
-									</Button>
-								</Link>
+								<Button
+									type="button"
+									variant="outline"
+									onClick={() => {
+										clearSavedData();
 
-								<Button type="submit" onClick={() => onSubmit}>
-									Create Student
+										router.back();
+									}}
+								>
+									Cancel
 								</Button>
+
+								<Button type="submit">Create Student</Button>
 							</div>
 						</form>
 					</Form>
