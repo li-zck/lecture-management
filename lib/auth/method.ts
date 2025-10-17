@@ -1,78 +1,62 @@
-import { ErrorResponse, handleApiError } from "../api/errors";
-import { POST } from "../axios";
+import { getErrorMessage } from "../api/error";
+import { ApiResponse, POST } from "../axios";
 import {
-	SignInAdmin,
-	SignInUser,
-	SignUpAdmin,
-	SignUpUser,
-} from "../types/auth";
-import { ROUTES } from "./routes";
+	SignUpAdminRequest,
+	SignInAdminRequest,
+	SignInStudentRequest,
+	SignInLecturerRequest,
+} from "../types/dto/api/request/auth";
+import { SignInResponse } from "../types/dto/api/response/auth/sign-in.dto";
+import { SignUpResponse } from "../types/dto/api/response/auth/sign-up.dto";
 import Cookies from "js-cookie";
+import { APIROUTES } from "../utils";
 
-export const signInUser = async (
-	data: SignInUser,
-): Promise<any | ErrorResponse> => {
+export const postSignUp = async <Req>(
+	route: string,
+	data: Req,
+): Promise<ApiResponse<SignUpResponse>> => {
 	try {
-		const res = await POST(ROUTES.STUDENT.SIGNIN, data);
+		const res = await POST<SignUpResponse, Req>(route, data);
 
 		return res;
-	} catch (error) {
-		const errorResponse = handleApiError(error);
+	} catch (error: any) {
+		const status = error.response?.status || 500;
+		const message = getErrorMessage(status);
 
-		return errorResponse;
+		throw new Error(message);
 	}
 };
 
-export const signUpUser = async (
-	data: SignUpUser,
-): Promise<any | ErrorResponse> => {
+export const postSignIn = async <Req>(
+	route: string,
+	data: Req,
+): Promise<ApiResponse<SignInResponse>> => {
 	try {
-		const res = await POST(ROUTES.STUDENT.SIGNUP, data);
+		const res = await POST<SignInResponse, Req>(route, data);
 
 		return res;
-	} catch (error) {
-		const errorResponse = handleApiError(error);
+	} catch (error: any) {
+		const status = error.response?.status || 500;
+		const message = getErrorMessage(status);
 
-		return errorResponse;
+		throw { status, message };
 	}
 };
 
-export const signUpAdmin = async (
-	data: SignUpAdmin,
-): Promise<any | ErrorResponse> => {
-	try {
-		const res = await POST(ROUTES.ADMIN.SIGNUP, data);
+export const signUpAdmin = (data: SignUpAdminRequest) =>
+	postSignUp(APIROUTES.admin.auth.signup, data);
 
-		return res;
-	} catch (error) {
-		const errorResponse = handleApiError(error);
+export const signInAdmin = (data: SignInAdminRequest) =>
+	postSignIn(APIROUTES.admin.auth.signin, data);
 
-		return errorResponse;
-	}
-};
+export const signInStudent = (data: SignInStudentRequest) =>
+	postSignIn(APIROUTES.auth.student.signin, data);
 
-export const signInAdmin = async (
-	data: SignInAdmin,
-): Promise<any | ErrorResponse> => {
-	try {
-		const res = await POST(ROUTES.ADMIN.SIGNIN, data);
+export const signInLecturer = (data: SignInLecturerRequest) =>
+	postSignIn(APIROUTES.auth.lecturer.signin, data);
 
-		return res;
-	} catch (error) {
-		const errorResponse = handleApiError(error);
+export const signOut = () => {
+	Cookies.remove("accessToken", { path: "/" });
 
-		return errorResponse;
-	}
-};
-
-export const signOut = async () => {
-	try {
-		Cookies.remove("accessToken");
-
-		// return res;
-	} catch (error) {
-		const errorResponse = handleApiError(error);
-
-		return errorResponse;
-	}
+	return true;
 };
