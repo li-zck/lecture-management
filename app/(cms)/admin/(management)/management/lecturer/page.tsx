@@ -1,25 +1,39 @@
 "use client";
 
-import { Button } from "@/components/ui";
-import { useLecturers } from "@/components/ui/hooks/use-lecturer";
-import { Spinner } from "@/components/ui/shadcn/spinner";
-import { lecturerColumns } from "@/components/ui/table/columns";
-import { DataTable } from "@/components/ui/table/DataTable";
-import { DataTableSkeleton } from "@/components/ui/table/DataTableSkeleton";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useLecturers } from "@/components/ui/hooks/use-lecturer";
+import { Button } from "@/components/ui/shadcn/button";
+import { Spinner } from "@/components/ui/shadcn/spinner";
+import { lecturerColumns } from "@/components/ui/table/columns";
+import { useDeleteConfirmation } from "@/components/ui/hooks/use-delete-confirmation";
+import { DataTable } from "@/components/ui/table/DataTable";
+import { DataTableSkeleton } from "@/components/ui/table/DataTableSkeleton";
+import {
+	deleteLecturerById,
+	deleteMultipleLecturers,
+} from "@/lib/admin/api/delete/method";
 
 export default function LecturerManagementPage() {
 	const { lecturers, totalLecturers, loading } = useLecturers();
+	const router = useRouter();
+	const { createDeleteHandler, createBulkDeleteHandler, deleteDialog } =
+		useDeleteConfirmation();
+
+	const deleteHandler = createDeleteHandler(deleteLecturerById, "Lecturer");
+	const bulkDeleteHandler = createBulkDeleteHandler(
+		deleteMultipleLecturers,
+		"Lecturer",
+	);
 
 	return (
 		<div className="min-h-screen p-6">
 			<div className="max-w-4xl mx-auto">
-				<Link href="/admin/management">
-					<Button size="icon" className="mb-6">
-						<ArrowLeft />
-					</Button>
-				</Link>
+				<Button size="icon" className="mb-6" onClick={() => router.back()}>
+					<ArrowLeft />
+				</Button>
+
 				<h1 className="text-2xl font-bold mb-6">Lecturer Management</h1>
 
 				<div className="mb-8">
@@ -38,8 +52,14 @@ export default function LecturerManagementPage() {
 				{loading ? (
 					<DataTableSkeleton rows={5} columns={5} />
 				) : (
-					<DataTable columns={lecturerColumns} data={lecturers} />
+					<DataTable
+						columns={lecturerColumns(router, deleteHandler)}
+						data={lecturers}
+						entityType="lecturer"
+						bulkDeleteHandlerAction={bulkDeleteHandler}
+					/>
 				)}
+				{deleteDialog}
 			</div>
 		</div>
 	);
