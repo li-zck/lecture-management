@@ -5,7 +5,7 @@ import Cookies from "js-cookie";
 import { toast } from "sonner";
 import { ROUTES } from "@/lib/utils";
 import { useSession } from "@/components/provider/SessionProvider";
-import { Button } from "../../ui/shadcn";
+import { Button } from "@/components/ui/shadcn/button";
 
 export const SignOutButton = () => {
 	const router = useRouter();
