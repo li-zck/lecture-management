@@ -1,6 +1,5 @@
 import axios from "axios";
-import Cookies from "js-cookie";
-import { BACKEND_URL, ROUTES } from "../utils";
+import { BACKEND_URL } from "../utils";
 
 const apiClient = axios.create({
 	baseURL: BACKEND_URL,
