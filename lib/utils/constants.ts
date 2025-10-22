@@ -73,6 +73,18 @@ export const APIROUTES = {
 			},
 		},
 
+		update: {
+			student: {
+				each: "/admin/student/update/:id",
+			},
+			lecturer: {
+				each: "/admin/lecturer/update/:id",
+			},
+			department: {
+				each: "/admin/department/update/:id",
+			},
+		},
+
 		delete: {
 			student: {
 				each: "/admin/student/delete/:id",
