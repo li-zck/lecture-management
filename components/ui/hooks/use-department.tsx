@@ -1,9 +1,9 @@
 "use client";
 
-import { getAllDepartments } from "@/lib/admin/api/read/method";
-import { ReadAllDepartmentResponse } from "@/lib/types/dto/api/admin/response/read/read.dto";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { getAllDepartments } from "@/lib/admin/api/read/method";
+import type { ReadAllDepartmentResponse } from "@/lib/types/dto/api/admin/response/read/read.dto";
 
 export const useDepartments = () => {
 	const [departments, setDepartments] = useState<ReadAllDepartmentResponse>([]);

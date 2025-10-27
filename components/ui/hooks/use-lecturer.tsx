@@ -1,9 +1,9 @@
 "use client";
 
-import { getAllLecturerAccounts } from "@/lib/admin/api/read/method";
-import { ReadAllLecturerAccountResponse } from "@/lib/types/dto/api/admin/response/read/read.dto";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { getAllLecturerAccounts } from "@/lib/admin/api/read/method";
+import type { ReadAllLecturerAccountResponse } from "@/lib/types/dto/api/admin/response/read/read.dto";
 
 export const useLecturers = () => {
 	const [lecturers, setLecturers] = useState<ReadAllLecturerAccountResponse>(

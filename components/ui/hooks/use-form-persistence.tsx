@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { FieldValues, UseFormReturn } from "react-hook-form";
+import type { FieldValues, UseFormReturn } from "react-hook-form";
 
 interface UseFormPersistenceOptions<T extends FieldValues> {
 	form: UseFormReturn<T>;
