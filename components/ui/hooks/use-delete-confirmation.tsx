@@ -69,6 +69,7 @@ const createDeleteHandler = <T extends EntityWithIds>(
 	setDeleteDialogState: (state: DeleteDialogState) => void,
 	deleteFn: (id: string) => void,
 	entityName: string,
+	onSuccess?: () => void,
 ) => {
 	return (item: T) => {
 		setDeleteDialogState({
@@ -77,6 +78,7 @@ const createDeleteHandler = <T extends EntityWithIds>(
 			type: "single",
 			entityName,
 			deleteFn,
+			onSuccess,
 		});
 	};
 };
@@ -99,7 +101,9 @@ const createBulkDeleteHandler = (
 	};
 };
 
-// main hook to manage delete operations with confirmation
+/*
+ * Hook to manage delete operations with confirmation
+ * */
 export function useDeleteConfirmation() {
 	const [deleteDialogState, setDeleteDialogState] = useState<DeleteDialogState>(
 		{
@@ -116,11 +120,17 @@ export function useDeleteConfirmation() {
 		try {
 			if (type === "single" && item && deleteFn) {
 				const internalId = getEntityId(item);
+
 				deleteFn(internalId);
-				toast.success(`${entityName} deleted successfully`);
+
+				toast.success(
+					`${entityName.charAt(0).toUpperCase()} deleted successfully`,
+				);
 			} else if (type === "bulk" && items && bulkDeleteFn) {
 				const internalIds = items.map((item) => getEntityId(item));
+
 				bulkDeleteFn(internalIds);
+
 				toast.success(
 					`${items.length} ${entityName.toLowerCase()}s deleted successfully`,
 				);
@@ -129,11 +139,12 @@ export function useDeleteConfirmation() {
 			setDeleteDialogState({ isOpen: false, type: "single", entityName: "" });
 
 			// call onSuccess callback after successful deletion (for clearing selections)
+			// only calls on methods with 'onSuccess()'
 			if (onSuccess) {
 				onSuccess();
+			} else {
+				setTimeout(() => window.location.reload(), 1500);
 			}
-
-			setTimeout(() => window.location.reload(), 1500);
 		} catch (error: any) {
 			toast.error(
 				error.message || `Failed to delete ${entityName.toLowerCase()}`,
@@ -144,8 +155,14 @@ export function useDeleteConfirmation() {
 	const createDeleteHandlerWithState = <_T extends EntityWithIds>(
 		deleteFn: (id: string) => void,
 		entityName: string,
+		onSuccess?: () => void,
 	) => {
-		return createDeleteHandler(setDeleteDialogState, deleteFn, entityName);
+		return createDeleteHandler(
+			setDeleteDialogState,
+			deleteFn,
+			entityName,
+			onSuccess,
+		);
 	};
 
 	const createBulkDeleteHandlerWithState = (
