@@ -59,6 +59,10 @@ export const APIROUTES = {
 		},
 
 		view: {
+			admin: {
+				each: "/admin/admin/find/:id",
+				all: "/admin/admin/all",
+			},
 			student: {
 				each: "/admin/student/find/:id",
 				all: "/admin/student/all",
@@ -86,6 +90,10 @@ export const APIROUTES = {
 		},
 
 		delete: {
+			admin: {
+				each: "/admin/admin/delete/:id",
+				many: "/admin/admin/delete",
+			},
 			student: {
 				each: "/admin/student/delete/:id",
 				many: "/admin/student/delete",
