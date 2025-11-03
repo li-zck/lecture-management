@@ -3,11 +3,11 @@
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useDeleteConfirmation } from "@/components/ui/hooks/use-delete-confirmation";
 import { useDepartments } from "@/components/ui/hooks/use-department";
 import { Button } from "@/components/ui/shadcn/button";
 import { Spinner } from "@/components/ui/shadcn/spinner";
 import { departmentColumns } from "@/components/ui/table/columns";
-import { useDeleteConfirmation } from "@/components/ui/hooks/use-delete-confirmation";
 import { DataTable } from "@/components/ui/table/DataTable";
 import { DataTableSkeleton } from "@/components/ui/table/DataTableSkeleton";
 import {

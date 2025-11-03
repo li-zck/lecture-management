@@ -1,14 +1,14 @@
-import { getErrorMessage } from "../api/error";
-import { ApiResponse, POST } from "../axios";
-import {
-	SignUpAdminRequest,
-	SignInAdminRequest,
-	SignInStudentRequest,
-	SignInLecturerRequest,
-} from "../types/dto/api/request/auth";
-import { SignInResponse } from "../types/dto/api/response/auth/sign-in.dto";
-import { SignUpResponse } from "../types/dto/api/response/auth/sign-up.dto";
 import Cookies from "js-cookie";
+import { getErrorMessage } from "../api/error";
+import { type ApiResponse, POST } from "../axios";
+import type {
+	SignInAdminRequest,
+	SignInLecturerRequest,
+	SignInStudentRequest,
+	SignUpAdminRequest,
+} from "../types/dto/api/request/auth";
+import type { SignInResponse } from "../types/dto/api/response/auth/sign-in.dto";
+import type { SignUpResponse } from "../types/dto/api/response/auth/sign-up.dto";
 import { APIROUTES } from "../utils";
 
 export const postSignUp = async <Req>(

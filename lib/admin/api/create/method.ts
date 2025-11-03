@@ -1,16 +1,17 @@
 import { getErrorMessage } from "@/lib/api";
-import { ApiResponse, POST } from "@/lib/axios";
-import {
-	CreateStudentAccountRequest,
-	CreateLecturerAccountRequest,
+import { type ApiResponse, POST } from "@/lib/axios";
+import type {
 	CreateDepartmentRequest,
+	CreateLecturerAccountRequest,
+	CreateStudentAccountRequest,
 } from "@/lib/types/dto/api/admin/request/create/create.dto";
-import {
-	CreateStudentAccountResponse,
-	CreateLecturerAccountResponse,
+import type {
 	CreateDepartmentResponse,
+	CreateLecturerAccountResponse,
+	CreateStudentAccountResponse,
 } from "@/lib/types/dto/api/admin/response/create";
 import { APIROUTES } from "@/lib/utils";
+import { createLecturerSchema } from "@/lib/zod";
 
 const postCreate = async <TRequest, TResponse>(
 	route: string,
@@ -40,11 +41,14 @@ export const createStudentAccount = (data: CreateStudentAccountRequest) =>
 /*
  * lecturer methods
  */
-export const createLecturerAccount = (data: CreateLecturerAccountRequest) =>
+export const createLecturerAccount = (data: CreateLecturerAccountRequest) => {
+	const validatedata = createLecturerSchema.parse(data);
+
 	postCreate<CreateLecturerAccountRequest, CreateLecturerAccountResponse>(
 		APIROUTES.admin.create.lecturer.each,
-		data,
+		validatedata,
 	);
+};
 
 /*
  * department methods

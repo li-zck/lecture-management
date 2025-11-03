@@ -1,4 +1,4 @@
-import { AxiosResponse } from "axios";
+import type { AxiosResponse } from "axios";
 import apiClient from "./axios";
 
 export type ApiResponse<T = unknown> = {
@@ -45,11 +45,11 @@ export const DEL = async <TResponse = unknown, TBody = unknown>(
 	};
 };
 
-export const PUT = async <TResponse = unknown, TBody = unknown>(
+export const PATCH = async <TResponse = unknown, TBody = unknown>(
 	route: string,
 	data?: TBody,
 ): Promise<ApiResponse<TResponse>> => {
-	const res: AxiosResponse<TResponse> = await apiClient.put(route, { data });
+	const res: AxiosResponse<TResponse> = await apiClient.patch(route, { data });
 
 	return {
 		data: res.data,
@@ -58,7 +58,7 @@ export const PUT = async <TResponse = unknown, TBody = unknown>(
 	};
 };
 
-export const PATCH = async <TResponse = unknown, TBody = unknown>(
+export const PUT = async <TResponse = unknown, TBody = unknown>(
 	route: string,
 	data?: TBody,
 ): Promise<ApiResponse<TResponse>> => {

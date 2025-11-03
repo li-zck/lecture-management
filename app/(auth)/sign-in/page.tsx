@@ -3,11 +3,11 @@
 import Cookies from "js-cookie";
 import Link from "next/link";
 import { Suspense, useState } from "react";
-import { signInLecturer, signInStudent } from "@/lib/auth";
-import { signInLecturerSchema, signInStudentSchema } from "@/lib/zod";
 import { SignInForm } from "@/components/auth/SignInForm";
 import RoleSelector from "@/components/ui/RoleSelector";
 import { Button } from "@/components/ui/shadcn/button";
+import { signInLecturer, signInStudent } from "@/lib/auth";
+import { signInLecturerSchema, signInStudentSchema } from "@/lib/zod";
 
 const SignInPage = () => {
 	const [role, setRole] = useState<"student" | "lecturer">("student");

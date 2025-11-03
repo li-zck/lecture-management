@@ -1,10 +1,10 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Button } from "./shadcn/button";
 import { useSession } from "../provider/SessionProvider";
+import { Button } from "./shadcn/button";
 
 const SignOutButton = () => {
 	const router = useRouter();

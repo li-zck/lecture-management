@@ -4,9 +4,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ModeToggle } from "@/components/ui/ModeToggle";
 import SignOutButton from "@/components/ui/SignOutButton";
-import { Button } from "./shadcn/button";
 import { cn } from "@/lib/utils";
 import { useSession } from "../provider/SessionProvider";
+import { Button } from "./shadcn/button";
 
 export const Navbar = () => {
 	const pathname = usePathname();

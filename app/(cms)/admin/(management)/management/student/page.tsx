@@ -1,19 +1,19 @@
 "use client";
 
-import { Button } from "@/components/ui/shadcn/button";
-import { useStudents } from "@/components/ui/hooks/use-students";
-import { Spinner } from "@/components/ui/shadcn/spinner";
-import { studentColumns } from "@/components/ui/table/columns";
-import { useDeleteConfirmation } from "@/components/ui/hooks/use-delete-confirmation";
-import {
-	deleteStudentById,
-	deleteMultipleStudents,
-} from "@/lib/admin/api/delete/method";
-import { useRouter } from "next/navigation";
-import { DataTable } from "@/components/ui/table/DataTable";
-import { DataTableSkeleton } from "@/components/ui/table/DataTableSkeleton";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useDeleteConfirmation } from "@/components/ui/hooks/use-delete-confirmation";
+import { useStudents } from "@/components/ui/hooks/use-students";
+import { Button } from "@/components/ui/shadcn/button";
+import { Spinner } from "@/components/ui/shadcn/spinner";
+import { studentColumns } from "@/components/ui/table/columns";
+import { DataTable } from "@/components/ui/table/DataTable";
+import { DataTableSkeleton } from "@/components/ui/table/DataTableSkeleton";
+import {
+	deleteMultipleStudents,
+	deleteStudentById,
+} from "@/lib/admin/api/delete/method";
 
 export default function StudentManagementPage() {
 	const { students, totalStudents, loading } = useStudents();

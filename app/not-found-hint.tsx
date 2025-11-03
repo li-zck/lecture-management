@@ -1,14 +1,14 @@
 "use client";
 
-import { Button } from "@/components/ui/shadcn/button";
-import { Spinner } from "@/components/ui/shadcn/spinner";
-import { signOut } from "@/lib/auth";
-import { getUserRole } from "@/lib/utils";
 import Cookies from "js-cookie";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/shadcn/button";
+import { Spinner } from "@/components/ui/shadcn/spinner";
+import { signOut } from "@/lib/auth";
+import { getUserRole } from "@/lib/utils";
 
 export function NotFoundHint() {
 	return (

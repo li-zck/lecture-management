@@ -8,8 +8,9 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
+import type { z } from "zod";
 import { Button } from "@/components/ui/shadcn/button";
+import { ButtonGroup } from "@/components/ui/shadcn/button-group";
 import {
 	Form,
 	FormControl,
@@ -18,21 +19,20 @@ import {
 	FormLabel,
 	FormMessage,
 } from "@/components/ui/shadcn/form";
+import { Input } from "@/components/ui/shadcn/input";
 import {
 	InputGroup,
 	InputGroupAddon,
 	InputGroupButton,
 	InputGroupInput,
 } from "@/components/ui/shadcn/input-group";
-import { Input } from "@/components/ui/shadcn/input";
 import {
+	Tooltip,
 	TooltipContent,
 	TooltipTrigger,
-	Tooltip,
 } from "@/components/ui/shadcn/tooltip";
 import { signInAdmin } from "@/lib/auth";
 import { signInAdminSchema } from "@/lib/zod";
-import { ButtonGroup } from "@/components/ui/shadcn/button-group";
 
 type SignInAdminSchema = z.infer<typeof signInAdminSchema>;
 

@@ -1,8 +1,8 @@
-import { usePathname, useSearchParams, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React, { useCallback } from "react";
+import type { z } from "zod";
+import type { roleQuerySchema } from "@/lib/zod/schemas/navigation";
 import { Button } from "./shadcn/button";
-import { z } from "zod";
-import { roleQuerySchema } from "@/lib/zod/schemas/navigation";
 
 export type Role = "student" | "lecturer";
 

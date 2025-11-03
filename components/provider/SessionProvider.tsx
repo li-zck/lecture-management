@@ -1,10 +1,11 @@
 "use client";
 
-import { signOut } from "@/lib/auth";
-import { AccessTokenPayload } from "@/lib/types/payload/auth/access-token";
-import { decodeAccessToken } from "@/lib/utils/decodeToken";
 import Cookies from "js-cookie";
-import React, { createContext, useContext, useEffect, useState } from "react";
+import type React from "react";
+import { createContext, useContext, useEffect, useState } from "react";
+import { signOut } from "@/lib/auth";
+import type { AccessTokenPayload } from "@/lib/types/payload/auth/access-token";
+import { decodeAccessToken } from "@/lib/utils/decodeToken";
 
 type SessionContextType = {
 	isAuthenticated: boolean;

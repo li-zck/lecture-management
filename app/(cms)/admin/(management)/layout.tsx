@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import { ErrorBoundary } from "@/components/ui/error";
 
 export default function ManagementPageLayout({
@@ -6,9 +6,5 @@ export default function ManagementPageLayout({
 }: {
 	children: ReactNode;
 }) {
-	return (
-		<ErrorBoundary>
-			{children}
-		</ErrorBoundary>
-	);
+	return <ErrorBoundary>{children}</ErrorBoundary>;
 }

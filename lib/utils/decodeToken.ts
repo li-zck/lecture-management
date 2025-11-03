@@ -1,5 +1,5 @@
-import { AccessTokenPayload } from "../types/payload/auth/access-token";
 import { jwtDecode } from "jwt-decode";
+import type { AccessTokenPayload } from "../types/payload/auth/access-token";
 
 export const decodeAccessToken = (
 	accessToken: string | undefined,

@@ -1,8 +1,11 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import type { z } from "zod";
+import { useFormPersistence } from "@/components/ui/hooks";
 import { Button } from "@/components/ui/shadcn/button";
 import {
 	Form,
@@ -13,7 +16,6 @@ import {
 	FormMessage,
 } from "@/components/ui/shadcn/form";
 import { Input } from "@/components/ui/shadcn/input";
-import { createStudentSchema } from "@/lib/zod/schemas/create/account";
 import {
 	Select,
 	SelectContent,
@@ -24,9 +26,7 @@ import {
 	SelectValue,
 } from "@/components/ui/shadcn/select";
 import { createStudentAccount } from "@/lib/admin/api/create/method";
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
-import { useFormPersistence } from "@/components/ui/hooks";
+import { createStudentSchema } from "@/lib/zod/schemas/create/account";
 
 type CreateStudentFormData = z.infer<typeof createStudentSchema>;
 

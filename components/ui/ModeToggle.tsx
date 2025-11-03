@@ -2,8 +2,8 @@
 
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/shadcn/button";
-import { useState, useEffect } from "react";
 
 export function ModeToggle() {
 	const { theme, setTheme } = useTheme();
