@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-
+import { useDeleteConfirmation } from "@/components/ui/hooks/use-delete-confirmation";
 import { RenderEntityDetails } from "@/components/ui/RenderEntityDetails";
 import { Button } from "@/components/ui/shadcn/button";
 import {
@@ -10,11 +10,16 @@ import {
 	getLecturerById,
 	getStudentById,
 } from "@/lib/admin/api/read/method";
-import {
+import type {
 	DepartmentResponse,
 	LecturerAccountResponse,
 	StudentAccountResponse,
 } from "@/lib/types/dto/api/admin/response/read/read.dto";
+import {
+	deleteDepartmentById,
+	deleteLecturerById,
+	deleteStudentById,
+} from "@/lib/admin/api/delete/method";
 
 type DetailsPageProps = {
 	entityType: "student" | "lecturer" | "department";
@@ -22,6 +27,7 @@ type DetailsPageProps = {
 };
 
 export const DetailsPage = ({ entityType, entityId }: DetailsPageProps) => {
+	const { createDeleteHandler, deleteDialog } = useDeleteConfirmation();
 	const router = useRouter();
 	const [entityData, setEntityData] = useState<
 		StudentAccountResponse | LecturerAccountResponse | DepartmentResponse | null
@@ -71,30 +77,40 @@ export const DetailsPage = ({ entityType, entityId }: DetailsPageProps) => {
 	}, [entityType, entityId]);
 
 	const handleBack = () => {
-		router.push(`/admin/management/${entityType}`);
+		// router.push(`/admin/management/${entityType}`);
+		router.back();
+	};
+
+	const deleteHandler = createDeleteHandler(
+		(id: string) => {
+			switch (entityType) {
+				case "student":
+					return deleteStudentById(id);
+				case "lecturer":
+					return deleteLecturerById(id);
+				case "department":
+					return deleteDepartmentById(id);
+			}
+		},
+
+		entityType,
+		() => router.back(),
+	);
+
+	const handleDelete = async () => {
+		if (entityData) {
+			deleteHandler(entityData);
+		}
 	};
 
 	const handleEdit = () => {
-		// router.push(`/admin/management/${entityType}/${entityId}/edit`);
-		console.log("Editing...");
-	};
-
-	const handleDelete = async () => {
-		console.log("Deleting...");
-		// if (confirm("Are you sure you want to delete this entity?")) {
-		// 	try {
-		// 		// await deleteEntity(entityType, entityId);
-		// 		router.push(`/admin/management/${entityType}`);
-		// 	} catch (_error) {
-		// 		setError("Failed to delete entity");
-		// 	}
-		// }
+		router.push(`/admin/management/${entityType}/${entityId}/edit`);
 	};
 
 	return (
 		<div className="min-h-screen p-6">
 			<div className="max-w-4xl mx-auto">
-				{/* Header */}
+				{/* header */}
 				<div className="flex items-center justify-between mb-6">
 					<h1 className="text-2xl font-bold capitalize">
 						{entityType} Details
@@ -102,7 +118,7 @@ export const DetailsPage = ({ entityType, entityId }: DetailsPageProps) => {
 					<span className="text-sm text-gray-500">ID: {entityId}</span>
 				</div>
 
-				{/* Content based on entity type */}
+				{/* content based on entity type */}
 				{loading ? (
 					<div className="flex justify-center p-8">
 						<div className="text-gray-500">Loading...</div>
@@ -115,7 +131,7 @@ export const DetailsPage = ({ entityType, entityId }: DetailsPageProps) => {
 					<div className="text-gray-500 p-4">No data found</div>
 				)}
 
-				{/* Actions */}
+				{/* actions */}
 				<div className="flex gap-4 mt-8">
 					<Button variant="outline" onClick={handleEdit}>
 						Edit
@@ -128,6 +144,8 @@ export const DetailsPage = ({ entityType, entityId }: DetailsPageProps) => {
 					</Button>
 				</div>
 			</div>
+
+			{deleteDialog}
 		</div>
 	);
 };
