@@ -13,6 +13,7 @@ export type CreateStudentAccountRequest = {
 };
 
 export type CreateLecturerAccountRequest = {
+	lecturerId: string;
 	username: string;
 	email: string;
 	fullName: string;

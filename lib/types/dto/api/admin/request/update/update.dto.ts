@@ -1,30 +1,32 @@
 export type UpdateStudentAccountRequest = {
-	studentId?: string;
-	departmentId?: string;
-	email?: string;
-	username?: string;
-	newPassword?: string;
-	confirmPassword?: string;
-	fullName?: string;
-	gender?: boolean;
-	birthDate?: string;
-	citizenId?: string;
-	phone?: string;
-	address?: string;
-	active?: boolean;
+  studentId?: string;
+  departmentId?: string;
+  email?: string;
+  username?: string;
+  newPassword?: string;
+  confirmPassword?: string;
+  fullName?: string;
+  gender?: boolean;
+  birthDate?: string;
+  citizenId?: string;
+  phone?: string;
+  address?: string;
+  active?: boolean;
 };
 
 export type UpdateLecturerAccountRequest = {
-	email?: string;
-	username?: string;
-	newPassword?: string;
-	confirmPassword?: string;
-	fullName?: string;
-	isActive?: boolean;
+  lecturerId?: string;
+  email?: string;
+  username?: string;
+  newPassword?: string;
+  confirmPassword?: string;
+  fullName?: string;
+  isActive?: boolean;
 };
 
 export type UpdateDepartmentRequest = {
-	name?: string;
-	description?: string;
-	headId?: string;
+  departmentId?: string;
+  name?: string;
+  description?: string;
+  headId?: string;
 };
