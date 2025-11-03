@@ -1,9 +1,12 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { Button } from "@/components/ui/shadcn/button";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import type { z } from "zod";
+import { useFormPersistence } from "@/components/ui/hooks";
+import { Button } from "@/components/ui/shadcn/button";
 import {
 	Form,
 	FormControl,
@@ -14,11 +17,8 @@ import {
 } from "@/components/ui/shadcn/form";
 import { Input } from "@/components/ui/shadcn/input";
 import { Textarea } from "@/components/ui/shadcn/textarea";
-import { createDepartmentSchema } from "@/lib/zod/schemas/create/department";
 import { createDepartment } from "@/lib/admin/api/create/method";
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
-import { useFormPersistence } from "@/components/ui/hooks";
+import { createDepartmentSchema } from "@/lib/zod/schemas/create/department";
 
 type CreateDepartmentFormData = z.infer<typeof createDepartmentSchema>;
 
@@ -28,6 +28,7 @@ export default function DepartmentCreationPage() {
 	const form = useForm<CreateDepartmentFormData>({
 		resolver: zodResolver(createDepartmentSchema),
 		defaultValues: {
+			departmentId: "",
 			name: "",
 			description: "",
 			headId: "",
@@ -67,6 +68,20 @@ export default function DepartmentCreationPage() {
 						<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
 							<FormField
 								control={form.control}
+								name="departmentId"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Department ID</FormLabel>
+										<FormControl>
+											<Input placeholder="d1234" {...field} />
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+
+							<FormField
+								control={form.control}
 								name="name"
 								render={({ field }) => (
 									<FormItem>
@@ -84,9 +99,7 @@ export default function DepartmentCreationPage() {
 								name="description"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>
-											Description<p className="text-gray-400">(optional)</p>
-										</FormLabel>
+										<FormLabel>Description</FormLabel>
 										<FormControl>
 											<Textarea
 												placeholder="Department description..."
@@ -103,10 +116,7 @@ export default function DepartmentCreationPage() {
 								name="headId"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>
-											Department Head ID
-											<p className="text-gray-400">(optional)</p>
-										</FormLabel>
+										<FormLabel>Department Head ID</FormLabel>
 										<FormControl>
 											<Input placeholder="L001" {...field} />
 										</FormControl>
