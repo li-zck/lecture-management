@@ -1,6 +1,6 @@
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/shadcn/button";
 import { Checkbox } from "@/components/ui/shadcn/checkbox";
@@ -10,9 +10,10 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/shadcn/dropdown-menu";
-import {
+import type {
 	DepartmentResponse,
 	LecturerAccountResponse,
+	ReadAdminAccountResponse,
 	StudentAccountResponse,
 } from "@/lib/types/dto/api/admin/response/read/read.dto";
 
@@ -123,7 +124,8 @@ export const studentColumns = (
 			},
 			{
 				label: "Edit",
-				onClick: (student) => console.log(`Editing: ${student}`),
+				onClick: (student) =>
+					router.push(`/admin/management/student/${student.id}/edit`),
 			},
 			...(deleteHandlerAction
 				? [
@@ -157,7 +159,8 @@ export const lecturerColumns = (
 			},
 			{
 				label: "Edit",
-				onClick: (lecturer) => console.log(`Editing: ${lecturer}`),
+				onClick: (lecturer) =>
+					router.push(`/admin/management/lecturer/${lecturer.id}/edit`),
 			},
 			...(deleteHandlerAction
 				? [
@@ -191,7 +194,43 @@ export const departmentColumns = (
 			},
 			{
 				label: "Edit",
-				onClick: (department) => console.log(`Editing: ${department}`),
+				onClick: (department) =>
+					router.push(`/admin/management/department/${department.id}/edit`),
+			},
+			...(deleteHandlerAction
+				? [
+						{
+							label: "Delete",
+							onClick: deleteHandlerAction,
+						},
+					]
+				: []),
+		],
+		router,
+		deleteHandlerAction,
+	});
+
+export const adminColumns = (
+	router: any,
+	deleteHandlerAction?: (item: ReadAdminAccountResponse) => void,
+) =>
+	createEntityColumns<ReadAdminAccountResponse>({
+		fields: [
+			{ key: "username", header: "Username" },
+			{ key: "active", header: "Active" },
+			{ key: "createdAt", header: "Created At" },
+			{ key: "updatedAt", header: "Updated At" },
+		],
+
+		actions: [
+			{
+				label: "Copy Details",
+				onClick: (admin) => console.log(`Copying ${admin}`),
+			},
+			{
+				label: "Edit",
+				onClick: (admin) =>
+					router.push(`/admin/management/admin/${admin.id}/edit`),
 			},
 			...(deleteHandlerAction
 				? [

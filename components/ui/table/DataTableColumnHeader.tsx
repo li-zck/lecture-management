@@ -1,7 +1,5 @@
-import { Column } from "@tanstack/react-table";
+import type { Column } from "@tanstack/react-table";
 import { ArrowDown, ArrowUp, ChevronsUpDown, EyeOff } from "lucide-react";
-
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/shadcn/button";
 import {
 	DropdownMenu,
@@ -10,6 +8,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/shadcn/dropdown-menu";
+import { cn } from "@/lib/utils";
 
 type DataTableColumnHeaderProps<TData, TValue> =
 	React.HTMLAttributes<HTMLDivElement> & {

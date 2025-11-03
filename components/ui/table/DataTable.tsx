@@ -1,5 +1,19 @@
 "use client";
 
+import {
+	type ColumnDef,
+	type ColumnFiltersState,
+	flexRender,
+	getCoreRowModel,
+	getFilteredRowModel,
+	getPaginationRowModel,
+	getSortedRowModel,
+	type SortingState,
+	useReactTable,
+	type VisibilityState,
+} from "@tanstack/react-table";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Input } from "@/components/ui/shadcn/input";
 import {
 	Table,
@@ -9,23 +23,9 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/shadcn/table";
-import {
-	ColumnDef,
-	ColumnFiltersState,
-	flexRender,
-	getCoreRowModel,
-	getFilteredRowModel,
-	getPaginationRowModel,
-	getSortedRowModel,
-	SortingState,
-	useReactTable,
-	VisibilityState,
-} from "@tanstack/react-table";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { DataTableColumnHeader } from "./DataTableColumnHeader";
 import { DataTablePagination } from "./DataTablePagination";
 import { DataTableViewOptions } from "./DataTableViewOptions";
-import { DataTableColumnHeader } from "./DataTableColumnHeader";
 
 /**
  * Props for the DataTable component
@@ -37,7 +37,7 @@ type DataTableProps<TData, TValue> = {
 	data: TData[];
 	filterColumn?: string;
 	filterPlaceholder?: string;
-	entityType?: "student" | "lecturer" | "department";
+	entityType?: "student" | "lecturer" | "department" | "admin";
 	bulkDeleteHandlerAction?: (
 		selectedItems: TData[],
 		onSuccess?: () => void,
