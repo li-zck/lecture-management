@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { ROUTES } from "./lib/utils";
 import { decodeAccessToken } from "./lib/utils/decodeToken";
 
