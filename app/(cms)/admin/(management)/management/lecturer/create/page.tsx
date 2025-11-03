@@ -1,9 +1,12 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { Button } from "@/components/ui/shadcn/button";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import type { z } from "zod";
+import { useFormPersistence } from "@/components/ui/hooks";
+import { Button } from "@/components/ui/shadcn/button";
 import {
 	Form,
 	FormControl,
@@ -13,11 +16,8 @@ import {
 	FormMessage,
 } from "@/components/ui/shadcn/form";
 import { Input } from "@/components/ui/shadcn/input";
-import { createLecturerSchema } from "@/lib/zod/schemas/create/account";
 import { createLecturerAccount } from "@/lib/admin/api/create/method";
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
-import { useFormPersistence } from "@/components/ui/hooks";
+import { createLecturerSchema } from "@/lib/zod/schemas/create/account";
 
 type CreateLecturerFormData = z.infer<typeof createLecturerSchema>;
 
@@ -27,6 +27,7 @@ export default function LectureCreationPage() {
 	const form = useForm<CreateLecturerFormData>({
 		resolver: zodResolver(createLecturerSchema),
 		defaultValues: {
+			lecturerId: "",
 			username: "",
 			email: "",
 			fullName: "",
@@ -69,6 +70,20 @@ export default function LectureCreationPage() {
 					<Form {...form}>
 						<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+								<FormField
+									control={form.control}
+									name="lecturerId"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Lecturer ID</FormLabel>
+											<FormControl>
+												<Input placeholder="lec1234" {...field} />
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+
 								<FormField
 									control={form.control}
 									name="username"
