@@ -1,9 +1,15 @@
 {
-  "assist": {
-    "actions": {
-      "source": {
-        "organizeImports": "on"
-      }
-    }
-  }
+	"assist": {
+		"enabled": false
+	},
+	"formatter": {
+		"formatWithErrors": true
+	},
+	"linter": {
+		"rules": {
+			"suspicious": {
+				"noExplicitAny": "off"
+			}
+		}
+	}
 }
