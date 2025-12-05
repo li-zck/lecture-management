@@ -1,5 +1,14 @@
 "use client";
 
+import { Input } from "@/components/ui/shadcn/input";
+import {
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from "@/components/ui/shadcn/table";
 import {
 	type ColumnDef,
 	type ColumnFiltersState,
@@ -14,15 +23,6 @@ import {
 } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Input } from "@/components/ui/shadcn/input";
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "@/components/ui/shadcn/table";
 import { DataTableColumnHeader } from "./DataTableColumnHeader";
 import { DataTablePagination } from "./DataTablePagination";
 import { DataTableViewOptions } from "./DataTableViewOptions";
@@ -47,11 +47,14 @@ type DataTableProps<TData, TValue> = {
 export function DataTable<TData extends { id: string }, TValue>({
 	columns,
 	data,
-	filterColumn = "fullName",
+	filterColumn,
 	filterPlaceholder = "Filter...",
 	entityType,
 	bulkDeleteHandlerAction,
 }: DataTableProps<TData, TValue>) {
+	const defaultFilterColumn = entityType === "department" ? "name" : "fullName";
+	const actualFilterColumn = filterColumn || defaultFilterColumn;
+
 	const router = useRouter();
 	const [sorting, setSorting] = useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -94,10 +97,14 @@ export function DataTable<TData extends { id: string }, TValue>({
 					<Input
 						placeholder={filterPlaceholder}
 						value={
-							(table.getColumn(filterColumn)?.getFilterValue() as string) ?? ""
+							(table
+								.getColumn(actualFilterColumn)
+								?.getFilterValue() as string) ?? ""
 						}
 						onChange={(event) =>
-							table.getColumn(filterColumn)?.setFilterValue(event.target.value)
+							table
+								.getColumn(actualFilterColumn)
+								?.setFilterValue(event.target.value)
 						}
 						className="max-w-sm"
 					/>
