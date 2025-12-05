@@ -1,13 +1,5 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeClosed, HelpCircle } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import type { z } from "zod";
 import { Button } from "@/components/ui/shadcn/button";
 import { ButtonGroup } from "@/components/ui/shadcn/button-group";
 import {
@@ -32,6 +24,13 @@ import {
 } from "@/components/ui/shadcn/tooltip";
 import { signUpAdmin } from "@/lib/auth";
 import { signUpSchema } from "@/lib/zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Eye, EyeClosed, HelpCircle } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import type { z } from "zod";
 
 type SignUpFormData = z.infer<typeof signUpSchema>;
 
@@ -48,15 +47,13 @@ const SignUpPage = () => {
 	const [showPassword, setShowPassword] = useState(false);
 	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-	const router = useRouter();
-
 	const onSubmit = async (values: SignUpFormData) => {
 		try {
 			await signUpAdmin(values);
 
 			toast.success("Sign up successful!");
 
-			router.push("/admin/sign-in");
+			window.location.href = "/admin/sign-in";
 		} catch (error: any) {
 			toast.error(error.message);
 		}

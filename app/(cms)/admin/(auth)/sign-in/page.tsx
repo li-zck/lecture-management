@@ -1,14 +1,5 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import Cookies from "js-cookie";
-import { Eye, EyeClosed, HelpCircle } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import type { z } from "zod";
 import { Button } from "@/components/ui/shadcn/button";
 import { ButtonGroup } from "@/components/ui/shadcn/button-group";
 import {
@@ -33,12 +24,19 @@ import {
 } from "@/components/ui/shadcn/tooltip";
 import { signInAdmin } from "@/lib/auth";
 import { signInAdminSchema } from "@/lib/zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import Cookies from "js-cookie";
+import { Eye, EyeClosed, HelpCircle } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import type { z } from "zod";
 
 type SignInAdminSchema = z.infer<typeof signInAdminSchema>;
 
 const SignInPage = () => {
 	const [showPassword, setShowPassword] = useState(false);
-	const router = useRouter();
 
 	const form = useForm<SignInAdminSchema>({
 		resolver: zodResolver(signInAdminSchema),
@@ -61,7 +59,7 @@ const SignInPage = () => {
 
 			toast.success("Sign in successful!");
 
-			router.push("/admin");
+			window.location.href = "/admin";
 		} catch (error: any) {
 			if (error.status === 401) {
 				toast.error("Invalid username or password");
