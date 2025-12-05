@@ -21,7 +21,7 @@ export type UpdateLecturerAccountRequest = {
   newPassword?: string;
   confirmPassword?: string;
   fullName?: string;
-  isActive?: boolean;
+  active?: boolean;
 };
 
 export type UpdateDepartmentRequest = {

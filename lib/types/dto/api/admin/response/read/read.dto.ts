@@ -1,5 +1,3 @@
-import { Edu_AU_VIC_WA_NT_Pre } from "next/font/google";
-
 export type StudentAccountResponse = {
   id: string;
   departmentId: string;
