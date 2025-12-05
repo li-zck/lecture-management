@@ -1,22 +1,19 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import type { z } from "zod";
-import { useFormPersistence } from "@/components/ui/hooks";
-import { Button } from "@/components/ui/shadcn/button";
+import { useDepartments, useFormPersistence } from "@/components/ui/hooks";
 import {
+	Button,
+	Calendar,
 	Form,
 	FormControl,
 	FormField,
 	FormItem,
 	FormLabel,
 	FormMessage,
-} from "@/components/ui/shadcn/form";
-import { Input } from "@/components/ui/shadcn/input";
-import {
+	Input,
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
 	Select,
 	SelectContent,
 	SelectGroup,
@@ -24,14 +21,24 @@ import {
 	SelectLabel,
 	SelectTrigger,
 	SelectValue,
-} from "@/components/ui/shadcn/select";
+} from "@/components/ui/shadcn";
 import { createStudentAccount } from "@/lib/admin/api/create/method";
+import { findEntityByDisplayId, getDisplayId } from "@/lib/utils";
 import { createStudentSchema } from "@/lib/zod/schemas/create/account";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ChevronDown } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import type { z } from "zod";
 
 type CreateStudentFormData = z.infer<typeof createStudentSchema>;
 
 export default function StudentCreationPage() {
 	const router = useRouter();
+	const [open, setOpen] = useState(false);
+	const { departments } = useDepartments();
 
 	const form = useForm<CreateStudentFormData>({
 		resolver: zodResolver(createStudentSchema),
@@ -43,7 +50,7 @@ export default function StudentCreationPage() {
 			studentId: "",
 			fullName: "",
 			gender: true,
-			birthDate: new Date(),
+			birthDate: "",
 			citizenId: "",
 			phone: "",
 			address: "",
@@ -58,7 +65,25 @@ export default function StudentCreationPage() {
 
 	const onSubmit = async (values: CreateStudentFormData) => {
 		try {
-			await createStudentAccount(values);
+			let submitData = { ...values };
+
+			if (values.departmentId) {
+				const internalId = findEntityByDisplayId(
+					values.departmentId,
+					departments,
+					"department",
+				);
+
+				if (!internalId) {
+					toast.error(`Department with ID ${values.departmentId} not found`);
+
+					return;
+				}
+
+				submitData.departmentId = internalId;
+			}
+
+			await createStudentAccount(submitData);
 
 			console.log("Creating student:", values);
 
@@ -92,7 +117,34 @@ export default function StudentCreationPage() {
 										<FormItem>
 											<FormLabel>Department ID</FormLabel>
 											<FormControl>
-												<Input placeholder="01" {...field} />
+												<Select
+													value={field.value}
+													onValueChange={(value) => {
+														// const selectedDept = departments.find(
+														//   (dept) =>
+														//     getDisplayId(dept, "department") === value,
+														// );
+
+														// field.onChange(
+														//   selectedDept ? selectedDept.id : value,
+														// );
+														field.onChange(value);
+													}}
+												>
+													<SelectTrigger>
+														<SelectValue placeholder="Select department" />
+													</SelectTrigger>
+													<SelectContent>
+														{departments.map((dept) => (
+															<SelectItem
+																key={dept.id}
+																value={getDisplayId(dept, "department")}
+															>
+																{dept.name} ({getDisplayId(dept, "department")})
+															</SelectItem>
+														))}
+													</SelectContent>
+												</Select>
 											</FormControl>
 											<FormMessage />
 										</FormItem>
@@ -210,26 +262,57 @@ export default function StudentCreationPage() {
 								<FormField
 									control={form.control}
 									name="birthDate"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Birth Date</FormLabel>
-											<FormControl>
-												<Input
-													type="date"
-													{...field}
-													value={
-														field.value
-															? field.value.toISOString().split("T")[0]
-															: ""
-													}
-													onChange={(e) =>
-														field.onChange(new Date(e.target.value))
-													}
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
+									render={({ field }) => {
+										const [date, setDate] = useState<Date | undefined>(
+											field.value ? new Date(field.value) : undefined,
+										);
+
+										return (
+											<FormItem>
+												<FormLabel>Birth Date</FormLabel>
+												<FormControl>
+													<Popover open={open} onOpenChange={setOpen}>
+														<PopoverTrigger asChild>
+															<Button
+																variant="outline"
+																id="date"
+																className="w-48 justify-between font-normal"
+															>
+																{date
+																	? new Intl.DateTimeFormat("vi-VN", {
+																			year: "numeric",
+																			month: "long",
+																			day: "numeric",
+																		}).format(date)
+																	: "Select date"}
+																<ChevronDown />
+															</Button>
+														</PopoverTrigger>
+														<PopoverContent
+															className="w-auto overflow-hidden p-0"
+															align="start"
+														>
+															<Calendar
+																mode="single"
+																selected={date}
+																captionLayout="dropdown"
+																onSelect={(selectedDate) => {
+																	setDate(selectedDate);
+																	field.onChange(
+																		selectedDate
+																			? selectedDate.toLocaleDateString()
+																			: "",
+																	);
+																	setOpen(false);
+																}}
+															/>
+														</PopoverContent>
+													</Popover>
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										);
+									}}
 								/>
 
 								<FormField

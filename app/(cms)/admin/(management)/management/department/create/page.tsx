@@ -1,11 +1,6 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import type { z } from "zod";
-import { useFormPersistence } from "@/components/ui/hooks";
+import { useFormPersistence, useLecturers } from "@/components/ui/hooks";
 import { Button } from "@/components/ui/shadcn/button";
 import {
 	Form,
@@ -18,12 +13,19 @@ import {
 import { Input } from "@/components/ui/shadcn/input";
 import { Textarea } from "@/components/ui/shadcn/textarea";
 import { createDepartment } from "@/lib/admin/api/create/method";
+import { findEntityByDisplayId } from "@/lib/utils";
 import { createDepartmentSchema } from "@/lib/zod/schemas/create/department";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import type { z } from "zod";
 
 type CreateDepartmentFormData = z.infer<typeof createDepartmentSchema>;
 
 export default function DepartmentCreationPage() {
 	const router = useRouter();
+	const { lecturers } = useLecturers();
 
 	const form = useForm<CreateDepartmentFormData>({
 		resolver: zodResolver(createDepartmentSchema),
@@ -42,7 +44,24 @@ export default function DepartmentCreationPage() {
 
 	const onSubmit = async (values: CreateDepartmentFormData) => {
 		try {
-			await createDepartment(values);
+			const submitData = { ...values };
+
+			if (values.headId) {
+				const internalId = findEntityByDisplayId(
+					values.headId,
+					lecturers,
+					"lecturer",
+				);
+
+				if (!internalId) {
+					toast.error(`Lecturer with ID '${values.headId}' not found`);
+					return;
+				}
+
+				submitData.headId = internalId;
+			}
+
+			await createDepartment(submitData);
 
 			toast.success("New department created successfully");
 
@@ -116,7 +135,7 @@ export default function DepartmentCreationPage() {
 								name="headId"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>Department Head ID</FormLabel>
+										<FormLabel>Department Head Lecturer ID</FormLabel>
 										<FormControl>
 											<Input placeholder="L001" {...field} />
 										</FormControl>

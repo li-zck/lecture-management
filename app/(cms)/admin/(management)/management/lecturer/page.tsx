@@ -1,8 +1,5 @@
 "use client";
 
-import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useDeleteConfirmation } from "@/components/ui/hooks/use-delete-confirmation";
 import { useLecturers } from "@/components/ui/hooks/use-lecturer";
 import { Button } from "@/components/ui/shadcn/button";
@@ -14,6 +11,8 @@ import {
 	deleteLecturerById,
 	deleteMultipleLecturers,
 } from "@/lib/admin/api/delete/method";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function LecturerManagementPage() {
 	const { lecturers, totalLecturers, loading } = useLecturers();
@@ -30,10 +29,6 @@ export default function LecturerManagementPage() {
 	return (
 		<div className="min-h-screen p-6">
 			<div className="max-w-4xl mx-auto">
-				<Button size="icon" className="mb-6" onClick={() => router.back()}>
-					<ArrowLeft />
-				</Button>
-
 				<h1 className="text-2xl font-bold mb-6">Lecturer Management</h1>
 
 				<div className="mb-8">
