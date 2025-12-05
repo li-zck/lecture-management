@@ -58,7 +58,7 @@ export const updateLecturerSchema = z
       .optional(),
     confirmPassword: z.string().optional(),
     fullName: z.string().min(1, "Full name cannot be empty").optional(),
-    isActive: z.boolean().optional(),
+    active: z.boolean().optional(),
   })
   .refine(
     (data) => {
