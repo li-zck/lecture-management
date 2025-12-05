@@ -1,8 +1,6 @@
 "use client";
 
-import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useLecturers } from "@/components/ui";
 import { useDeleteConfirmation } from "@/components/ui/hooks/use-delete-confirmation";
 import { useDepartments } from "@/components/ui/hooks/use-department";
 import { Button } from "@/components/ui/shadcn/button";
@@ -14,9 +12,13 @@ import {
 	deleteDepartmentById,
 	deleteMultipleDepartments,
 } from "@/lib/admin/api/delete/method";
+import { getDisplayId } from "@/lib/utils";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function DepartmentManagementPage() {
 	const { departments, totalDepartments, loading } = useDepartments();
+	const { lecturers } = useLecturers();
 	const router = useRouter();
 	const { createDeleteHandler, createBulkDeleteHandler, deleteDialog } =
 		useDeleteConfirmation();
@@ -27,13 +29,21 @@ export default function DepartmentManagementPage() {
 		"Department",
 	);
 
+	const lecturerIdMap = new Map<string, string>();
+	lecturers.forEach((lecturer) => {
+		lecturerIdMap.set(lecturer.id, getDisplayId(lecturer, "lecturer"));
+	});
+
+	const processedDepartments = departments.map((department) => ({
+		...department,
+		headDisplayId: department.headId
+			? lecturerIdMap.get(department.headId) || department.headId
+			: null,
+	}));
+
 	return (
 		<div className="min-h-screen p-6">
 			<div className="max-w-4xl mx-auto">
-				<Button size="icon" className="mb-6" onClick={() => router.back()}>
-					<ArrowLeft />
-				</Button>
-
 				<h1 className="text-2xl font-bold mb-6">Department Management</h1>
 
 				<div className="mb-8">
@@ -54,7 +64,7 @@ export default function DepartmentManagementPage() {
 				) : (
 					<DataTable
 						columns={departmentColumns(router, deleteHandler)}
-						data={departments}
+						data={processedDepartments}
 						filterColumn="name"
 						entityType="department"
 						bulkDeleteHandlerAction={bulkDeleteHandler}

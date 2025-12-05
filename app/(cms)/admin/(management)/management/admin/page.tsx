@@ -1,10 +1,7 @@
 "use client";
 
-import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useDeleteConfirmation } from "@/components/ui/hooks/use-delete-confirmation";
 import { useAdmins } from "@/components/ui/hooks/use-admin";
+import { useDeleteConfirmation } from "@/components/ui/hooks/use-delete-confirmation";
 import { Button } from "@/components/ui/shadcn/button";
 import { Spinner } from "@/components/ui/shadcn/spinner";
 import { adminColumns } from "@/components/ui/table/columns";
@@ -14,6 +11,9 @@ import {
 	deleteAdminById,
 	deleteMultipleAdmins,
 } from "@/lib/admin/api/delete/method";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function AdminManagementPage() {
 	const { admins, totalAdmins, loading } = useAdmins();
