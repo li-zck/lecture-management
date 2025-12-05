@@ -57,6 +57,4 @@ export const signInLecturer = (data: SignInLecturerRequest) =>
 
 export const signOut = () => {
 	Cookies.remove("accessToken", { path: "/" });
-
-	return true;
 };
