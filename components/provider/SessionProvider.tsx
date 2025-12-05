@@ -1,11 +1,17 @@
 "use client";
 
-import Cookies from "js-cookie";
-import type React from "react";
-import { createContext, useContext, useEffect, useState } from "react";
 import { signOut } from "@/lib/auth";
 import type { AccessTokenPayload } from "@/lib/types/payload/auth/access-token";
 import { decodeAccessToken } from "@/lib/utils/decodeToken";
+import Cookies from "js-cookie";
+import type React from "react";
+import {
+	createContext,
+	useCallback,
+	useContext,
+	useEffect,
+	useState,
+} from "react";
 
 type SessionContextType = {
 	isAuthenticated: boolean;
@@ -25,43 +31,46 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({
 	const [user, setUser] = useState<AccessTokenPayload | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 
-	const login = (token: string) => {
-		Cookies.set("accessToken", token, {
-			path: "/",
-			expires: 365,
-			secure: process.env.NODE_ENV === "production",
-			sameSite: "strict",
-		});
-
-		updateSession(token);
-	};
-
-	const logout = () => {
+	const logout = useCallback(() => {
 		signOut();
 
 		setIsAuthenticated(false);
 		setUser(null);
-	};
+	}, []);
 
-	const updateSession = (token: string | undefined) => {
-		if (token) {
-			const decoded = decodeAccessToken(token);
+	const updateSession = useCallback(
+		(token: string | undefined) => {
+			if (token) {
+				const decoded = decodeAccessToken(token);
 
-			if (decoded) {
-				setIsAuthenticated(true);
-
-				setUser(decoded);
+				if (decoded) {
+					setIsAuthenticated(true);
+					setUser(decoded);
+				} else {
+					logout();
+				}
 			} else {
-				logout();
+				setIsAuthenticated(false);
+				setUser(null);
 			}
-		} else {
-			setIsAuthenticated(false);
+			setIsLoading(false);
+		},
+		[logout],
+	);
 
-			setUser(null);
-		}
+	const login = useCallback(
+		(token: string) => {
+			Cookies.set("accessToken", token, {
+				path: "/",
+				expires: 365,
+				secure: process.env.NODE_ENV === "production",
+				sameSite: "strict",
+			});
 
-		setIsLoading(false);
-	};
+			updateSession(token);
+		},
+		[updateSession],
+	);
 
 	useEffect(() => {
 		const token = Cookies.get("accessToken");
@@ -77,7 +86,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({
 		window.addEventListener("storage", handleStorageChange);
 
 		return () => window.removeEventListener("storage", handleStorageChange);
-	}, []);
+	}, [updateSession]);
 
 	const value: SessionContextType = {
 		isAuthenticated,
