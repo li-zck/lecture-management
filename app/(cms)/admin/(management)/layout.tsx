@@ -1,5 +1,5 @@
-import type { ReactNode } from "react";
 import { ErrorBoundary } from "@/components/ui/error";
+import type { ReactNode } from "react";
 
 export default function ManagementPageLayout({
 	children,
