@@ -6,6 +6,11 @@ import { useDeleteConfirmation } from "@/components/ui/hooks/use-delete-confirma
 import { RenderEntityDetails } from "@/components/ui/RenderEntityDetails";
 import { Button } from "@/components/ui/shadcn/button";
 import {
+	deleteDepartmentById,
+	deleteLecturerById,
+	deleteStudentById,
+} from "@/lib/admin/api/delete/method";
+import {
 	getDepartmentById,
 	getLecturerById,
 	getStudentById,
@@ -15,11 +20,6 @@ import type {
 	LecturerAccountResponse,
 	StudentAccountResponse,
 } from "@/lib/types/dto/api/admin/response/read/read.dto";
-import {
-	deleteDepartmentById,
-	deleteLecturerById,
-	deleteStudentById,
-} from "@/lib/admin/api/delete/method";
 
 type DetailsPageProps = {
 	entityType: "student" | "lecturer" | "department";
@@ -77,7 +77,6 @@ export const DetailsPage = ({ entityType, entityId }: DetailsPageProps) => {
 	}, [entityType, entityId]);
 
 	const handleBack = () => {
-		// router.push(`/admin/management/${entityType}`);
 		router.back();
 	};
 
@@ -124,7 +123,7 @@ export const DetailsPage = ({ entityType, entityId }: DetailsPageProps) => {
 						<div className="text-gray-500">Loading...</div>
 					</div>
 				) : error ? (
-					<div className="text-red-500 p-4 bg-red-50 rounded">{error}</div>
+					<div className="text-red-500">{error}</div>
 				) : entityData ? (
 					<RenderEntityDetails entityType={entityType} data={entityData} />
 				) : (

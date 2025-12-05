@@ -132,7 +132,7 @@ export const UpdatePage = ({ entityType, entityId }: UpdatePageProps) => {
               username: lecturerData.username,
               email: lecturerData.email,
               fullName: lecturerData.fullName,
-              isActive: lecturerData.active,
+              active: lecturerData.active,
             });
           } else if (entityType === "department" && response.data) {
             const departmentData = response.data as DepartmentResponse;

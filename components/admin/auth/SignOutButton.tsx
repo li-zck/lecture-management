@@ -1,11 +1,11 @@
 "use client";
 
-import Cookies from "js-cookie";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import { useSession } from "@/components/provider/SessionProvider";
 import { Button } from "@/components/ui/shadcn/button";
 import { ROUTES } from "@/lib/utils";
+import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export const SignOutButton = () => {
 	const router = useRouter();
@@ -21,7 +21,7 @@ export const SignOutButton = () => {
 
 			toast.success("Signed out successfully");
 
-			router.push(ROUTES.adminSite.auth.signin);
+			window.location.href = ROUTES.adminSite.auth.signin;
 		} catch {
 			console.error("Something went wrong");
 
