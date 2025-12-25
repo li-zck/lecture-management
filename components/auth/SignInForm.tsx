@@ -1,114 +1,101 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeClosed } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { type FieldValues, useForm } from "react-hook-form";
+import { Controller, type FieldValues, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
-import { Button } from "@/components/ui/shadcn/button";
-import {
-	Form,
-	FormControl,
-	FormField,
-	FormItem,
-	FormLabel,
-	FormMessage,
-} from "@/components/ui/shadcn/form";
+
 import { Input } from "@/components/ui/shadcn/input";
+import {
+  Card,
+  CardContent,
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "../ui/shadcn";
+
+const formId = "sign-in-form";
 
 type SignInField = {
-	name: string;
-	label: string;
-	placeholder: string;
-	type?: string;
+  name: string;
+  label: string;
+  placeholder: string;
+  type?: string;
 };
 
 type SignInFormProps = {
-	schema: z.ZodSchema<any>;
-	fields: SignInField[];
-	onSubmitAction: (values: FieldValues) => Promise<void>;
-	defaultValues?: Record<string, any>;
+  schema: z.ZodSchema<any>;
+  fields: SignInField[];
+  onSubmitAction: (values: FieldValues) => Promise<void>;
+  defaultValues?: Record<string, any>;
 };
 
 export function SignInForm({
-	schema,
-	fields,
-	onSubmitAction,
-	defaultValues,
+  schema,
+  fields,
+  onSubmitAction,
+  defaultValues,
 }: SignInFormProps) {
-	const [showPassword, setShowPassword] = useState(false);
-	const router = useRouter();
+  const router = useRouter();
 
-	const form = useForm<FieldValues>({
-		resolver: zodResolver(schema as any),
-		defaultValues,
-	});
+  const form = useForm<FieldValues>({
+    resolver: zodResolver(schema as any),
+    defaultValues,
+  });
 
-	const handleSubmit = async (values: any) => {
-		try {
-			await onSubmitAction(values);
+  const onSubmit = async (values: any) => {
+    try {
+      await onSubmitAction(values);
 
-			toast.success("Sign in successful!");
-			router.push("/");
-		} catch (error) {
-			const msg =
-				(error as { message?: string }).message ??
-				"Sign in failed. Please try again.";
+      toast.success("Sign in successful!");
+      router.push("/");
+    } catch (error) {
+      const msg =
+        (error as { message?: string }).message ??
+        "Sign in failed. Please try again.";
 
-			toast.error(msg);
-		}
-	};
+      toast.error(msg);
+    }
+  };
 
-	return (
-		<div>
-			<Form {...form}>
-				<form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-					{fields.map((field) => (
-						<FormField
-							key={field.name}
-							control={form.control}
-							name={field.name as any}
-							render={({ field: formField }) => (
-								<FormItem>
-									<FormLabel>{field.label}</FormLabel>
-									<FormControl>
-										{field.type === "password" ? (
-											<div className="relative">
-												<Input
-													type={showPassword ? "text" : "password"}
-													placeholder={field.placeholder}
-													{...formField}
-													className="pr-10"
-												/>
-												<button
-													type="button"
-													onClick={() => setShowPassword(!showPassword)}
-													className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
-												>
-													{showPassword ? (
-														<Eye className="h-5 w-5" />
-													) : (
-														<EyeClosed className="h-5 w-5" />
-													)}
-												</button>
-											</div>
-										) : (
-											<Input placeholder={field.placeholder} {...formField} />
-										)}
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-					))}
-
-					<Button type="submit" className="w-full">
-						Submit
-					</Button>
-				</form>
-			</Form>
-		</div>
-	);
+  return (
+    <div className="grid">
+      <Card className="w-full sm:max-w-md">
+        <CardContent>
+          <form id={formId} onSubmit={form.handleSubmit(onSubmit)}>
+            <FieldGroup>
+              {fields.map((fieldItem) => {
+                return (
+                  <Controller
+                    key={fieldItem.name}
+                    name={fieldItem.name}
+                    control={form.control}
+                    render={({ field, fieldState }) => {
+                      return (
+                        <Field data-invalid={fieldState.invalid}>
+                          <FieldLabel>{fieldItem.label}</FieldLabel>
+                          <Input
+                            {...field}
+                            type={fieldItem.type || "text"}
+                            aria-invalid={fieldState.invalid}
+                            placeholder={fieldItem.name}
+                            autoComplete="off"
+                          />
+                          {fieldState.invalid && (
+                            <FieldError errors={[fieldState.error]} />
+                          )}
+                        </Field>
+                      );
+                    }}
+                  />
+                );
+              })}
+            </FieldGroup>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  );
 }
