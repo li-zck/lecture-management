@@ -1,12 +1,17 @@
 import type {
   DepartmentResponse,
   LecturerAccountResponse,
+  ReadAdminAccountResponse,
   StudentAccountResponse,
 } from "@/lib/types/dto/api/admin/response/read/read.dto";
 
 type RenderEntityDetailsProps = {
-  entityType: "student" | "lecturer" | "department";
-  data: StudentAccountResponse | LecturerAccountResponse | DepartmentResponse;
+  entityType: "student" | "lecturer" | "department" | "admin";
+  data:
+    | StudentAccountResponse
+    | LecturerAccountResponse
+    | DepartmentResponse
+    | ReadAdminAccountResponse;
 };
 
 const Field = ({
@@ -118,6 +123,24 @@ export const RenderEntityDetails = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Field label="Created At" value={formatDate(department.createdAt)} />
           <Field label="Updated At" value={formatDate(department.updatedAt)} />
+        </div>
+      </div>
+    );
+  }
+
+  if (entityType === "admin") {
+    const admin = data as ReadAdminAccountResponse;
+
+    return (
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Field label="Username" value={admin.username} />
+          <Field label="Status" value={formatActive(admin.active)} />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Field label="Created At" value={formatDate(admin.createdAt)} />
+          <Field label="Updated At" value={formatDate(admin.updatedAt)} />
         </div>
       </div>
     );

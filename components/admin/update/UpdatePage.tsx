@@ -25,11 +25,13 @@ import {
 } from "@/components/ui/shadcn/select";
 import { Spinner } from "@/components/ui/shadcn/spinner";
 import {
+  getAdminById,
   getDepartmentById,
   getLecturerById,
   getStudentById,
 } from "@/lib/admin/api/read/method";
 import {
+  updateAdminAccount,
   updateDepartment,
   updateLecturerAccount,
   updateStudentAccount,
@@ -37,9 +39,11 @@ import {
 import type {
   DepartmentResponse,
   LecturerAccountResponse,
+  ReadAdminAccountResponse,
   StudentAccountResponse,
 } from "@/lib/types/dto/api/admin/response/read/read.dto";
 import {
+  updateAdminSchema,
   updateDepartmentSchema,
   updateLecturerSchema,
   updateStudentSchema,
@@ -49,16 +53,21 @@ import { ArrowLeft } from "lucide-react";
 type UpdateStudentFormData = z.infer<typeof updateStudentSchema>;
 type UpdateLecturerFormData = z.infer<typeof updateLecturerSchema>;
 type UpdateDepartmentFormData = z.infer<typeof updateDepartmentSchema>;
+type UpdateAdminFormData = z.infer<typeof updateAdminSchema>;
 
 type UpdatePageProps = {
-  entityType: "student" | "lecturer" | "department";
+  entityType: "student" | "lecturer" | "department" | "admin";
   entityId: string;
 };
 
 export const UpdatePage = ({ entityType, entityId }: UpdatePageProps) => {
   const router = useRouter();
   const [entityData, setEntityData] = useState<
-    StudentAccountResponse | LecturerAccountResponse | DepartmentResponse | null
+    | StudentAccountResponse
+    | LecturerAccountResponse
+    | DepartmentResponse
+    | ReadAdminAccountResponse
+    | null
   >(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
@@ -79,6 +88,11 @@ export const UpdatePage = ({ entityType, entityId }: UpdatePageProps) => {
     defaultValues: {},
   });
 
+  const adminForm = useForm<UpdateAdminFormData>({
+    resolver: zodResolver(updateAdminSchema),
+    defaultValues: {},
+  });
+
   useEffect(() => {
     const fetchEntityData = async () => {
       try {
@@ -89,7 +103,8 @@ export const UpdatePage = ({ entityType, entityId }: UpdatePageProps) => {
               data:
                 | StudentAccountResponse
                 | LecturerAccountResponse
-                | DepartmentResponse;
+                | DepartmentResponse
+                | ReadAdminAccountResponse;
             }
           | undefined;
 
@@ -102,6 +117,9 @@ export const UpdatePage = ({ entityType, entityId }: UpdatePageProps) => {
             break;
           case "department":
             response = await getDepartmentById(entityId);
+            break;
+          case "admin":
+            response = await getAdminById(entityId);
             break;
         }
 
@@ -142,6 +160,12 @@ export const UpdatePage = ({ entityType, entityId }: UpdatePageProps) => {
               description: departmentData.description,
               headId: departmentData.headId,
             });
+          } else if (entityType === "admin" && response.data) {
+            const adminData = response.data as ReadAdminAccountResponse;
+            adminForm.reset({
+              username: adminData.username,
+              active: adminData.active,
+            });
           }
         }
       } catch (error) {
@@ -154,7 +178,14 @@ export const UpdatePage = ({ entityType, entityId }: UpdatePageProps) => {
     if (entityId) {
       fetchEntityData();
     }
-  }, [entityType, entityId, studentForm, lecturerForm, departmentForm]);
+  }, [
+    entityType,
+    entityId,
+    studentForm,
+    lecturerForm,
+    departmentForm,
+    adminForm,
+  ]);
 
   const handleStudentSubmit = async (values: UpdateStudentFormData) => {
     try {
@@ -199,6 +230,22 @@ export const UpdatePage = ({ entityType, entityId }: UpdatePageProps) => {
       router.back();
     } catch (error: any) {
       toast.error(error.message || "Failed to update department");
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleAdminSubmit = async (values: UpdateAdminFormData) => {
+    try {
+      setUpdating(true);
+
+      await updateAdminAccount(values, entityId);
+
+      toast.success("Admin updated successfully");
+
+      router.back();
+    } catch (error: any) {
+      toast.error(error.message || "Failed to update admin");
     } finally {
       setUpdating(false);
     }
@@ -267,6 +314,15 @@ export const UpdatePage = ({ entityType, entityId }: UpdatePageProps) => {
           <DepartmentUpdateForm
             form={departmentForm}
             onSubmit={handleDepartmentSubmit}
+            onCancel={handleCancel}
+            updating={updating}
+          />
+        )}
+
+        {entityType === "admin" && (
+          <AdminUpdateForm
+            form={adminForm}
+            onSubmit={handleAdminSubmit}
             onCancel={handleCancel}
             updating={updating}
           />
@@ -756,6 +812,109 @@ const DepartmentUpdateForm = ({
           </Button>
           <Button type="submit" disabled={updating}>
             {updating ? <Spinner /> : "Update Department"}
+          </Button>
+        </div>
+      </form>
+    </Form>
+  </div>
+);
+
+// admin update form
+const AdminUpdateForm = ({
+  form,
+  onSubmit,
+  onCancel,
+  updating,
+}: {
+  form: any;
+  onSubmit: (values: UpdateAdminFormData) => void;
+  onCancel: () => void;
+  updating: boolean;
+}) => (
+  <div className="rounded-lg shadow p-6">
+    <h2 className="text-xl font-semibold mb-6">Admin Information</h2>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <FormField
+          control={form.control}
+          name="username"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Username</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="active"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Active Status</FormLabel>
+              <FormControl>
+                <Select
+                  value={field.value ? "active" : "inactive"}
+                  onValueChange={(value) => field.onChange(value === "active")}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="inactive">Inactive</SelectItem>
+                  </SelectContent>
+                </Select>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <div className="border-t pt-6">
+          <h3 className="text-lg font-medium mb-4">
+            Change Password (Optional)
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FormField
+              control={form.control}
+              name="newPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>New Password</FormLabel>
+                  <FormControl>
+                    <Input type="password" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="confirmPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Confirm Password</FormLabel>
+                  <FormControl>
+                    <Input type="password" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
+
+        <div className="flex justify-end space-x-4">
+          <Button type="button" variant="outline" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button type="submit" disabled={updating}>
+            {updating ? <Spinner /> : "Update Admin"}
           </Button>
         </div>
       </form>

@@ -79,3 +79,5 @@ export const updateDepartmentSchema = z.object({
   description: z.string().optional(),
   headId: z.string().optional(),
 });
+
+export * from "./update/admin";

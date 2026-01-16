@@ -22,8 +22,9 @@ export const POST = async <TResponse = unknown, TBody = unknown>(
 
 export const GET = async <T = unknown>(
   route: string,
+  config?: any,
 ): Promise<ApiResponse<T>> => {
-  const res: AxiosResponse<T> = await apiClient.get(route);
+  const res: AxiosResponse<T> = await apiClient.get(route, config);
 
   return {
     data: res.data,

@@ -45,6 +45,9 @@ export const APIROUTES = {
 		},
 
 		create: {
+			admin: {
+				each: "/admin/create",
+			},
 			student: {
 				each: "/admin/student/create",
 				multiple: "/admin/student/create/multiple",
@@ -67,6 +70,7 @@ export const APIROUTES = {
 			student: {
 				each: "/admin/student/find/:id",
 				all: "/admin/student/all",
+				find: "/admin/student/find",
 			},
 			lecturer: {
 				each: "/admin/lecturer/find/:id",
@@ -79,6 +83,9 @@ export const APIROUTES = {
 		},
 
 		update: {
+			admin: {
+				each: "/admin/update/:id",
+			},
 			student: {
 				each: "/admin/student/update/:id",
 			},

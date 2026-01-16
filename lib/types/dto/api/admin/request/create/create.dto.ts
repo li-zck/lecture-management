@@ -14,6 +14,10 @@ export type CreateStudentAccountRequest = {
   address?: string;
 };
 
+export type CreateMultipleStudentsRequest = {
+  students: CreateStudentAccountRequest[];
+};
+
 export type CreateLecturerAccountRequest = {
   lecturerId: string;
   username: string;
@@ -22,8 +26,16 @@ export type CreateLecturerAccountRequest = {
   password: string;
 };
 
+export type CreateMultipleLecturersRequest = {
+  lecturers: CreateLecturerAccountRequest[];
+};
+
 export type CreateDepartmentRequest = {
   name: string;
   description?: string;
   headId?: string;
+};
+
+export type CreateMultipleDepartmentsRequest = {
+  departments: CreateDepartmentRequest[];
 };
