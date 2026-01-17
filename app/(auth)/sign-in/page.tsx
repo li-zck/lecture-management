@@ -16,9 +16,9 @@ const SignInPage = () => {
 
   const fields = [
     {
-      name: role === "student" ? "studentId" : "lecturerId",
-      label: role === "student" ? "Student ID" : "Lecturer ID",
-      placeholder: "johndoe",
+      name: "username",
+      label: "Username",
+      placeholder: "Enter your username",
     },
     {
       name: "password",
@@ -28,10 +28,7 @@ const SignInPage = () => {
     },
   ];
 
-  const defaultValues =
-    role === "student"
-      ? { studentId: "", password: "" }
-      : { lecturerId: "", password: "" };
+  const defaultValues = { username: "", password: "" };
 
   const onSubmit = async (values: any) => {
     const res =
@@ -39,11 +36,11 @@ const SignInPage = () => {
         ? await signInStudent(values)
         : await signInLecturer(values);
 
-    Cookies.set("accessToken", res.data.accessToken, {
+    Cookies.set("accessToken", res.data.token, {
       path: "/",
       expires: 365,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      secure: false,
+      sameSite: "lax",
     });
   };
 
@@ -68,6 +65,7 @@ const SignInPage = () => {
             fields={fields}
             onSubmitAction={onSubmit}
             defaultValues={defaultValues}
+            redirectUrl={role === "student" ? "/student" : "/lecturer"}
           />
         </div>
       </div>

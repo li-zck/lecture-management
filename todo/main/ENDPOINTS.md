@@ -7,39 +7,39 @@ These endpoints will only be considered as done when fulfilled these criteria:
 
 ## Authentication Endpoints
 
-- [x] `POST /auth/admin/signup` - Admin user registration
-- [x] `POST /auth/admin/signin` - Admin user login
-- [x] `POST /auth/student/signin` - Student user login
-- [x] `POST /auth/lecturer/signin` - Lecturer user login
+- [ ] `POST /auth/admin/signup` - Admin user registration
+- [ ] `POST /auth/admin/signin` - Admin user login
+- [ ] `POST /auth/student/signin` - Student user login
+- [ ] `POST /auth/lecturer/signin` - Lecturer user login
 
 ## Admin Management Endpoints
 
-- [x] `GET /admin/all` - Get all admin users
-- [x] `GET /admin/find/:id` - Get admin user by ID
-- [x] `POST /admin/create` - Create new admin user
-- [x] `PATCH /admin/update/:id` - Update admin user
-- [x] `DELETE /admin/delete/:id` - Delete admin user
+- [ ] `GET /admin/all` - Get all admin users
+- [ ] `GET /admin/find/:id` - Get admin user by ID
+- [ ] `POST /admin/create` - Create new admin user
+- [ ] `PATCH /admin/update/:id` - Update admin user
+- [ ] `DELETE /admin/delete/:id` - Delete admin user
 
 ## Admin Student Management Endpoints
 
-- [x] `GET /admin/student/all` - Get all students
-- [x] `GET /admin/student/find/:id` - Get student by ID
-- [x] `GET /admin/student/find` - Find students by email/studentId/username/citizenId/phone
-- [x] `POST /admin/student/create` - Create single student
-- [x] `POST /admin/student/create/multiple` - Create multiple students
-- [x] `PATCH /admin/student/update/:id` - Update student
-- [x] `DELETE /admin/student/delete/:id` - Delete single student
-- [x] `DELETE /admin/student/delete` - Delete multiple students
+- [ ] `GET /admin/student/all` - Get all students
+- [ ] `GET /admin/student/find/:id` - Get student by ID
+- [ ] `GET /admin/student/find` - Find students by email/studentId/username/citizenId/phone
+- [ ] `POST /admin/student/create` - Create single student
+- [ ] `POST /admin/student/create/multiple` - Create multiple students
+- [ ] `PATCH /admin/student/update/:id` - Update student
+- [ ] `DELETE /admin/student/delete/:id` - Delete single student
+- [ ] `DELETE /admin/student/delete` - Delete multiple students
 
 ## Admin Lecturer Management Endpoints
 
-- [x] `GET /admin/lecturer/all` - Get all lecturers
-- [x] `GET /admin/lecturer/find/:id` - Get lecturer by ID
-- [x] `POST /admin/lecturer/create` - Create single lecturer
-- [x] `POST /admin/lecturer/create/multiple` - Create multiple lecturers
-- [x] `PATCH /admin/lecturer/update/:id` - Update lecturer
-- [x] `DELETE /admin/lecturer/delete/:id` - Delete single lecturer
-- [x] `DELETE /admin/lecturer/delete` - Delete multiple lecturers
+- [ ] `GET /admin/lecturer/all` - Get all lecturers
+- [ ] `GET /admin/lecturer/find/:id` - Get lecturer by ID
+- [ ] `POST /admin/lecturer/create` - Create single lecturer
+- [ ] `POST /admin/lecturer/create/multiple` - Create multiple lecturers
+- [ ] `PATCH /admin/lecturer/update/:id` - Update lecturer
+- [ ] `DELETE /admin/lecturer/delete/:id` - Delete single lecturer
+- [ ] `DELETE /admin/lecturer/delete` - Delete multiple lecturers
 
 ## Admin Department Management Endpoints
 

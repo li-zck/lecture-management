@@ -10,9 +10,8 @@ export const decodeAccessToken = (
 
 	try {
 		return jwtDecode<AccessTokenPayload>(accessToken);
-	} catch (error) {
-		console.error("Failed to decode access token:", error);
-
+	} catch {
+		// Invalid token - silently return null (will trigger logout)
 		return null;
 	}
 };

@@ -11,8 +11,6 @@ const authRoutes = [
 const protectedRoutes = ["/dashboard", "/profile"];
 const roleBasedRoutes: Record<string, string[]> = {
 	"/admin": ["admin"],
-	"/lecturer": ["lecturer"],
-	"/student": ["student", "lecturer"],
 };
 
 const isAuthenticated = (req: NextRequest): boolean => {
@@ -39,12 +37,19 @@ const getRedirectUrl = (
 const hasRequiredRole = (req: NextRequest, requiredRole: string): boolean => {
 	const accessToken = req.cookies.get("accessToken")?.value;
 
-	if (!accessToken) return false;
+	if (!accessToken) {
+		console.log("Middleware: No access token found");
+		return false;
+	}
+
+	console.log("Middleware: Raw token (first 50 chars):", accessToken?.substring(0, 50));
 
 	try {
 		const decoded = decodeAccessToken(accessToken);
+		console.log("Middleware: Decoded token:", JSON.stringify(decoded), "Required:", requiredRole);
 
-		return decoded?.role === requiredRole;
+		// Case insensitive check
+		return decoded?.role?.toLowerCase() === requiredRole.toLowerCase();
 	} catch (error) {
 		console.error("Token validation error:", error);
 

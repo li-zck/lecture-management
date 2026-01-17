@@ -161,3 +161,4 @@ export const DetailsPage = ({ entityType, entityId }: DetailsPageProps) => {
     </div>
   );
 };
+

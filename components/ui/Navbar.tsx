@@ -10,7 +10,7 @@ import { Button } from "./shadcn/button";
 
 export const Navbar = () => {
   const pathname = usePathname();
-  const { isAuthenticated } = useSession();
+  const { isAuthenticated, user } = useSession();
 
   const navItems = [
     {
@@ -56,7 +56,14 @@ export const Navbar = () => {
             <ModeToggle />
 
             {isAuthenticated ? (
-              <SignOutButton />
+              <div className="flex items-center gap-4">
+                {user && (
+                  <Link href={user.role.toLowerCase() === 'admin' ? '/admin' : '/dashboard'} className="text-sm font-medium hover:underline">
+                    {user.email || "Dashboard"}
+                  </Link>
+                )}
+                <SignOutButton />
+              </div>
             ) : (
               <Link href="/sign-in">
                 <Button>Sign in</Button>
