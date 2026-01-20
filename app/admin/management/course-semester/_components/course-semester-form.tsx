@@ -3,20 +3,20 @@
 import { useCourses, useLecturers, useSemesters } from "@/components/ui/hooks";
 import { Button } from "@/components/ui/shadcn/button";
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "@/components/ui/shadcn/form";
 import { Input } from "@/components/ui/shadcn/input";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/shadcn/select";
 import { createCourseSemesterSchema } from "@/lib/zod/schemas/create/course-semester";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -79,7 +79,7 @@ export function CourseSemesterForm({ initialValues, onSubmit, mode }: CourseSeme
                                             <SelectValue placeholder="Select a course" />
                                         </SelectTrigger>
                                     </FormControl>
-                                    <SelectContent>
+                                    <SelectContent position="popper" sideOffset={5}>
                                         {courses.map((c) => (
                                             <SelectItem key={c.id} value={c.id}>
                                                 {c.name}
@@ -108,7 +108,7 @@ export function CourseSemesterForm({ initialValues, onSubmit, mode }: CourseSeme
                                             <SelectValue placeholder="Select a semester" />
                                         </SelectTrigger>
                                     </FormControl>
-                                    <SelectContent>
+                                    <SelectContent position="popper" sideOffset={5}>
                                         {semesters.map((s) => (
                                             <SelectItem key={s.id} value={s.id}>
                                                 {s.name}
@@ -138,7 +138,7 @@ export function CourseSemesterForm({ initialValues, onSubmit, mode }: CourseSeme
                                         <SelectValue placeholder="Select a lecturer" />
                                     </SelectTrigger>
                                 </FormControl>
-                                <SelectContent>
+                                <SelectContent position="popper" sideOffset={5}>
                                     <SelectItem value="none">Unassigned</SelectItem>
                                     {lecturers.map((l) => (
                                         <SelectItem key={l.id} value={l.id}>
@@ -168,7 +168,7 @@ export function CourseSemesterForm({ initialValues, onSubmit, mode }: CourseSeme
                                             <SelectValue placeholder="Select day" />
                                         </SelectTrigger>
                                     </FormControl>
-                                    <SelectContent>
+                                    <SelectContent position="popper" sideOffset={5}>
                                         {DAYS.map((day, index) => (
                                             <SelectItem key={index} value={index.toString()}>
                                                 {day}
