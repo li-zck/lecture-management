@@ -1,5 +1,5 @@
-import { apiClient } from "./client";
 import Cookies from "js-cookie";
+import { apiClient } from "./client";
 
 /**
  * Sign in request DTO
@@ -13,7 +13,7 @@ export interface SignInRequest {
  * Sign in response DTO
  */
 export interface SignInResponse {
-    token: string;
+    accessToken: string;
     message?: string;
 }
 
@@ -21,18 +21,17 @@ export interface SignInResponse {
  * Sign up admin request DTO
  */
 export interface SignUpAdminRequest {
-    email: string;
     username: string;
     password: string;
     confirmPassword: string;
-    fullName?: string;
 }
 
 /**
  * Sign up response DTO
  */
 export interface SignUpResponse {
-    message: string;
+    accessToken: string;
+    message?: string;
 }
 
 /**
