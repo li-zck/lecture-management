@@ -119,14 +119,20 @@
 
   body {
     @apply bg-background text-foreground;
+    padding: 0rem 2rem !important;
   }
+}
+
+html {
+  --remove-body-scroll-bar-size: 0px !important;
 }
 
 body {
   margin: 0 auto;
   padding: 0rem 2rem;
+  pointer-events: auto !important;
 }
 
-body::-webkit-scrollbar {
+/* body::-webkit-scrollbar {
   display: none;
-}
+} */
