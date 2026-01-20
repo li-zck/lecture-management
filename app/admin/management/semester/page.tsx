@@ -15,7 +15,8 @@ export default function SemesterManagementPage() {
         <div className="space-y-6">
             <PageHeader
                 title="Semester Management"
-                description="Manage academic semesters."
+                description="Manage academic semesters and their periods."
+                backUrl="/admin"
                 action={
                     <Button asChild>
                         <Link href="/admin/management/semester/create">
