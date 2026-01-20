@@ -16,6 +16,7 @@ export default function CourseManagementPage() {
             <PageHeader
                 title="Course Management"
                 description="Manage courses, credits, and department assignments."
+                backUrl="/admin"
                 action={
                     <Button asChild>
                         <Link href="/admin/management/course/create">
