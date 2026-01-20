@@ -16,7 +16,6 @@ import type {
   CreateStudentAccountResponse,
 } from "@/lib/types/dto/api/admin/response/create";
 import { APIROUTES } from "@/lib/utils";
-import { createLecturerSchema } from "@/lib/zod";
 
 const postCreate = async <TRequest, TResponse>(
   route: string,
