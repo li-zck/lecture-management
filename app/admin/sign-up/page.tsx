@@ -23,11 +23,15 @@ import { toast } from "sonner";
 import * as z from "zod";
 
 const formSchema = z.object({
-    username: z.string().min(1, "Username is required"),
-    password: z.string().min(1, "Password is required"),
+    username: z.string().min(3, "Username must be at least 3 characters"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
+    confirmPassword: z.string().min(1, "Please confirm your password"),
+}).refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
 });
 
-export default function AdminSignInPage() {
+export default function AdminSignUpPage() {
     const router = useRouter();
     const { login } = useSession();
     const [isLoading, setIsLoading] = useState(false);
@@ -37,19 +41,21 @@ export default function AdminSignInPage() {
         defaultValues: {
             username: "",
             password: "",
+            confirmPassword: "",
         },
     });
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         setIsLoading(true);
         try {
-            const response = await authApi.adminSignIn(values);
+            // Send all fields including confirmPassword to match backend DTO
+            const response = await authApi.adminSignUp(values);
             login(response.accessToken);
-            toast.success("Admin signed in successfully");
+            toast.success("Admin account created successfully!");
             router.push("/admin");
         } catch (error: any) {
             console.error(error);
-            toast.error(error.response?.data?.message || "Failed to sign in. Please check your credentials.");
+            toast.error(error.response?.data?.message || "Failed to create admin account. Please try again.");
         } finally {
             setIsLoading(false);
         }
@@ -59,9 +65,9 @@ export default function AdminSignInPage() {
         <div className="flex items-center justify-center min-h-screen bg-muted/50">
             <Card className="w-full max-w-md">
                 <CardHeader>
-                    <CardTitle className="text-2xl text-center">Admin Access</CardTitle>
+                    <CardTitle className="text-2xl text-center">Create Admin Account</CardTitle>
                     <CardDescription className="text-center">
-                        Sign in to manage the system
+                        Sign up to manage the system
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -93,16 +99,29 @@ export default function AdminSignInPage() {
                                     </FormItem>
                                 )}
                             />
+                            <FormField
+                                control={form.control}
+                                name="confirmPassword"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Confirm Password</FormLabel>
+                                        <FormControl>
+                                            <Input type="password" placeholder="••••••••" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
                             <Button type="submit" className="w-full" disabled={isLoading}>
                                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                Sign In as Admin
+                                Create Admin Account
                             </Button>
                         </form>
                     </Form>
                     <div className="mt-4 text-center text-sm text-muted-foreground">
-                        Don't have an account?{" "}
-                        <Link href="/admin/sign-up" className="text-primary hover:underline">
-                            Sign Up
+                        Already have an account?{" "}
+                        <Link href="/admin/sign-in" className="text-primary hover:underline">
+                            Sign in
                         </Link>
                     </div>
                 </CardContent>

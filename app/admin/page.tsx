@@ -1,28 +1,28 @@
 "use client";
 
-import Link from "next/link";
 import {
-    Users,
-    GraduationCap,
-    Building2,
-    BookOpen,
-    Calendar,
-    Plus
+  BookOpen,
+  Building2,
+  Calendar,
+  GraduationCap,
+  Plus,
+  Users
 } from "lucide-react";
+import Link from "next/link";
 
 import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/shadcn/card";
+  useDepartments,
+  useLecturers,
+  useStudents,
+} from "@/components/ui/hooks";
 import { Button } from "@/components/ui/shadcn/button";
 import {
-    useStudents,
-    useLecturers,
-    useDepartments,
-} from "@/components/ui/hooks";
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/shadcn/card";
 import SignOutButton from "@/components/ui/SignOutButton";
 
 export default function AdminDashboard() {
@@ -91,7 +91,7 @@ export default function AdminDashboard() {
     ];
 
     return (
-        <div className="p-8 space-y-8 bg-background min-h-screen">
+        <div className="space-y-8 bg-background min-h-screen">
             <div className="flex justify-between items-center">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
