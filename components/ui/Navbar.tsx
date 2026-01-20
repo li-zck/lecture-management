@@ -1,10 +1,10 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { ModeToggle } from "@/components/ui/ModeToggle";
 import SignOutButton from "@/components/ui/SignOutButton";
-import { cn } from "@/lib/utils";
+import { cn, ROUTES } from "@/lib/utils";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useSession } from "../provider/SessionProvider";
 import { Button } from "./shadcn/button";
 
@@ -65,9 +65,11 @@ export const Navbar = () => {
                 <SignOutButton />
               </div>
             ) : (
-              <Link href="/sign-in">
-                <Button>Sign in</Button>
-              </Link>
+              <Button asChild>
+                <Link href={ROUTES.mainSite.signin}>
+                  Sign in
+                </Link>
+              </Button>
             )}
           </nav>
         </div>
