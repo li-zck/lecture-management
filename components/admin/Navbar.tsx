@@ -1,6 +1,6 @@
 "use client";
 
-import { SignOutButton } from "@/components/admin/auth/SignOutButton";
+import SignOutButton from "@/components/ui/SignOutButton";
 import { useSession } from "@/components/provider/SessionProvider";
 import { ModeToggle } from "@/components/ui/ModeToggle";
 import { Button } from "@/components/ui/shadcn/button";
@@ -83,3 +83,4 @@ export default function Navbar() {
     </nav>
   );
 }
+

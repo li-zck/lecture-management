@@ -8,8 +8,10 @@ import type { z } from "zod";
 
 import { Input } from "@/components/ui/shadcn/input";
 import {
+  Button,
   Card,
   CardContent,
+  CardFooter,
   Field,
   FieldError,
   FieldGroup,
@@ -30,19 +32,27 @@ type SignInFormProps = {
   fields: SignInField[];
   onSubmitAction: (values: FieldValues) => Promise<void>;
   defaultValues?: Record<string, any>;
+  redirectUrl?: string;
 };
 
 export function SignInForm({
   schema,
   fields,
   onSubmitAction,
-  defaultValues,
+  defaultValues = {},
+  redirectUrl = "/",
 }: SignInFormProps) {
   const router = useRouter();
 
+  // Ensure all fields have default values to prevent controlled/uncontrolled warning
+  const mergedDefaults = fields.reduce((acc, field) => {
+    acc[field.name] = defaultValues[field.name] ?? "";
+    return acc;
+  }, {} as Record<string, any>);
+
   const form = useForm<FieldValues>({
     resolver: zodResolver(schema as any),
-    defaultValues,
+    defaultValues: mergedDefaults,
   });
 
   const onSubmit = async (values: any) => {
@@ -50,7 +60,7 @@ export function SignInForm({
       await onSubmitAction(values);
 
       toast.success("Sign in successful!");
-      router.push("/");
+      router.push(redirectUrl);
     } catch (error) {
       const msg =
         (error as { message?: string }).message ??
@@ -95,6 +105,12 @@ export function SignInForm({
             </FieldGroup>
           </form>
         </CardContent>
+
+        <CardFooter className="flex-col gap-2">
+          <Button type="submit" className="w-full" form={formId}>
+            Sign In
+          </Button>
+        </CardFooter>
       </Card>
     </div>
   );

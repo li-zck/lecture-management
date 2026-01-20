@@ -43,50 +43,50 @@ These endpoints will only be considered as done when fulfilled these criteria:
 
 ## Admin Department Management Endpoints
 
-- [] `GET /admin/department/all` - Get all departments
-- [] `GET /admin/department/find/:id` - Get department by ID
-- [] `POST /admin/department/create` - Create single department
-- [] `POST /admin/department/create/multiple` - Create multiple departments
-- [] `PATCH /admin/department/update/:id` - Update department
-- [] `DELETE /admin/department/delete/:id` - Delete single department
-- [] `DELETE /admin/department/delete` - Delete multiple departments
+- [x] `GET /admin/department/all` - Get all departments
+- [x] `GET /admin/department/find/:id` - Get department by ID
+- [x] `POST /admin/department/create` - Create single department
+- [x] `POST /admin/department/create/multiple` - Create multiple departments
+- [x] `PATCH /admin/department/update/:id` - Update department
+- [x] `DELETE /admin/department/delete/:id` - Delete single department
+- [x] `DELETE /admin/department/delete` - Delete multiple departments
 
 ## Admin Course Management Endpoints
 
-- [] `GET /admin/course/all` - Get all courses
-- [] `GET /admin/course/find/:id` - Get course by ID (with optional attachments/department includes)
-- [] `GET /admin/course/department/:departmentId` - Get courses by department ID
-- [] `POST /admin/course/create` - Create course (with file uploads)
-- [] `PATCH /admin/course/update/:id` - Update course (with file uploads)
-- [] `DELETE /admin/course/delete/:id` - Delete single course
-- [] `DELETE /admin/course/delete/` - Delete multiple courses
+- [x] `GET /admin/course/all` - Get all courses
+- [x] `GET /admin/course/find/:id` - Get course by ID (with optional attachments/department includes)
+- [x] `GET /admin/course/department/:departmentId` - Get courses by department ID
+- [x] `POST /admin/course/create` - Create course (with file uploads)
+- [x] `PATCH /admin/course/update/:id` - Update course (with file uploads)
+- [x] `DELETE /admin/course/delete/:id` - Delete single course
+- [x] `DELETE /admin/course/delete/` - Delete multiple courses
 
 ## Admin Course Enrollment Management Endpoints
 
-- [] `GET /admin/course/enrollment/all` - Get all enrollments (with optional includes)
-- [] `GET /admin/course/enrollment/find/:id` - Get enrollment by ID (with optional includes)
-- [] `POST /admin/course/enrollment/create` - Create course enrollment
-- [] `PATCH /admin/course/enrollment/update/:id` - Update course enrollment
-- [] `DELETE /admin/course/enrollment/delete/:id` - Delete single enrollment
-- [] `DELETE /admin/course/enrollment/delete` - Delete multiple enrollments
+- [x] `GET /admin/course/enrollment/all` - Get all enrollments (with optional includes)
+- [x] `GET /admin/course/enrollment/find/:id` - Get enrollment by ID (with optional includes)
+- [x] `POST /admin/course/enrollment/create` - Create course enrollment
+- [x] `PATCH /admin/course/enrollment/update/:id` - Update course enrollment
+- [x] `DELETE /admin/course/enrollment/delete/:id` - Delete single enrollment
+- [x] `DELETE /admin/course/enrollment/delete` - Delete multiple enrollments
 
 ## Admin Semester Management Endpoints
 
-- [] `GET /admin/semester/all` - Get all semesters
-- [] `GET /admin/semester/find/:id` - Get semester by ID
-- [] `POST /admin/semester/create` - Create semester
-- [] `PATCH /admin/semester/update/:id` - Update semester
-- [] `DELETE /admin/semester/delete/:id` - Delete single semester
-- [] `DELETE /admin/semester/delete` - Delete multiple semesters
+- [x] `GET /admin/semester/all` - Get all semesters
+- [x] `GET /admin/semester/find/:id` - Get semester by ID
+- [x] `POST /admin/semester/create` - Create semester
+- [x] `PATCH /admin/semester/update/:id` - Update semester
+- [x] `DELETE /admin/semester/delete/:id` - Delete single semester
+- [x] `DELETE /admin/semester/delete` - Delete multiple semesters
 
 ## Admin Course-Semester Management Endpoints
 
-- [] `GET /admin/semester/course/all` - Get all course-semester relationships
-- [] `GET /admin/semester/course/:id` - Get course-semester by ID
-- [] `POST /admin/semester/course/create` - Create course-semester relationship
-- [] `PUT /admin/semester/course/update/:id` - Update course-semester relationship
-- [] `DELETE /admin/semester/course/delete/:id` - Delete single course-semester
-- [] `DELETE /admin/semester/course/delete` - Delete multiple course-semesters
+- [x] `GET /admin/semester/course/all` - Get all course-semester relationships
+- [x] `GET /admin/semester/course/:id` - Get course-semester by ID
+- [x] `POST /admin/semester/course/create` - Create course-semester relationship
+- [x] `PUT /admin/semester/course/update/:id` - Update course-semester relationship
+- [x] `DELETE /admin/semester/course/delete/:id` - Delete single course-semester
+- [x] `DELETE /admin/semester/course/delete` - Delete multiple course-semesters
 
 ## Application Endpoints
 

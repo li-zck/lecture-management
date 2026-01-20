@@ -33,12 +33,12 @@ export const updatePasswordSchema = z
 	});
 
 export const signInStudentSchema = z.object({
-	studentId: z.string().min(1, "Student ID is required"),
+	username: z.string().min(1, "Student ID is required"),
 	password: z.string(),
 });
 
 export const signInLecturerSchema = z.object({
-	lecturerId: z.string().min(1, "Lecturer ID is required"),
+	username: z.string().min(1, "Lecturer ID is required"),
 	password: z.string(),
 });
 

@@ -1,4 +1,5 @@
 export type SignInResponse = {
-	accessToken: string;
+	token: string;
 	message?: string;
 };
+

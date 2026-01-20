@@ -2,23 +2,18 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { getAllLecturerAccounts } from "@/lib/admin/api/read/method";
-import type { ReadAllLecturerAccountResponse } from "@/lib/types/dto/api/admin/response/read/read.dto";
+import { adminLecturerApi, LecturerAdmin } from "@/lib/api";
 
 export const useLecturers = () => {
-	const [lecturers, setLecturers] = useState<ReadAllLecturerAccountResponse>(
-		[],
-	);
+	const [lecturers, setLecturers] = useState<LecturerAdmin[]>([]);
 	const [totalLecturers, setTotalLecturers] = useState(0);
 	const [loading, setLoading] = useState(true);
 
 	const fetchLecturers = useCallback(async () => {
 		try {
-			const res = await getAllLecturerAccounts();
-			const lecturers = Array.isArray(res.data) ? res.data : [];
-
-			setLecturers(lecturers);
-			setTotalLecturers(lecturers.length);
+			const data = await adminLecturerApi.getAll();
+			setLecturers(data);
+			setTotalLecturers(data.length);
 		} catch (error) {
 			toast.error("Failed to get lecturer data");
 		} finally {

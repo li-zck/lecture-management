@@ -4,11 +4,11 @@ export type SignInAdminRequest = {
 };
 
 export type SignInStudentRequest = {
-	studentId: string;
+	username: string;
 	password: string;
 };
 
 export type SignInLecturerRequest = {
-	lecturerId: string;
+	username: string;
 	password: string;
 };

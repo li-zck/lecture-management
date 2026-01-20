@@ -1,16 +1,16 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { ModeToggle } from "@/components/ui/ModeToggle";
 import SignOutButton from "@/components/ui/SignOutButton";
-import { cn } from "@/lib/utils";
+import { cn, ROUTES } from "@/lib/utils";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useSession } from "../provider/SessionProvider";
 import { Button } from "./shadcn/button";
 
 export const Navbar = () => {
   const pathname = usePathname();
-  const { isAuthenticated } = useSession();
+  const { isAuthenticated, user } = useSession();
 
   const navItems = [
     {
@@ -56,11 +56,20 @@ export const Navbar = () => {
             <ModeToggle />
 
             {isAuthenticated ? (
-              <SignOutButton />
+              <div className="flex items-center gap-4">
+                {user && (
+                  <Link href={user.role.toLowerCase() === 'admin' ? '/admin' : '/dashboard'} className="text-sm font-medium hover:underline">
+                    {user.email || "Dashboard"}
+                  </Link>
+                )}
+                <SignOutButton />
+              </div>
             ) : (
-              <Link href="/sign-in">
-                <Button>Sign in</Button>
-              </Link>
+              <Button asChild>
+                <Link href={ROUTES.mainSite.signin}>
+                  Sign in
+                </Link>
+              </Button>
             )}
           </nav>
         </div>

@@ -1,40 +1,37 @@
 "use client";
 
+import { adminDepartmentApi, type Department } from "@/lib/api";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { getAllDepartments } from "@/lib/admin/api/read/method";
-import type { ReadAllDepartmentResponse } from "@/lib/types/dto/api/admin/response/read/read.dto";
 
 export const useDepartments = () => {
-	const [departments, setDepartments] = useState<ReadAllDepartmentResponse>([]);
-	const [totalDepartments, setTotalDepartments] = useState(0);
-	const [loading, setLoading] = useState(true);
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [totalDepartments, setTotalDepartments] = useState(0);
+  const [loading, setLoading] = useState(true);
 
-	const fetchDepartments = useCallback(async () => {
-		try {
-			const res = await getAllDepartments();
-			const departments = Array.isArray(res.data) ? res.data : [];
+  const fetchDepartments = useCallback(async () => {
+    try {
+      const data = await adminDepartmentApi.getAll();
+      setDepartments(data);
+      setTotalDepartments(data.length);
+    } catch {
+      toast.error("Failed to get department data");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-			setDepartments(departments);
-			setTotalDepartments(departments.length);
-		} catch (error) {
-			toast.error("Failed to get department data");
-		} finally {
-			setLoading(false);
-		}
-	}, []);
+  useEffect(() => {
+    fetchDepartments();
+  }, [fetchDepartments]);
 
-	useEffect(() => {
-		fetchDepartments();
-	}, [fetchDepartments]);
-
-	return useMemo(
-		() => ({
-			departments,
-			totalDepartments,
-			loading,
-			refetch: fetchDepartments,
-		}),
-		[departments, totalDepartments, loading, fetchDepartments],
-	);
+  return useMemo(
+    () => ({
+      departments,
+      totalDepartments,
+      loading,
+      refetch: fetchDepartments,
+    }),
+    [departments, totalDepartments, loading, fetchDepartments],
+  );
 };

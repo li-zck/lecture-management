@@ -5,3 +5,6 @@ export * from "./use-form-persistence";
 export * from "./use-keyboard-shortcut";
 export * from "./use-lecturer";
 export * from "./use-students";
+export * from "./use-courses";
+export * from "./use-semesters";
+export * from "./use-course-semesters";
