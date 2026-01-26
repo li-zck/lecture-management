@@ -9,15 +9,15 @@
 
   - For example: '401' should return "Invalid username or password, please check again".
   - By now, for every return status, the system still display: 'An internal server error occured. Please contact support.', which is non-sense.
-  - [] Return predefined error based on status code.
+  - [ ] Return predefined error based on status code.
 
 - [x] Add more guards to the authentication flow.
   - This is upgraded by explicitly define function types and interfaces.
 
-- [] Adjust token expiry date.
+- [ ] Adjust token expiry date.
   - Current expiry date is 365 days for development stage only.
 
-- ~[] Add refresh token handling.~
+- ~[ ] Add refresh token handling.~
   - Could be unnecessary (?)
 
 - [x] Use 'httpOnly cookies' for authorization process instead of 'localStorage'.
@@ -38,19 +38,19 @@
 
 - [x] User can view the homepage and the homepage only, even if they are not logged in. This homepage is like a landing page for the site, and it's mostly static.
   - [x] Login and Register button will appear on the top right edge of the screen.
-    - [] If user is logged in, then the button will change to that user name and profile image (if present), and a sign out button inside that profile dropdown.
+    - [ ] If user is logged in, then the button will change to that user name and profile image (if present), and a sign out button inside that profile dropdown.
 
 - [x] Use `notFound()` from 'next/navigation' for handling not found routes.
 
-- [] Find a logo for the site.
-  - [] And import that to pages.
+- [ ] Find a logo for the site.
+  - [ ] And import that to pages.
 
-- [] Refactor **all** *imports* and *exports* with `index.ts`.
+- [ ] Refactor **all** *imports* and *exports* with `index.ts`.
 
-- [] If user try to navigate to `/admin`, they will be redirected to `/`.
-  - [] Hide the `/admin` route.
+- [ ] If user try to navigate to `/admin`, they will be redirected to `/`.
+  - [ ] Hide the `/admin` route.
 
-- [] Remove scroll in auth pages: `/sign-in`, `/sign-up`.
+- [ ] Remove scroll in auth pages: `/sign-in`, `/sign-up`.
   - Nice to have, not forced to have.
 
 - [x] **URGENT**: logged in user with accessToken, even through `/admin` route still have access to other routes like `/student` and `/lecturer`, which is very concerning, since these route should only be allowed by specific user with correct 'role' in 'accessToken'.
@@ -76,27 +76,27 @@
 
 - [x] Use full `type` without any `interface` across the whole workspace.
 
-- [] Clean whole code tailwindcss styling.
+- [ ] Clean whole code tailwindcss styling.
 
-- [] Add loading state to components.
+- [ ] Add loading state to components.
 
 - [x] Allow `󰘳 A` in phone number student creation field to select all.
 
-- [] Add a `reset filter` button for table inside each **student/lecturer/department** page.
+- [ ] Add a `reset filter` button for table inside each **student/lecturer/department** page.
 
-- [] Add breadcrumbs for pages.
+- [ ] Add breadcrumbs for pages.
 
-- [] Add dialog component for modals like the more actions inside table.
+- [ ] Add dialog component for modals like the more actions inside table.
   - Not urgent.
 
 - [x] Fix routing in each creation page.
   - Use `router.back()` instead of `router.push()` or `router.replace()` for preventing history stack issue.
 
-- [] Fix routing in general (**IMPORTANT**).
+- [ ] Fix routing in general (**IMPORTANT**).
 
-- [] Add create mulitple students at once feature.
+- [ ] Add create mulitple students at once feature.
 
-- [] Add feature that allows admin to upload a `.csv` file and the system will automatically input those data without any manual typing.
+- [ ] Add feature that allows admin to upload a `.csv` file and the system will automatically input those data without any manual typing.
 
 
 #### Fix
@@ -109,14 +109,14 @@
 
 ##### Redirects
 
-- ~[] all `/sign-up/*` will be redirected to `/sign-up`.~
-- ~[] all `/sign-in/*` will be redirected to `/sign-in`.~
+- [ ] all `/sign-up/*` will be redirected to `/sign-up`.
+- [ ] all `/sign-in/*` will be redirected to `/sign-in`.
 
 
 #### Internalization
 
 - [x] en
-- [] vi
+- [ ] vi
 
 
 #### URL
@@ -131,8 +131,8 @@
 
 ##### Admin
 
-- [] `/admin/management/student`
-- [] `/admin/management/lecturer`
+- [ ] `/admin/management/student`
+- [ ] `/admin/management/lecturer`
 
 
 #### Types
@@ -146,9 +146,9 @@
 
 ### Build and Production
 
-- [] Add 'entry points' for Bun to bundle correctly.
+- [ ] Add 'entry points' for Bun to bundle correctly.
 
-- [] Generate lists of mock data to show case site features.
+- [ ] Generate lists of mock data to show case site features.
 
 
 ---
@@ -156,8 +156,8 @@
 
 ### Backend reminders
 
-- [] Use 'Student ID' and 'Lecturer ID' for signing in instead of email.
+- [ ] Use 'Student ID' and 'Lecturer ID' for signing in instead of email.
 
-- [] Only **Admin** can create *Student* and *Lecturer* account.
+- [ ] Only **Admin** can create *Student* and *Lecturer* account.
 
-- [] Change to 1:1 relation between departmentHead and lecturer.
+- [ ] Change to 1:1 relation between departmentHead and lecturer.
