@@ -119,20 +119,54 @@
 
   body {
     @apply bg-background text-foreground;
-    padding: 0rem 2rem !important;
   }
 }
 
 html {
-  --remove-body-scroll-bar-size: 0px !important;
+  --remove-body-scroll-bar-size: 0px;
 }
 
 body {
-  margin: 0 auto;
-  padding: 0rem 2rem;
-  pointer-events: auto !important;
+  margin: 0;
+  padding: 0;
+  pointer-events: auto;
 }
 
 /* body::-webkit-scrollbar {
   display: none;
 } */
+
+/* Custom animations for sign-in page */
+@keyframes float {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  33% {
+    transform: translate(30px, -30px) rotate(5deg);
+  }
+  66% {
+    transform: translate(-20px, 20px) rotate(-5deg);
+  }
+}
+
+@keyframes float-delayed {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  33% {
+    transform: translate(-30px, 30px) rotate(-5deg);
+  }
+  66% {
+    transform: translate(20px, -20px) rotate(5deg);
+  }
+}
+
+.animate-float {
+  animation: float 20s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: float-delayed 25s ease-in-out infinite;
+}
