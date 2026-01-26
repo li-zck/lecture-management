@@ -1,11 +1,5 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import type { z } from "zod";
 import { Button } from "@/components/ui/shadcn/button";
 import {
   Form,
@@ -48,7 +42,13 @@ import {
   updateLecturerSchema,
   updateStudentSchema,
 } from "@/lib/zod/schemas/update";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import type { z } from "zod";
 
 type UpdateStudentFormData = z.infer<typeof updateStudentSchema>;
 type UpdateLecturerFormData = z.infer<typeof updateLecturerSchema>;
@@ -168,7 +168,7 @@ export const UpdatePage = ({ entityType, entityId }: UpdatePageProps) => {
             });
           }
         }
-      } catch (error) {
+      } catch {
         toast.error("Failed to load entity data");
       } finally {
         setLoading(false);

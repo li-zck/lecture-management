@@ -1,11 +1,13 @@
-import { ROUTES } from "@/lib/utils";
-import Link from "next/link";
-import { StickerIcon } from "lucide-react";
+"use client";
 
-export function Wordmark() {
+import { cn, ROUTES } from "@/lib/utils";
+import { GraduationCap } from "lucide-react";
+import Link from "next/link";
+
+export function Wordmark({ className }: { className?: string }) {
   return (
-    <Link href={ROUTES.mainSite.home}>
-      <StickerIcon suppressHydrationWarning />
+    <Link className={cn("w-fit h-fit", className)} href={ROUTES.mainSite.home}>
+      <GraduationCap width={30} height={30} suppressHydrationWarning />
     </Link>
   );
 }

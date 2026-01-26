@@ -1,10 +1,10 @@
 "use client";
 
+import type { roleQuerySchema } from "@/lib/zod/schemas/navigation";
+import { BookOpen, GraduationCap } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
 import type { z } from "zod";
-import type { roleQuerySchema } from "@/lib/zod/schemas/navigation";
-import { Button } from "./shadcn/button";
 
 export type Role = "student" | "lecturer";
 
@@ -15,7 +15,7 @@ export type Props = {
 
 export type RoleQuerySchema = z.infer<typeof roleQuerySchema>;
 
-const RoleSelector = ({ value, onChange }: Props) => {
+export function RoleSelector({ value, onChange }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -37,26 +37,48 @@ const RoleSelector = ({ value, onChange }: Props) => {
   );
 
   return (
-    <div className="text-center">
-      <h1 className="text-lg pb-2">Sign in as:</h1>
+    <div className="space-y-3">
+      <p className="text-sm font-medium text-muted-foreground text-center">
+        Select your role
+      </p>
 
-      <div className="space-x-4 pb-4">
-        <Button
-          variant={value === "student" ? "default" : "outline"}
+      {/* Segmented Control */}
+      <div className="relative bg-muted p-1 rounded-lg inline-flex w-full">
+        {/* Background slider for active state */}
+        <div
+          className={`absolute top-1 bottom-1 rounded-md bg-background shadow-sm transition-all duration-200 ease-in-out ${
+            value === "student" ? "left-1 right-[50%]" : "left-[50%] right-1"
+          }`}
+        />
+
+        {/* Student Button */}
+        <button
+          type="button"
           onClick={() => setRole("student")}
+          className={`relative flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-md text-sm font-medium transition-all duration-200 ${
+            value === "student"
+              ? "text-foreground"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
         >
-          Student
-        </Button>
+          <GraduationCap className="w-4 h-4" />
+          <span>Student</span>
+        </button>
 
-        <Button
-          variant={value === "lecturer" ? "default" : "outline"}
+        {/* Lecturer Button */}
+        <button
+          type="button"
           onClick={() => setRole("lecturer")}
+          className={`relative flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-md text-sm font-medium transition-all duration-200 ${
+            value === "lecturer"
+              ? "text-foreground"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
         >
-          Lecturer
-        </Button>
+          <BookOpen className="w-4 h-4" />
+          <span>Lecturer</span>
+        </button>
       </div>
     </div>
   );
-};
-
-export default RoleSelector;
+}
