@@ -6,11 +6,11 @@ import { decodeAccessToken } from "@/lib/utils/decodeToken";
 import Cookies from "js-cookie";
 import type React from "react";
 import {
-	createContext,
-	useCallback,
-	useContext,
-	useEffect,
-	useState,
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
 } from "react";
 
 type SessionContextType = {
