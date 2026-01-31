@@ -33,7 +33,7 @@ const signIn = async () => {
       username: "admin@example.com",
       password: "password123",
     });
-    
+
     // Token is automatically stored in cookies
     console.log("Sign in successful:", response.token);
   } catch (error) {
@@ -347,7 +347,7 @@ export const useStudents = () => {
 
 export const useCreateStudent = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: adminStudentApi.create,
     onSuccess: () => {

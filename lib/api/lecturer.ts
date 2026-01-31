@@ -74,45 +74,71 @@ export type LecturerSchedule = Record<
 >;
 
 export const lecturerApi = {
-    getProfile: async (): Promise<LecturerProfile> => {
-        const response = await apiClient.get<LecturerProfile>("/lecturer/profile");
+    /**
+     * Get lecturer profile by ID
+     * Uses the /lecturer/:id endpoint with query parameter
+     * @param id - Lecturer's internal ID (from access token)
+     */
+    getById: async (id: string): Promise<LecturerProfile> => {
+        // Backend uses @Query('id') so we pass it as query parameter
+        const response = await apiClient.get<LecturerProfile>(`/lecturer/${id}`, {
+            params: { id },
+        });
         return response.data;
     },
 
+    /**
+     * Update own profile (authenticated lecturer)
+     * Uses @GetUser() decorator on backend - no ID needed
+     */
     updateProfile: async (data: {
         fullName?: string;
     }): Promise<LecturerProfile> => {
-        const response = await apiClient.patch<LecturerProfile, typeof data>("/lecturer/profile", data);
+        const response = await apiClient.patch<LecturerProfile, typeof data>("/lecturer/update", data);
         return response.data;
     },
 
+    /**
+     * @deprecated - Endpoint doesn't exist in backend
+     * Courses should be fetched from course-semester endpoint
+     */
     getCourses: async (): Promise<AssignedCourse[]> => {
-        const response = await apiClient.get<AssignedCourse[]>("/lecturer/courses");
-        return response.data;
+        console.warn("[lecturerApi.getCourses] This endpoint is not implemented in the backend");
+        return [];
     },
 
+    /**
+     * Get students enrolled in a course (lecturer only)
+     * Uses GET /enrollment/course-semester/:courseOnSemesterId endpoint
+     */
     getCourseStudents: async (
         courseOnSemesterId: string
     ): Promise<CourseStudent[]> => {
+        // Note: Backend returns enrollment data with student info
         const response = await apiClient.get<CourseStudent[]>(
-            `/lecturer/courses/${courseOnSemesterId}/students`
+            `/enrollment/course-semester/${courseOnSemesterId}`
         );
         return response.data;
     },
 
+    /**
+     * @deprecated - Endpoint doesn't exist in backend
+     * Grade updates should use enrollment/admin endpoints
+     */
     updateGrade: async (
-        courseOnSemesterId: string,
-        data: UpdateGradeData
+        _courseOnSemesterId: string,
+        _data: UpdateGradeData
     ): Promise<{ message: string }> => {
-        const response = await apiClient.patch<{ message: string }, UpdateGradeData>(
-            `/lecturer/courses/${courseOnSemesterId}/grades`,
-            data
-        );
-        return response.data;
+        console.warn("[lecturerApi.updateGrade] This endpoint is not implemented in the backend");
+        return { message: "Not implemented" };
     },
 
+    /**
+     * @deprecated - Endpoint doesn't exist in backend
+     * Schedule should be derived from course-semester data
+     */
     getSchedule: async (): Promise<LecturerSchedule> => {
-        const response = await apiClient.get<LecturerSchedule>("/lecturer/schedule");
-        return response.data;
+        console.warn("[lecturerApi.getSchedule] This endpoint is not implemented in the backend");
+        return {};
     },
 };

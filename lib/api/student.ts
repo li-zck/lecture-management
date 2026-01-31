@@ -73,54 +73,99 @@ export type WeeklySchedule = Record<
 >;
 
 export const studentApi = {
-    getProfile: async (): Promise<StudentProfile> => {
-        const response = await apiClient.get<StudentProfile>("/student/profile");
+    /**
+     * Get student profile by ID
+     * Uses the /student/:id endpoint with query parameter
+     * @param id - Student's internal ID (from access token)
+     */
+    getById: async (id: string): Promise<StudentProfile> => {
+        // Backend uses @Query('id') so we pass it as query parameter
+        const response = await apiClient.get<StudentProfile>(`/student/${id}`, {
+            params: { id },
+        });
         return response.data;
     },
 
+    /**
+     * Update own profile (authenticated student)
+     * Uses @GetUser() decorator on backend - no ID needed
+     */
     updateProfile: async (data: {
         fullName?: string;
         phone?: string;
         address?: string;
         avatar?: string;
     }): Promise<StudentProfile> => {
-        const response = await apiClient.patch<StudentProfile, typeof data>("/student/profile", data);
+        const response = await apiClient.patch<StudentProfile, typeof data>("/student/update", data);
         return response.data;
     },
 
-    getCourses: async (): Promise<EnrolledCourse[]> => {
-        const response = await apiClient.get<EnrolledCourse[]>("/student/courses");
+    /**
+     * Get student's enrolled courses
+     * Uses /enrollment/my-enrollments endpoint (requires auth)
+     */
+    getEnrollments: async (): Promise<EnrolledCourse[]> => {
+        // Note: Backend returns basic enrollment data
+        // The response may need to be transformed to match EnrolledCourse interface
+        const response = await apiClient.get<EnrolledCourse[]>("/enrollment/my-enrollments");
         return response.data;
     },
 
+    /**
+     * @deprecated - Endpoint doesn't exist in backend
+     * Grades should be accessed through enrollment data
+     */
     getGrades: async (): Promise<GradeSummary[]> => {
-        const response = await apiClient.get<GradeSummary[]>("/student/grades");
-        return response.data;
+        console.warn("[studentApi.getGrades] This endpoint is not implemented in the backend");
+        return [];
     },
 
+    /**
+     * @deprecated - Endpoint doesn't exist in backend
+     * Schedule should be derived from enrollment data
+     */
     getSchedule: async (): Promise<WeeklySchedule> => {
-        const response = await apiClient.get<WeeklySchedule>("/student/schedule");
-        return response.data;
+        console.warn("[studentApi.getSchedule] This endpoint is not implemented in the backend");
+        return {};
     },
 
+    /**
+     * @deprecated - Endpoint doesn't exist in backend
+     * Available courses should be fetched from course-semester endpoint
+     */
     getAvailableCourses: async (): Promise<AvailableCourse[]> => {
-        const response = await apiClient.get<AvailableCourse[]>("/student/available-courses");
+        console.warn("[studentApi.getAvailableCourses] This endpoint is not implemented in the backend");
+        return [];
+    },
+
+    /**
+     * Enroll in a course
+     * Uses POST /enrollment/enroll endpoint
+     */
+    enrollCourse: async (courseOnSemesterId: string): Promise<unknown> => {
+        const response = await apiClient.post<unknown, { courseOnSemesterId: string }>(
+            "/enrollment/enroll",
+            { courseOnSemesterId }
+        );
         return response.data;
     },
 
-    enrollCourse: async (courseOnSemesterId: string): Promise<any> => {
-        const response = await apiClient.post<any, any>(`/student/enroll/${courseOnSemesterId}`);
+    /**
+     * Withdraw/unenroll from a course
+     * Uses DELETE /enrollment/unenroll/:id endpoint
+     */
+    withdrawCourse: async (enrollmentId: string): Promise<unknown> => {
+        const response = await apiClient.delete<unknown>(`/enrollment/unenroll/${enrollmentId}`);
         return response.data;
     },
 
-    withdrawCourse: async (enrollmentId: string): Promise<any> => {
-        const response = await apiClient.delete<any>(`/student/withdraw/${enrollmentId}`);
-        return response.data;
-    },
-
-    getCourseDocuments: async (enrollmentId: string): Promise<CourseDocument[]> => {
-        const response = await apiClient.get<CourseDocument[]>(`/student/courses/${enrollmentId}/documents`);
-        return response.data;
+    /**
+     * @deprecated - Endpoint doesn't exist in backend
+     * Documents should be fetched from document controller
+     */
+    getCourseDocuments: async (_enrollmentId: string): Promise<CourseDocument[]> => {
+        console.warn("[studentApi.getCourseDocuments] This endpoint is not implemented in the backend");
+        return [];
     },
 };
 
