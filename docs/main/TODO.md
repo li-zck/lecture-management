@@ -42,10 +42,10 @@
 
 - [x] Use `notFound()` from 'next/navigation' for handling not found routes.
 
-- [ ] Find a logo for the site.
-  - [ ] And import that to pages.
+- [x] Find a logo for the site.
+  - [x] And import that to pages.
 
-- [ ] Refactor **all** *imports* and *exports* with `index.ts`.
+- [x] Refactor **all** *imports* and *exports* with `index.ts`.
 
 - [ ] If user try to navigate to `/admin`, they will be redirected to `/`.
   - [ ] Hide the `/admin` route.
@@ -141,23 +141,17 @@
   - *Remove this since both student and lecturer must login using ID and password only.*
 
 
----
-
-
+----
 ### Build and Production
 
 - [ ] Add 'entry points' for Bun to bundle correctly.
-
 - [ ] Generate lists of mock data to show case site features.
+- [ ] Update toast messages to be more specific and user-friendly.
 
 
----
-
-
+----
 ### Backend reminders
 
 - [ ] Use 'Student ID' and 'Lecturer ID' for signing in instead of email.
-
-- [ ] Only **Admin** can create *Student* and *Lecturer* account.
-
-- [ ] Change to 1:1 relation between departmentHead and lecturer.
+- [x] Only **Admin** can create `Student` and `Lecturer` account.
+- [ ] Change to 1:1 relation between `departmentHead` and `lecturer`.
