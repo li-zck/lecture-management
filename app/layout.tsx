@@ -1,16 +1,18 @@
 import type { Metadata } from "next";
-import { Roboto } from "next/font/google";
+import { Montserrat } from "next/font/google";
 import "./globals.css";
 import RootProviders from "./providers";
 
-const robotoMono = Roboto({
-  variable: "--font-roboto-mono",
+const montserrat = Montserrat({
+  variable: "--font-montserrat",
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Lecture Management Site",
-  description: "Build with Nextjs",
+  title: "Lecture Management System",
+  description: "Build with Nextjs 16.1.4",
 };
 
 export default function RootLayout({
@@ -20,7 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${robotoMono.variable} antialiased`}>
+      <body className={`${montserrat.variable} antialiased`}>
         <RootProviders>{children}</RootProviders>
       </body>
     </html>
