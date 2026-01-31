@@ -2,6 +2,7 @@
 
 import { PageHeader } from "@/components/ui/page-header";
 import { adminDepartmentApi } from "@/lib/api/admin-department";
+import { getErrorInfo, logError } from "@/lib/api/error";
 import { useRouter } from "next/navigation";
 import { use, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -12,6 +13,16 @@ interface EditDepartmentPageProps {
     id: string;
   }>;
 }
+
+const getDepartmentErrorMessage = (status: number, fallback: string): string => {
+  const messages: Record<number, string> = {
+    400: "Please check the department information and try again.",
+    404: "Department not found.",
+    409: "A department with this ID already exists.",
+    422: "Some department information is invalid. Please review the form.",
+  };
+  return messages[status] || fallback;
+};
 
 export default function EditDepartmentPage({
   params,
@@ -26,13 +37,13 @@ export default function EditDepartmentPage({
     async function fetchDepartment() {
       try {
         const data = await adminDepartmentApi.getById(id);
-        // API might return head: { id, fullName }, form needs headId
         const formValues = {
           ...data,
           headId: data.head?.id || data.headId,
         };
         setInitialValues(formValues);
       } catch (error) {
+        logError(error, "Fetch Department");
         if (!hasShownErrorRef.current) {
           toast.error("Failed to load department data");
           hasShownErrorRef.current = true;
@@ -49,20 +60,17 @@ export default function EditDepartmentPage({
     try {
       const payload = { ...values };
       if (payload.headId === "none" || !payload.headId) {
-        payload.headId = null; // API expects null to remove head?
-        // Check admin-department.ts UpdateDepartmentRequest: headId?: string | null;
+        payload.headId = null;
       }
 
       await adminDepartmentApi.update(id, payload);
       toast.success("Department updated successfully");
       router.push("/admin/management/department");
       router.refresh();
-    } catch (error: any) {
-      const msg =
-        error?.response?.data?.message ||
-        error.message ||
-        "Failed to update department";
-      toast.error(msg);
+    } catch (error: unknown) {
+      const { status, message } = getErrorInfo(error);
+      logError(error, "Update Department");
+      toast.error(getDepartmentErrorMessage(status, message));
     }
   };
 

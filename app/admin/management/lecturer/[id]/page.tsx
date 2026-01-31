@@ -2,6 +2,7 @@
 
 import { PageHeader } from "@/components/ui/page-header";
 import { adminLecturerApi } from "@/lib/api/admin-lecturer";
+import { getErrorInfo, logError } from "@/lib/api/error";
 import { useRouter } from "next/navigation";
 import { use, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -12,6 +13,16 @@ interface EditLecturerPageProps {
     id: string;
   }>;
 }
+
+const getLecturerErrorMessage = (status: number, fallback: string): string => {
+  const messages: Record<number, string> = {
+    400: "Please check the lecturer information and try again.",
+    404: "Lecturer not found.",
+    409: "A lecturer with this email already exists.",
+    422: "Some lecturer information is invalid. Please review the form.",
+  };
+  return messages[status] || fallback;
+};
 
 export default function EditLecturerPage({ params }: EditLecturerPageProps) {
   const { id } = use(params);
@@ -25,7 +36,8 @@ export default function EditLecturerPage({ params }: EditLecturerPageProps) {
       try {
         const data = await adminLecturerApi.getById(id);
         setInitialValues(data);
-      } catch {
+      } catch (error) {
+        logError(error, "Fetch Lecturer");
         if (!hasShownErrorRef.current) {
           toast.error("Failed to load lecturer data");
           hasShownErrorRef.current = true;
@@ -49,12 +61,10 @@ export default function EditLecturerPage({ params }: EditLecturerPageProps) {
       toast.success("Lecturer updated successfully");
       router.push("/admin/management/lecturer");
       router.refresh();
-    } catch (error: any) {
-      const msg =
-        error?.response?.data?.message ||
-        error.message ||
-        "Failed to update lecturer";
-      toast.error(msg);
+    } catch (error: unknown) {
+      const { status, message } = getErrorInfo(error);
+      logError(error, "Update Lecturer");
+      toast.error(getLecturerErrorMessage(status, message));
     }
   };
 

@@ -2,9 +2,19 @@
 
 import { PageHeader } from "@/components/ui/page-header";
 import { adminCourseApi } from "@/lib/api/admin-course";
+import { getErrorInfo, logError } from "@/lib/api/error";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { CourseForm } from "../_components/course-form";
+
+const getCourseErrorMessage = (status: number, fallback: string): string => {
+  const messages: Record<number, string> = {
+    400: "Please check the course information and try again.",
+    409: "A course with this ID already exists.",
+    422: "Some course information is invalid. Please review the form.",
+  };
+  return messages[status] || fallback;
+};
 
 export default function CreateCoursePage() {
   const router = useRouter();
@@ -15,12 +25,10 @@ export default function CreateCoursePage() {
       toast.success("Course created successfully");
       router.push("/admin/management/course");
       router.refresh();
-    } catch (error: any) {
-      const msg =
-        error?.response?.data?.message ||
-        error.message ||
-        "Failed to create course";
-      toast.error(msg);
+    } catch (error: unknown) {
+      const { status, message } = getErrorInfo(error);
+      logError(error, "Create Course");
+      toast.error(getCourseErrorMessage(status, message));
     }
   };
 

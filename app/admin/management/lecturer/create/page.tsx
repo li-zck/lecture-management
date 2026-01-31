@@ -2,9 +2,19 @@
 
 import { PageHeader } from "@/components/ui/page-header";
 import { adminLecturerApi } from "@/lib/api/admin-lecturer";
+import { getErrorInfo, logError } from "@/lib/api/error";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { LecturerForm } from "../_components/lecturer-form";
+
+const getLecturerErrorMessage = (status: number, fallback: string): string => {
+  const messages: Record<number, string> = {
+    400: "Please check the lecturer information and try again.",
+    409: "A lecturer with this ID or email already exists.",
+    422: "Some lecturer information is invalid. Please review the form.",
+  };
+  return messages[status] || fallback;
+};
 
 export default function CreateLecturerPage() {
   const router = useRouter();
@@ -15,12 +25,10 @@ export default function CreateLecturerPage() {
       toast.success("Lecturer created successfully");
       router.push("/admin/management/lecturer");
       router.refresh();
-    } catch (error: any) {
-      const msg =
-        error?.response?.data?.message ||
-        error.message ||
-        "Failed to create lecturer";
-      toast.error(msg);
+    } catch (error: unknown) {
+      const { status, message } = getErrorInfo(error);
+      logError(error, "Create Lecturer");
+      toast.error(getLecturerErrorMessage(status, message));
     }
   };
 
