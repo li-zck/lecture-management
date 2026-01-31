@@ -1,40 +1,24 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { toast } from "sonner";
+import { useQuery } from "@tanstack/react-query";
 import { getAllAdmins } from "@/lib/admin/api/read/method";
 import type { ReadAllAdminAccountsResponse } from "@/lib/types/dto/api/admin/response/read/read.dto";
+import { queryKeys } from "@/lib/query";
 
 export const useAdmins = () => {
-  const [admins, setAdmins] = useState<ReadAllAdminAccountsResponse>([]);
-  const [totalAdmins, setTotalAdmins] = useState(0);
-  const [loading, setLoading] = useState(true);
+	const query = useQuery({
+		queryKey: queryKeys.admins.lists(),
+		queryFn: async () => {
+			const res = await getAllAdmins();
+			return Array.isArray(res.data) ? res.data : [];
+		},
+	});
 
-  const fetchAdmins = useCallback(async () => {
-    try {
-      const res = await getAllAdmins();
-      const admins = Array.isArray(res.data) ? res.data : [];
-
-      setAdmins(admins);
-      setTotalAdmins(admins.length);
-    } catch (error) {
-      toast.error("Failed to get admin data");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchAdmins();
-  }, [fetchAdmins]);
-
-  return useMemo(
-    () => ({
-      admins,
-      totalAdmins,
-      loading,
-      refetch: fetchAdmins,
-    }),
-    [admins, totalAdmins, loading, fetchAdmins],
-  );
+	return {
+		admins: (query.data ?? []) as ReadAllAdminAccountsResponse,
+		totalAdmins: query.data?.length ?? 0,
+		loading: query.isLoading,
+		error: query.error,
+		refetch: query.refetch,
+	};
 };

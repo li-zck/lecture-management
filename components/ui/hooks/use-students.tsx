@@ -1,32 +1,38 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { toast } from "sonner";
-import { adminStudentApi, StudentAdmin } from "@/lib/api";
+import { useQuery } from "@tanstack/react-query";
+import { adminStudentApi } from "@/lib/api";
+import { queryKeys } from "@/lib/query";
 
 export const useStudents = () => {
-	const [students, setStudents] = useState<StudentAdmin[]>([]);
-	const [totalStudents, setTotalStudents] = useState(0);
-	const [loading, setLoading] = useState(true);
+	const query = useQuery({
+		queryKey: queryKeys.students.lists(),
+		queryFn: () => adminStudentApi.getAll(),
+	});
 
-	const fetchStudents = useCallback(async () => {
-		try {
-			const data = await adminStudentApi.getAll();
-			setStudents(data);
-			setTotalStudents(data.length);
-		} catch (error) {
-			toast.error("Failed to get student data");
-		} finally {
-			setLoading(false);
-		}
-	}, []);
+	return {
+		students: query.data ?? [],
+		totalStudents: query.data?.length ?? 0,
+		loading: query.isLoading,
+		error: query.error,
+		refetch: query.refetch,
+	};
+};
 
-	useEffect(() => {
-		fetchStudents();
-	}, [fetchStudents]);
+/**
+ * Hook for fetching a single student by ID
+ */
+export const useStudent = (id: string | null) => {
+	const query = useQuery({
+		queryKey: queryKeys.students.detail(id ?? ""),
+		queryFn: () => adminStudentApi.getById(id!),
+		enabled: !!id,
+	});
 
-	return useMemo(
-		() => ({ students, totalStudents, loading, refetch: fetchStudents }),
-		[students, totalStudents, loading, fetchStudents],
-	);
+	return {
+		student: query.data ?? null,
+		loading: query.isLoading,
+		error: query.error,
+		refetch: query.refetch,
+	};
 };

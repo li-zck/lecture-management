@@ -1,32 +1,38 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { toast } from "sonner";
-import { adminSemesterApi, Semester } from "@/lib/api/admin-semester";
+import { useQuery } from "@tanstack/react-query";
+import { adminSemesterApi } from "@/lib/api/admin-semester";
+import { queryKeys } from "@/lib/query";
 
 export const useSemesters = () => {
-    const [semesters, setSemesters] = useState<Semester[]>([]);
-    const [totalSemesters, setTotalSemesters] = useState(0);
-    const [loading, setLoading] = useState(true);
+	const query = useQuery({
+		queryKey: queryKeys.semesters.lists(),
+		queryFn: () => adminSemesterApi.getAll(),
+	});
 
-    const fetchSemesters = useCallback(async () => {
-        try {
-            const data = await adminSemesterApi.getAll();
-            setSemesters(data);
-            setTotalSemesters(data.length);
-        } catch (error) {
-            toast.error("Failed to get semester data");
-        } finally {
-            setLoading(false);
-        }
-    }, []);
+	return {
+		semesters: query.data ?? [],
+		totalSemesters: query.data?.length ?? 0,
+		loading: query.isLoading,
+		error: query.error,
+		refetch: query.refetch,
+	};
+};
 
-    useEffect(() => {
-        fetchSemesters();
-    }, [fetchSemesters]);
+/**
+ * Hook for fetching a single semester by ID
+ */
+export const useSemester = (id: string | null) => {
+	const query = useQuery({
+		queryKey: queryKeys.semesters.detail(id ?? ""),
+		queryFn: () => adminSemesterApi.getById(id!),
+		enabled: !!id,
+	});
 
-    return useMemo(
-        () => ({ semesters, totalSemesters, loading, refetch: fetchSemesters }),
-        [semesters, totalSemesters, loading, fetchSemesters],
-    );
+	return {
+		semester: query.data ?? null,
+		loading: query.isLoading,
+		error: query.error,
+		refetch: query.refetch,
+	};
 };

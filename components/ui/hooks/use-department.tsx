@@ -1,37 +1,38 @@
 "use client";
 
-import { adminDepartmentApi, type Department } from "@/lib/api";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { toast } from "sonner";
+import { useQuery } from "@tanstack/react-query";
+import { adminDepartmentApi } from "@/lib/api";
+import { queryKeys } from "@/lib/query";
 
 export const useDepartments = () => {
-  const [departments, setDepartments] = useState<Department[]>([]);
-  const [totalDepartments, setTotalDepartments] = useState(0);
-  const [loading, setLoading] = useState(true);
+	const query = useQuery({
+		queryKey: queryKeys.departments.lists(),
+		queryFn: () => adminDepartmentApi.getAll(),
+	});
 
-  const fetchDepartments = useCallback(async () => {
-    try {
-      const data = await adminDepartmentApi.getAll();
-      setDepartments(data);
-      setTotalDepartments(data.length);
-    } catch {
-      toast.error("Failed to get department data");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+	return {
+		departments: query.data ?? [],
+		totalDepartments: query.data?.length ?? 0,
+		loading: query.isLoading,
+		error: query.error,
+		refetch: query.refetch,
+	};
+};
 
-  useEffect(() => {
-    fetchDepartments();
-  }, [fetchDepartments]);
+/**
+ * Hook for fetching a single department by ID (admin)
+ */
+export const useAdminDepartment = (id: string | null) => {
+	const query = useQuery({
+		queryKey: queryKeys.departments.detail(id ?? ""),
+		queryFn: () => adminDepartmentApi.getById(id!),
+		enabled: !!id,
+	});
 
-  return useMemo(
-    () => ({
-      departments,
-      totalDepartments,
-      loading,
-      refetch: fetchDepartments,
-    }),
-    [departments, totalDepartments, loading, fetchDepartments],
-  );
+	return {
+		department: query.data ?? null,
+		loading: query.isLoading,
+		error: query.error,
+		refetch: query.refetch,
+	};
 };

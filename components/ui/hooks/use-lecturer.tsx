@@ -1,32 +1,38 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { toast } from "sonner";
-import { adminLecturerApi, LecturerAdmin } from "@/lib/api";
+import { useQuery } from "@tanstack/react-query";
+import { adminLecturerApi } from "@/lib/api";
+import { queryKeys } from "@/lib/query";
 
 export const useLecturers = () => {
-	const [lecturers, setLecturers] = useState<LecturerAdmin[]>([]);
-	const [totalLecturers, setTotalLecturers] = useState(0);
-	const [loading, setLoading] = useState(true);
+	const query = useQuery({
+		queryKey: queryKeys.lecturers.lists(),
+		queryFn: () => adminLecturerApi.getAll(),
+	});
 
-	const fetchLecturers = useCallback(async () => {
-		try {
-			const data = await adminLecturerApi.getAll();
-			setLecturers(data);
-			setTotalLecturers(data.length);
-		} catch (error) {
-			toast.error("Failed to get lecturer data");
-		} finally {
-			setLoading(false);
-		}
-	}, []);
+	return {
+		lecturers: query.data ?? [],
+		totalLecturers: query.data?.length ?? 0,
+		loading: query.isLoading,
+		error: query.error,
+		refetch: query.refetch,
+	};
+};
 
-	useEffect(() => {
-		fetchLecturers();
-	}, [fetchLecturers]);
+/**
+ * Hook for fetching a single lecturer by ID
+ */
+export const useLecturer = (id: string | null) => {
+	const query = useQuery({
+		queryKey: queryKeys.lecturers.detail(id ?? ""),
+		queryFn: () => adminLecturerApi.getById(id!),
+		enabled: !!id,
+	});
 
-	return useMemo(
-		() => ({ lecturers, totalLecturers, loading, refetch: fetchLecturers }),
-		[lecturers, totalLecturers, loading, fetchLecturers],
-	);
+	return {
+		lecturer: query.data ?? null,
+		loading: query.isLoading,
+		error: query.error,
+		refetch: query.refetch,
+	};
 };

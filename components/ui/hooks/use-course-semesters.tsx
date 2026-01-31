@@ -1,32 +1,38 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { toast } from "sonner";
-import { adminCourseSemesterApi, CourseSemester } from "@/lib/api/admin-course-semester";
+import { useQuery } from "@tanstack/react-query";
+import { adminCourseSemesterApi } from "@/lib/api/admin-course-semester";
+import { queryKeys } from "@/lib/query";
 
 export const useCourseSemesters = () => {
-    const [courseSemesters, setCourseSemesters] = useState<CourseSemester[]>([]);
-    const [totalCourseSemesters, setTotalCourseSemesters] = useState(0);
-    const [loading, setLoading] = useState(true);
+	const query = useQuery({
+		queryKey: queryKeys.courseSemesters.lists(),
+		queryFn: () => adminCourseSemesterApi.getAll(),
+	});
 
-    const fetchCourseSemesters = useCallback(async () => {
-        try {
-            const data = await adminCourseSemesterApi.getAll();
-            setCourseSemesters(data);
-            setTotalCourseSemesters(data.length);
-        } catch (error) {
-            toast.error("Failed to get course offering data");
-        } finally {
-            setLoading(false);
-        }
-    }, []);
+	return {
+		courseSemesters: query.data ?? [],
+		totalCourseSemesters: query.data?.length ?? 0,
+		loading: query.isLoading,
+		error: query.error,
+		refetch: query.refetch,
+	};
+};
 
-    useEffect(() => {
-        fetchCourseSemesters();
-    }, [fetchCourseSemesters]);
+/**
+ * Hook for fetching a single course semester by ID
+ */
+export const useCourseSemester = (id: string | null) => {
+	const query = useQuery({
+		queryKey: queryKeys.courseSemesters.detail(id ?? ""),
+		queryFn: () => adminCourseSemesterApi.getById(id!),
+		enabled: !!id,
+	});
 
-    return useMemo(
-        () => ({ courseSemesters, totalCourseSemesters, loading, refetch: fetchCourseSemesters }),
-        [courseSemesters, totalCourseSemesters, loading, fetchCourseSemesters],
-    );
+	return {
+		courseSemester: query.data ?? null,
+		loading: query.isLoading,
+		error: query.error,
+		refetch: query.refetch,
+	};
 };

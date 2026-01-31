@@ -1,32 +1,38 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { toast } from "sonner";
-import { adminCourseApi, Course } from "@/lib/api/admin-course";
+import { useQuery } from "@tanstack/react-query";
+import { adminCourseApi } from "@/lib/api/admin-course";
+import { queryKeys } from "@/lib/query";
 
 export const useCourses = () => {
-    const [courses, setCourses] = useState<Course[]>([]);
-    const [totalCourses, setTotalCourses] = useState(0);
-    const [loading, setLoading] = useState(true);
+	const query = useQuery({
+		queryKey: queryKeys.courses.lists(),
+		queryFn: () => adminCourseApi.getAll({ includeDepartment: true }),
+	});
 
-    const fetchCourses = useCallback(async () => {
-        try {
-            const data = await adminCourseApi.getAll({ includeDepartment: true });
-            setCourses(data);
-            setTotalCourses(data.length);
-        } catch (error) {
-            toast.error("Failed to get course data");
-        } finally {
-            setLoading(false);
-        }
-    }, []);
+	return {
+		courses: query.data ?? [],
+		totalCourses: query.data?.length ?? 0,
+		loading: query.isLoading,
+		error: query.error,
+		refetch: query.refetch,
+	};
+};
 
-    useEffect(() => {
-        fetchCourses();
-    }, [fetchCourses]);
+/**
+ * Hook for fetching a single course by ID (admin)
+ */
+export const useAdminCourse = (id: string | null) => {
+	const query = useQuery({
+		queryKey: queryKeys.courses.detail(id ?? ""),
+		queryFn: () => adminCourseApi.getById(id!, { includeDepartment: true }),
+		enabled: !!id,
+	});
 
-    return useMemo(
-        () => ({ courses, totalCourses, loading, refetch: fetchCourses }),
-        [courses, totalCourses, loading, fetchCourses],
-    );
+	return {
+		course: query.data ?? null,
+		loading: query.isLoading,
+		error: query.error,
+		refetch: query.refetch,
+	};
 };
