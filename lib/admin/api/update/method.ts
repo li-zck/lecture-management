@@ -1,5 +1,4 @@
-import { getErrorMessage } from "@/lib/api";
-import { type ApiResponse, PATCH, PUT } from "@/lib/axios";
+import { type ApiResponse, apiClient } from "@/lib/api";
 import type {
   UpdateAdminRequest,
   UpdateDepartmentRequest,
@@ -18,32 +17,8 @@ const patch = async <TRequest, TResponse>(
   route: string,
   data: TRequest,
 ): Promise<ApiResponse<TResponse>> => {
-  try {
-    const res = await PATCH<TResponse, TRequest>(route, data);
-
-    return res;
-  } catch (error: any) {
-    const status = error.response.status || 500;
-    const message = getErrorMessage(status);
-
-    throw { status, message };
-  }
-};
-
-const put = async <TRequest, TResponse>(
-  route: string,
-  data: TRequest,
-): Promise<ApiResponse<TResponse>> => {
-  try {
-    const res = await PUT<TResponse, TRequest>(route, data);
-
-    return res;
-  } catch (error: any) {
-    const status = error.response.status || 500;
-    const message = getErrorMessage(status);
-
-    throw { status, message };
-  }
+  const res = await apiClient.patch<TResponse, TRequest>(route, data);
+  return res;
 };
 
 /*

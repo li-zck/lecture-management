@@ -1,18 +1,9 @@
-import { getErrorMessage } from "@/lib/api";
-import { DEL } from "@/lib/axios";
+import { apiClient } from "@/lib/api";
 import { APIROUTES } from "@/lib/utils";
 
 const del = async (route: string, data?: any) => {
-	try {
-		const res = await DEL(route, data);
-
-		return res;
-	} catch (error: any) {
-		const status = error.response?.status || 500;
-		const message = getErrorMessage(status);
-
-		throw { error, message };
-	}
+  const res = await apiClient.delete(route, data);
+  return res;
 };
 
 /*

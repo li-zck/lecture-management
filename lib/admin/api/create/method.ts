@@ -1,5 +1,4 @@
-import { getErrorMessage } from "@/lib/api";
-import { type ApiResponse, POST } from "@/lib/axios";
+import { type ApiResponse, apiClient } from "@/lib/api";
 import type {
   CreateAdminRequest,
   CreateDepartmentRequest,
@@ -21,16 +20,8 @@ const postCreate = async <TRequest, TResponse>(
   route: string,
   data: TRequest,
 ): Promise<ApiResponse<TResponse>> => {
-  try {
-    const res = await POST<TResponse, TRequest>(route, data);
-
-    return res;
-  } catch (error: any) {
-    const status = error.response.status || 500;
-    const message = getErrorMessage(status);
-
-    throw { status, message };
-  }
+  const res = await apiClient.post<TResponse, TRequest>(route, data);
+  return res;
 };
 
 /*

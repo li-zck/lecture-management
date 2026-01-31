@@ -1,5 +1,4 @@
-import { getErrorMessage } from "@/lib/api";
-import { type ApiResponse, GET } from "@/lib/axios";
+import { type ApiResponse, apiClient } from "@/lib/api";
 import type { FindStudentByConditionRequest } from "@/lib/types/dto/api/admin/request/read";
 import type {
   DepartmentResponse,
@@ -17,16 +16,8 @@ const get = async <TResponse>(
   route: string,
   params?: any,
 ): Promise<ApiResponse<TResponse>> => {
-  try {
-    const res = await GET<TResponse>(route, { params });
-
-    return res;
-  } catch (error: any) {
-    const status = error.response?.status || 500;
-    const message = getErrorMessage(status);
-
-    throw { status, message };
-  }
+  const res = await apiClient.get<TResponse>(route, { params });
+  return res;
 };
 
 /*
