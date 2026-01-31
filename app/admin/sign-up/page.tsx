@@ -45,21 +45,28 @@ export default function AdminSignUpPage() {
         },
     });
 
-    async function onSubmit(values: z.infer<typeof formSchema>) {
-        setIsLoading(true);
-        try {
-            // Send all fields including confirmPassword to match backend DTO
-            const response = await authApi.adminSignUp(values);
-            login(response.accessToken);
-            toast.success("Admin account created successfully!");
-            router.push("/admin");
-        } catch (error: any) {
-            console.error(error);
-            toast.error(error.response?.data?.message || "Failed to create admin account. Please try again.");
-        } finally {
-            setIsLoading(false);
-        }
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsLoading(true);
+    try {
+      const response = await authApi.adminSignUp(values);
+      login(response.accessToken);
+      toast.success("Admin account created successfully!");
+      router.push("/admin");
+    } catch (error: unknown) {
+      const err = error as { status?: number; message?: string };
+      const status = err.status || 500;
+
+      const messages: Record<number, string> = {
+        400: "Please check your information and try again.",
+        409: "An admin with this username already exists.",
+        422: "Invalid registration information. Please review the form.",
+      };
+
+      toast.error(messages[status] || err.message || "Failed to create admin account.");
+    } finally {
+      setIsLoading(false);
     }
+  }
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-muted/50">
