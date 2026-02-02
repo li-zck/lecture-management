@@ -1,6 +1,5 @@
 "use client";
 
-import { Input } from "@/components/ui/shadcn/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowRight, Loader2, Lock, User } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -10,14 +9,15 @@ import { toast } from "sonner";
 import type { z } from "zod";
 import { useSession } from "../provider/SessionProvider";
 import {
-  Button,
-  Card,
-  CardContent,
-  CardFooter,
-  Field,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
+	Input,
+	Button,
+	Card,
+	CardContent,
+	CardFooter,
+	Field,
+	FieldError,
+	FieldGroup,
+	FieldLabel,
 } from "../ui/shadcn";
 
 const formId = "sign-in-form";
@@ -77,7 +77,7 @@ export function SignInForm({
 			// Use the login function from SessionProvider to update state AND set cookie
 			login(accessToken);
 
-			toast.success("Welcome back! Redirecting...", {
+			toast.success("Welcome back!", {
 				description: `Signed in as ${role || "user"}`,
 			});
 			router.push(redirectUrl);
