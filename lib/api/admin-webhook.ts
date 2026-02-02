@@ -79,7 +79,7 @@ export interface UpdateWebhookRequest {
 /**
  * Query parameters for fetching webhooks by user
  */
-export interface WebhookUserQuery {
+export interface WebhookUserQuery extends Record<string, unknown> {
 	lecturerId?: string;
 	studentId?: string;
 }

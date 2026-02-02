@@ -1,15 +1,11 @@
 import { apiClient } from "./client";
+// Use admin Semester type and extend it locally
+import type { Semester as AdminSemester } from "./admin-semester";
 
 /**
- * Semester interface
+ * Semester with course offerings (extended)
  */
-export interface Semester {
-	id: string;
-	name: string;
-	startDate: string;
-	endDate: string;
-	createdAt: string;
-	updatedAt: string;
+export interface Semester extends AdminSemester {
 	courseOnSemesters?: CourseOnSemesterBasic[];
 }
 

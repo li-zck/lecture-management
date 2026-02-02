@@ -23,6 +23,10 @@ export interface CourseSemester {
 		description: string | null;
 		credits: number;
 		departmentId: string | null;
+		department?: {
+			id: string;
+			name: string;
+		} | null;
 	} | null;
 	semester?: {
 		id: string;
@@ -34,7 +38,11 @@ export interface CourseSemester {
 		id: string;
 		fullName: string | null;
 		lecturerId: string;
+		email: string;
 	} | null;
+	_count?: {
+		enrollments: number;
+	};
 }
 
 /**
@@ -43,6 +51,8 @@ export interface CourseSemester {
 export interface CourseSemesterQueryParams {
 	includeCourses?: boolean;
 	includeSemesters?: boolean;
+	includeLecturer?: boolean;
+	includeEnrollmentCount?: boolean;
 	courseId?: string;
 	semesterId?: string;
 }
@@ -64,6 +74,8 @@ export const courseSemesterApi = {
 				params: {
 					includeCourses: params?.includeCourses,
 					includeSemesters: params?.includeSemesters,
+					includeLecturer: params?.includeLecturer,
+					includeEnrollmentCount: params?.includeEnrollmentCount,
 					courseId: params?.courseId,
 					semesterId: params?.semesterId,
 				},

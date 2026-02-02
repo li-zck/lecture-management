@@ -120,7 +120,7 @@ const student = await adminStudentApi.getById("student-id");
 // Search students
 const searchResults = await adminStudentApi.search({
   email: "john@example.com",
-  studentId: "ST2024001",
+  studentId: "ST2026001",
 });
 
 // Create student
@@ -219,9 +219,9 @@ import { adminSemesterApi, adminCourseSemesterApi } from "@/lib/api";
 
 // Create semester
 const semester = await adminSemesterApi.create({
-  name: "Fall 2024",
-  startDate: "2024-09-01",
-  endDate: "2024-12-31",
+  name: "Fall 2026",
+  startDate: "2026-09-01",
+  endDate: "2026-12-31",
 });
 
 // Create course offering for a semester

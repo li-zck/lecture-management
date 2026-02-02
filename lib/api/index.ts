@@ -8,7 +8,7 @@ export * from "./success";
 // Authentication
 export * from "./auth";
 
-// Admin APIs
+// Admin APIs (primary type definitions)
 export * from "./admin";
 export * from "./admin-student";
 export * from "./admin-lecturer";
@@ -28,7 +28,7 @@ export * from "./student";
 export * from "./lecturer";
 
 // Public APIs (for any authenticated user)
-// Note: Only export the API objects, not types (to avoid conflicts with admin types)
+// Only export API objects to avoid type conflicts with admin types
 export { courseApi } from "./course";
 export { departmentApi } from "./department";
 
@@ -36,24 +36,46 @@ export { departmentApi } from "./department";
 export * from "./public-student";
 export * from "./public-lecturer";
 
-// Public enrollment session API
-export * from "./enrollment-session";
+// Public enrollment session API - only export the API object
+export { enrollmentSessionApi } from "./enrollment-session";
 
-// Public semester APIs
-export * from "./semester";
-export * from "./course-semester";
+// Public semester APIs - only export API objects and unique types
+export {
+	semesterApi,
+	type CourseOnSemesterBasic,
+	type SemesterQueryParams,
+} from "./semester";
+export {
+	courseSemesterApi,
+	type CourseSemesterQueryParams,
+} from "./course-semester";
+// Re-export CourseSemester from course-semester (it has additional fields)
+export type { CourseSemester } from "./course-semester";
 
-// Document API
-export * from "./document";
+// Document API - only export API object and unique types
+export {
+	documentApi,
+	type CreateDocumentRequest,
+	type UpdateDocumentRequest,
+} from "./document";
 
-// User notification APIs (student/lecturer)
-export * from "./user-notification";
+// User notification APIs - only export API objects and unique types
+export {
+	studentNotificationApi,
+	lecturerNotificationApi,
+	type UserNotification,
+} from "./user-notification";
 
-// User webhook APIs (student/lecturer)
+// User webhook APIs
 export * from "./user-webhook";
 
-// Public post API
-export * from "./post";
+// Public post API - only export API object and unique types
+export { postApi, type PublicPost } from "./post";
 
-// Public exam schedule APIs
-export * from "./exam-schedule";
+// Public exam schedule APIs - only export API objects and unique types
+export {
+	examScheduleApi,
+	studentExamScheduleApi,
+	lecturerExamScheduleApi,
+	type PublicExamSchedule,
+} from "./exam-schedule";

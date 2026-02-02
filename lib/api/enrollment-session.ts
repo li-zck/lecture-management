@@ -1,25 +1,6 @@
 import { apiClient } from "./client";
-
-/**
- * Enrollment Session interface
- * Represents a time period when students can enroll in courses
- */
-export interface EnrollmentSession {
-	id: string;
-	name: string | null;
-	semesterId: string;
-	semester?: {
-		id: string;
-		name: string;
-		startDate: string;
-		endDate: string;
-	} | null;
-	startDate: string;
-	endDate: string;
-	isActive: boolean;
-	createdAt: string;
-	updatedAt: string;
-}
+// EnrollmentSession type is exported from admin-enrollment-session.ts
+import type { EnrollmentSession } from "./admin-enrollment-session";
 
 /**
  * Public Enrollment Session API

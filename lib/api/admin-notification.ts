@@ -58,7 +58,7 @@ export interface UpdateNotificationRequest {
 /**
  * Query parameters for fetching notifications by user
  */
-export interface NotificationUserQuery {
+export interface NotificationUserQuery extends Record<string, unknown> {
 	lecturerId?: string;
 	studentId?: string;
 }

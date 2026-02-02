@@ -64,7 +64,7 @@ export interface UpdateStudentRequest {
 /**
  * Student search parameters
  */
-export interface StudentSearchParams {
+export interface StudentSearchParams extends Record<string, unknown> {
 	email?: string;
 	studentId?: string;
 	username?: string;
