@@ -1,54 +1,163 @@
 "use client";
 
 import { useSession } from "@/components/provider/SessionProvider";
-import { useAllCourses } from "@/components/ui/hooks";
-import type { Course } from "@/lib/api/course";
-import { Badge } from "@/components/ui/shadcn/badge";
-import { Button } from "@/components/ui/shadcn/button";
+import { usePublicCourseSemesters } from "@/components/ui/hooks";
+import type { CourseSemester } from "@/lib/api/course-semester";
+import { studentApi } from "@/lib/api/student";
 import {
+	Button,
 	Card,
 	CardContent,
 	CardHeader,
 	CardTitle,
-} from "@/components/ui/shadcn/card";
-import { Input } from "@/components/ui/shadcn/input";
-import { BookOpen, Building2, GraduationCap, Search } from "lucide-react";
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	Input,
+	Badge,
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/shadcn";
+import {
+	BookOpen,
+	Building2,
+	Calendar,
+	Clock,
+	GraduationCap,
+	MapPin,
+	Search,
+	User,
+	Users,
+} from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { toast } from "sonner";
+
+const DAYS_OF_WEEK = [
+	"Sunday",
+	"Monday",
+	"Tuesday",
+	"Wednesday",
+	"Thursday",
+	"Friday",
+	"Saturday",
+];
+
+function formatTime(minutes: number | null): string {
+	if (minutes === null) return "TBA";
+	const hours = Math.floor(minutes / 60);
+	const mins = minutes % 60;
+	return `${hours.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}`;
+}
 
 export default function CoursesPage() {
-	const { isAuthenticated } = useSession();
-	const { data, isLoading, error } = useAllCourses();
-	const courses = data?.data ?? [];
+	const { isAuthenticated, role } = useSession();
+	const {
+		data: courseOfferings,
+		isLoading,
+		error,
+		refetch,
+	} = usePublicCourseSemesters({
+		includeCourses: true,
+		includeSemesters: true,
+		includeLecturer: true,
+		includeEnrollmentCount: true,
+	});
 	const [searchQuery, setSearchQuery] = useState("");
+	const [semesterFilter, setSemesterFilter] = useState<string>("all");
+	const [selectedCourse, setSelectedCourse] = useState<CourseSemester | null>(
+		null,
+	);
+	const [isEnrolling, setIsEnrolling] = useState(false);
 
-	// Filter courses based on search query
-	const filteredCourses = useMemo(() => {
-		if (searchQuery.trim() === "") {
-			return courses;
+	// Extract unique semesters for filter dropdown
+	const availableSemesters = useMemo(() => {
+		if (!courseOfferings) return [];
+		const semesterMap = new Map<string, { id: string; name: string }>();
+		for (const offering of courseOfferings) {
+			if (offering.semester?.id && offering.semester?.name) {
+				semesterMap.set(offering.semester.id, {
+					id: offering.semester.id,
+					name: offering.semester.name,
+				});
+			}
 		}
-		const query = searchQuery.toLowerCase();
-		return courses.filter(
-			(course) =>
-				course.name.toLowerCase().includes(query) ||
-				course.department?.name.toLowerCase().includes(query),
+		return Array.from(semesterMap.values()).sort((a, b) =>
+			b.name.localeCompare(a.name),
 		);
-	}, [searchQuery, courses]);
+	}, [courseOfferings]);
+
+	// Filter courses based on search query and semester
+	const filteredCourses = useMemo(() => {
+		if (!courseOfferings) return [];
+
+		return courseOfferings.filter((offering) => {
+			// Apply semester filter
+			if (
+				semesterFilter !== "all" &&
+				offering.semester?.id !== semesterFilter
+			) {
+				return false;
+			}
+
+			// Apply search query filter
+			if (searchQuery.trim() !== "") {
+				const query = searchQuery.toLowerCase();
+				return (
+					offering.course?.name.toLowerCase().includes(query) ||
+					offering.course?.department?.name?.toLowerCase().includes(query) ||
+					offering.lecturer?.fullName?.toLowerCase().includes(query)
+				);
+			}
+
+			return true;
+		});
+	}, [searchQuery, semesterFilter, courseOfferings]);
 
 	// Group courses by department
 	const coursesByDepartment = useMemo(() => {
 		return filteredCourses.reduce(
-			(acc, course) => {
-				const deptName = course.department?.name || "Other";
+			(acc, offering) => {
+				const deptName = offering.course?.department?.name || "Other";
 				if (!acc[deptName]) {
 					acc[deptName] = [];
 				}
-				acc[deptName].push(course);
+				acc[deptName].push(offering);
 				return acc;
 			},
-			{} as Record<string, Course[]>,
+			{} as Record<string, CourseSemester[]>,
 		);
 	}, [filteredCourses]);
+
+	const handleEnroll = async () => {
+		if (!selectedCourse) return;
+
+		setIsEnrolling(true);
+		try {
+			await studentApi.enrollCourse(selectedCourse.id);
+			toast.success("Successfully enrolled in the course!");
+			setSelectedCourse(null);
+			refetch(); // Refresh to update enrollment counts
+		} catch (err: unknown) {
+			const error = err as {
+				response?: { data?: { message?: string } };
+				message?: string;
+			};
+			toast.error(
+				error.response?.data?.message ||
+					error.message ||
+					"Failed to enroll in course",
+			);
+		} finally {
+			setIsEnrolling(false);
+		}
+	};
 
 	if (isLoading) {
 		return (
@@ -83,6 +192,8 @@ export default function CoursesPage() {
 		);
 	}
 
+	const isStudent = role === "student";
+
 	return (
 		<div className="min-h-screen bg-background py-12 px-6">
 			<div className="container mx-auto max-w-6xl">
@@ -95,24 +206,38 @@ export default function CoursesPage() {
 						Course Catalog
 					</h1>
 					<p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-						Browse all available courses offered at the university
+						Browse available course offerings and enroll in courses
 					</p>
 				</div>
 
-				{/* Search and Stats */}
+				{/* Search and Filter */}
 				<div className="flex flex-col md:flex-row gap-4 mb-8">
 					<div className="relative flex-1">
 						<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
 						<Input
-							placeholder="Search courses by name or department..."
+							placeholder="Search for courses..."
 							value={searchQuery}
 							onChange={(e) => setSearchQuery(e.target.value)}
 							className="pl-10"
 						/>
 					</div>
+					<Select value={semesterFilter} onValueChange={setSemesterFilter}>
+						<SelectTrigger className="w-full md:w-[200px]">
+							<Calendar className="w-4 h-4 mr-2 text-muted-foreground" />
+							<SelectValue placeholder="All Semesters" />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="all">All Semesters</SelectItem>
+							{availableSemesters.map((semester) => (
+								<SelectItem key={semester.id} value={semester.id}>
+									{semester.name}
+								</SelectItem>
+							))}
+						</SelectContent>
+					</Select>
 					<div className="flex gap-2">
 						<Badge variant="secondary" className="px-4 py-2">
-							{filteredCourses.length} Courses
+							{filteredCourses.length} Offerings
 						</Badge>
 						<Badge variant="outline" className="px-4 py-2">
 							{Object.keys(coursesByDepartment).length} Departments
@@ -123,7 +248,9 @@ export default function CoursesPage() {
 				{/* Navigation hint */}
 				<div className="mb-6 p-4 bg-muted/50 rounded-lg flex items-center justify-between">
 					<p className="text-sm text-muted-foreground">
-						Looking for your enrolled courses?
+						{isStudent
+							? "Click on a course to view details and enroll"
+							: "Looking for your enrolled/assigned courses?"}
 					</p>
 					<Link href="/my-courses">
 						<Button variant="outline" size="sm">
@@ -141,9 +268,9 @@ export default function CoursesPage() {
 							</div>
 							<h2 className="text-2xl font-bold mb-3">No Courses Found</h2>
 							<p className="text-muted-foreground max-w-md mx-auto">
-								{searchQuery
-									? "No courses match your search criteria. Try adjusting your search."
-									: "There are no courses available at the moment."}
+								{searchQuery || semesterFilter !== "all"
+									? "No courses match your search criteria. Try adjusting your search or filter."
+									: "There are no course offerings available at the moment."}
 							</p>
 						</CardContent>
 					</Card>
@@ -160,34 +287,191 @@ export default function CoursesPage() {
 									</div>
 
 									<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-										{deptCourses.map((course) => (
-											<Card
-												key={course.id}
-												className="border-border/50 shadow-md hover:shadow-lg transition-shadow"
-											>
-												<CardHeader className="pb-2">
-													<CardTitle className="text-lg line-clamp-2">
-														{course.name}
-													</CardTitle>
-												</CardHeader>
-												<CardContent>
-													<div className="flex items-center justify-between">
-														<Badge variant="outline">
-															{course.credits} Credits
-														</Badge>
-														<span className="text-xs text-muted-foreground">
-															{course.department?.name}
-														</span>
-													</div>
-												</CardContent>
-											</Card>
-										))}
+										{deptCourses.map((offering) => {
+											const enrollmentCount = offering._count?.enrollments ?? 0;
+											const capacity = offering.capacity;
+											const isFull =
+												capacity !== null && enrollmentCount >= capacity;
+
+											return (
+												<Card
+													key={offering.id}
+													className={`border-border/50 shadow-md hover:shadow-lg transition-all cursor-pointer ${
+														isStudent ? "hover:border-primary/50" : ""
+													}`}
+													onClick={() =>
+														isStudent && setSelectedCourse(offering)
+													}
+												>
+													<CardHeader className="pb-2">
+														<div className="flex items-start justify-between gap-2">
+															<CardTitle className="text-lg line-clamp-2">
+																{offering.course?.name ?? "Unknown Course"}
+															</CardTitle>
+															{isFull && (
+																<Badge
+																	variant="destructive"
+																	className="shrink-0"
+																>
+																	Full
+																</Badge>
+															)}
+														</div>
+														<p className="text-sm text-muted-foreground">
+															{offering.semester?.name}
+														</p>
+													</CardHeader>
+													<CardContent className="space-y-3">
+														<div className="flex items-center justify-between">
+															<Badge variant="outline">
+																{offering.course?.credits ?? 0} Credits
+															</Badge>
+															<div className="flex items-center gap-1 text-xs text-muted-foreground">
+																<Users className="w-3 h-3" />
+																<span>
+																	{enrollmentCount}
+																	{capacity !== null && `/${capacity}`}
+																</span>
+															</div>
+														</div>
+
+														{/* Schedule info */}
+														{offering.dayOfWeek !== null && (
+															<div className="flex items-center gap-2 text-sm text-muted-foreground">
+																<Clock className="w-4 h-4" />
+																<span>
+																	{DAYS_OF_WEEK[offering.dayOfWeek]},{" "}
+																	{formatTime(offering.startTime)} -{" "}
+																	{formatTime(offering.endTime)}
+																</span>
+															</div>
+														)}
+
+														{/* Location */}
+														{offering.location && (
+															<div className="flex items-center gap-2 text-sm text-muted-foreground">
+																<MapPin className="w-4 h-4" />
+																<span>{offering.location}</span>
+															</div>
+														)}
+
+														{/* Lecturer */}
+														{offering.lecturer && (
+															<div className="flex items-center gap-2 text-sm text-muted-foreground">
+																<User className="w-4 h-4" />
+																<span>
+																	{offering.lecturer.fullName ??
+																		offering.lecturer.lecturerId}
+																</span>
+															</div>
+														)}
+													</CardContent>
+												</Card>
+											);
+										})}
 									</div>
 								</div>
 							))}
 					</div>
 				)}
 			</div>
+
+			{/* Enrollment Dialog */}
+			<Dialog
+				open={selectedCourse !== null}
+				onOpenChange={(open) => !open && setSelectedCourse(null)}
+			>
+				<DialogContent className="sm:max-w-md">
+					<DialogHeader>
+						<DialogTitle>{selectedCourse?.course?.name}</DialogTitle>
+						<DialogDescription>
+							{selectedCourse?.semester?.name}
+						</DialogDescription>
+					</DialogHeader>
+
+					<div className="space-y-4 py-4">
+						{/* Course details */}
+						<div className="grid gap-3">
+							<div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+								<GraduationCap className="w-5 h-5 text-muted-foreground" />
+								<div>
+									<p className="text-xs text-muted-foreground">Credits</p>
+									<p className="font-medium">
+										{selectedCourse?.course?.credits ?? 0}
+									</p>
+								</div>
+							</div>
+
+							<div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+								<Calendar className="w-5 h-5 text-muted-foreground" />
+								<div>
+									<p className="text-xs text-muted-foreground">Schedule</p>
+									<p className="font-medium">
+										{selectedCourse?.dayOfWeek !== null &&
+										selectedCourse?.dayOfWeek !== undefined
+											? `${DAYS_OF_WEEK[selectedCourse.dayOfWeek]}, ${formatTime(selectedCourse.startTime)} - ${formatTime(selectedCourse.endTime)}`
+											: "TBA"}
+									</p>
+								</div>
+							</div>
+
+							<div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+								<MapPin className="w-5 h-5 text-muted-foreground" />
+								<div>
+									<p className="text-xs text-muted-foreground">Location</p>
+									<p className="font-medium">
+										{selectedCourse?.location || "TBA"}
+									</p>
+								</div>
+							</div>
+
+							<div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+								<User className="w-5 h-5 text-muted-foreground" />
+								<div>
+									<p className="text-xs text-muted-foreground">Lecturer</p>
+									<p className="font-medium">
+										{selectedCourse?.lecturer?.fullName ?? "TBA"}
+									</p>
+								</div>
+							</div>
+
+							<div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+								<Users className="w-5 h-5 text-muted-foreground" />
+								<div>
+									<p className="text-xs text-muted-foreground">Enrollment</p>
+									<p className="font-medium">
+										{selectedCourse?._count?.enrollments ?? 0}
+										{selectedCourse?.capacity !== null &&
+											selectedCourse?.capacity !== undefined &&
+											` / ${selectedCourse.capacity}`}{" "}
+										students
+									</p>
+								</div>
+							</div>
+						</div>
+
+						{/* Capacity warning */}
+						{selectedCourse?.capacity !== null &&
+							selectedCourse?.capacity !== undefined &&
+							(selectedCourse?._count?.enrollments ?? 0) >=
+								selectedCourse.capacity && (
+								<div className="p-3 bg-destructive/10 text-destructive rounded-lg text-sm">
+									This course is currently full. You may still attempt to enroll
+									and be placed on a waitlist.
+								</div>
+							)}
+					</div>
+
+					<DialogFooter className="flex gap-2 sm:gap-2">
+						<Button variant="outline" onClick={() => setSelectedCourse(null)}>
+							Cancel
+						</Button>
+						<Button onClick={handleEnroll} disabled={isEnrolling}>
+							{isEnrolling ? "Enrolling..." : "Enroll in Course"}
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
 		</div>
 	);
 }

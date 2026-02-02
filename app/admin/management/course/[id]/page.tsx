@@ -68,7 +68,6 @@ export default function EditCoursePage({ params }: EditCoursePageProps) {
 			<PageHeader
 				title="Edit Course"
 				description={`Edit details for ${initialValues?.name || "Course"}`}
-				backUrl="/admin/management/course"
 			/>
 			{initialValues && (
 				<CourseForm
