@@ -201,7 +201,7 @@ export const queryKeys = {
 	publicCourseSemesters: {
 		all: ["public-course-semesters"] as const,
 		lists: () => [...queryKeys.publicCourseSemesters.all, "list"] as const,
-		list: (filters?: { courseId?: string; semesterId?: string }) =>
+		list: (filters?: Record<string, unknown>) =>
 			[...queryKeys.publicCourseSemesters.lists(), filters] as const,
 		details: () => [...queryKeys.publicCourseSemesters.all, "detail"] as const,
 		detail: (id: string) =>
