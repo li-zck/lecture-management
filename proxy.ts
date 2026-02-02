@@ -8,7 +8,7 @@ const authRoutes = [
 	ROUTES.adminSite.auth.signup,
 	ROUTES.adminSite.auth.signin,
 ];
-const protectedRoutes = ["/dashboard", "/profile"];
+const protectedRoutes = ["/dashboard", "/profile", "/courses"];
 const roleBasedRoutes: Record<string, string[]> = {
 	"/admin": ["admin"],
 };

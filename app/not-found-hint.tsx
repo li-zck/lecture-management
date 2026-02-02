@@ -57,7 +57,7 @@ const NotFoundHintChild = () => {
 	return (
 		<>
 			<div className="font-bold mb-5">
-				You're signed in as:
+				You&apos;re signed in as:
 				<p>{userRole}</p>
 			</div>
 
