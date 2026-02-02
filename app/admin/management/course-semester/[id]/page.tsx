@@ -84,7 +84,6 @@ export default function EditCourseSemesterPage({
 			<PageHeader
 				title="Edit Course Schedule"
 				description={`Edit details for schedule`}
-				backUrl="/admin/management/course-semester"
 			/>
 			{initialValues && (
 				<CourseSemesterForm

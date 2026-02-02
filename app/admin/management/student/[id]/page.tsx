@@ -86,7 +86,6 @@ export default function EditStudentPage({ params }: EditStudentPageProps) {
 			<PageHeader
 				title="Edit Student"
 				description={`Edit details for ${initialValues?.fullName || "Student"}`}
-				backUrl="/admin/management/student"
 			/>
 			{initialValues && (
 				<StudentForm

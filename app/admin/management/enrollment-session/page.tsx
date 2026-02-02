@@ -1,47 +1,52 @@
 "use client";
 
-import { useSemesters } from "@/components/ui/hooks/use-semesters";
+import { useEnrollmentSessions } from "@/components/ui/hooks/use-enrollment-sessions";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/shadcn/button";
 import { DataTable } from "@/components/ui/table/DataTable";
-import { adminSemesterApi, type Semester } from "@/lib/api/admin-semester";
+import {
+	adminEnrollmentSessionApi,
+	type EnrollmentSession,
+} from "@/lib/api/admin-enrollment-session";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { columns } from "./columns";
 
-export default function SemesterManagementPage() {
-	const { semesters, loading, refetch } = useSemesters();
+export default function EnrollmentSessionManagementPage() {
+	const { enrollmentSessions, loading, refetch } = useEnrollmentSessions();
 	const router = useRouter();
 
 	const handleBulkDelete = async (
-		selectedItems: Semester[],
+		selectedItems: EnrollmentSession[],
 		onSuccess?: () => void,
 	) => {
 		try {
 			const ids = selectedItems.map((item) => item.id);
-			await adminSemesterApi.deleteMultiple(ids);
-			toast.success(`Successfully deleted ${selectedItems.length} semester(s)`);
+			await adminEnrollmentSessionApi.deleteMultiple(ids);
+			toast.success(
+				`Successfully deleted ${selectedItems.length} enrollment session(s)`,
+			);
 			refetch();
 			router.refresh();
 			onSuccess?.();
 		} catch (error: unknown) {
 			const err = error as { message?: string };
-			toast.error(err?.message || "Failed to delete semesters");
+			toast.error(err?.message || "Failed to delete enrollment sessions");
 		}
 	};
 
 	return (
 		<div className="space-y-6">
 			<PageHeader
-				title="Semesters"
-				description="Manage academic semesters and their periods."
+				title="Enrollment Sessions"
+				description="Manage enrollment periods when students can register for courses. Control when enrollment is open or closed."
 				action={
 					<Button asChild>
-						<Link href="/admin/management/semester/create">
+						<Link href="/admin/management/enrollment-session/create">
 							<Plus className="mr-2 h-4 w-4" />
-							Create New Semester
+							Create New Session
 						</Link>
 					</Button>
 				}
@@ -49,13 +54,15 @@ export default function SemesterManagementPage() {
 
 			{loading ? (
 				<div className="flex items-center justify-center p-8">
-					<div className="text-muted-foreground">Loading specific data...</div>
+					<div className="text-muted-foreground">
+						Loading enrollment sessions...
+					</div>
 				</div>
 			) : (
 				<DataTable
 					columns={columns}
-					data={semesters}
-					entityType="semester"
+					data={enrollmentSessions}
+					entityType="enrollment-session"
 					filterColumn="name"
 					bulkDeleteHandlerAction={handleBulkDelete}
 				/>

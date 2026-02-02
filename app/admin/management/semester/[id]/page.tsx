@@ -74,7 +74,6 @@ export default function EditSemesterPage({ params }: EditSemesterPageProps) {
 			<PageHeader
 				title="Edit Semester"
 				description={`Edit details for ${initialValues?.name || "Semester"}`}
-				backUrl="/admin/management/semester"
 			/>
 			{initialValues && (
 				<SemesterForm

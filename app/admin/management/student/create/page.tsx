@@ -57,7 +57,6 @@ export default function CreateStudentPage() {
 			<PageHeader
 				title="Create Student"
 				description="Add a new student to the system"
-				backUrl="/admin/management/student"
 			/>
 			<StudentForm onSubmit={handleSubmit} mode="create" />
 		</div>
