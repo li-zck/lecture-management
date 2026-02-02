@@ -459,9 +459,9 @@ export function LecturerDashboard() {
 												{DAY_NAMES[Number(day)]}
 											</h3>
 											<div className="space-y-2">
-												{classes.map((classInfo, idx) => (
+												{classes.map((classInfo, idx: number) => (
 													<div
-														key={classInfo.courseName + idx}
+														key={`${classInfo.courseName}-${idx}`}
 														className="flex justify-between items-center p-3 bg-muted rounded-md"
 													>
 														<p className="font-medium">

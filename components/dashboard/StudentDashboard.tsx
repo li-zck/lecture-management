@@ -21,6 +21,7 @@ import {
 	type WeeklySchedule,
 } from "@/lib/api/student";
 import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const DAY_NAMES: Record<number, string> = {
 	0: "Sunday",
@@ -131,6 +132,7 @@ export function StudentDashboard() {
 				)
 			)
 				return;
+
 			await studentApi.withdrawCourse(enrollmentId);
 			alert("Successfully withdrawn!");
 			// Refresh data
@@ -141,7 +143,9 @@ export function StudentDashboard() {
 			setCourses(enrollmentsData);
 			setSchedule(scheduleData);
 		} catch (err: any) {
-			alert(err.response?.data?.message || "Failed to withdraw");
+			toast.error(err.response?.data?.message || "Failed to withdraw", {
+				position: "top-center",
+			});
 		}
 	};
 
@@ -556,9 +560,9 @@ export function StudentDashboard() {
 												{DAY_NAMES[Number(day)]}
 											</h3>
 											<div className="space-y-2">
-												{classes.map((classInfo, idx) => (
+												{classes.map((classInfo, idx: number) => (
 													<div
-														key={classInfo.courseName + idx}
+														key={`${classInfo.courseName}-${idx}`}
 														className="flex justify-between items-center p-3 bg-muted rounded-md"
 													>
 														<div>
