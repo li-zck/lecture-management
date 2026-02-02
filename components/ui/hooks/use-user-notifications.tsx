@@ -8,7 +8,7 @@ import {
 import { queryKeys } from "@/lib/query";
 
 export type { UserNotification } from "@/lib/api/user-notification";
-// Note: NotificationType is exported from use-notifications.tsx (admin)
+// Note: NotificationType is exported from use-admin-notifications.tsx (admin)
 
 /**
  * Hook for fetching all student notifications

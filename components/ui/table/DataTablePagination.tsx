@@ -1,18 +1,32 @@
+"use client";
+
 import type { Table } from "@tanstack/react-table";
 import {
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
+	ChevronLeft,
+	ChevronRight,
+	ChevronsLeft,
+	ChevronsRight,
+	Trash2,
 } from "lucide-react";
+import { useState } from "react";
 
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "@/components/ui/shadcn/alert-dialog";
 import { Button } from "@/components/ui/shadcn/button";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
 } from "@/components/ui/shadcn/select";
 
 type DataTablePaginationProps<TData> = {
@@ -21,36 +35,81 @@ type DataTablePaginationProps<TData> = {
 		selectedItems: TData[],
 		onSuccess?: () => void,
 	) => void;
+	entityName?: string;
 };
 
 export function DataTablePagination<TData>({
 	table,
 	bulkDeleteHandlerAction,
+	entityName = "item",
 }: DataTablePaginationProps<TData>) {
+	const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+	const [isDeleting, setIsDeleting] = useState(false);
+	const selectedCount = table.getFilteredSelectedRowModel().rows.length;
+
+	const handleBulkDelete = async () => {
+		if (!bulkDeleteHandlerAction) return;
+
+		setIsDeleting(true);
+		const selectedItems = table
+			.getFilteredSelectedRowModel()
+			.rows.map((row) => row.original);
+
+		bulkDeleteHandlerAction(selectedItems, () => {
+			table.toggleAllPageRowsSelected(false);
+			setShowDeleteDialog(false);
+			setIsDeleting(false);
+		});
+	};
+
 	return (
 		<div className="flex items-center justify-between px-2">
 			<div className="text-muted-foreground flex-1 text-sm flex items-center gap-2">
-				{table.getFilteredSelectedRowModel().rows.length} of{" "}
-				{table.getFilteredRowModel().rows.length} row(s) selected.
-				{table.getFilteredSelectedRowModel().rows.length > 0 &&
-					bulkDeleteHandlerAction && (
-						<Button
-							variant="destructive"
-							size="sm"
-							onClick={() => {
-								const selectedItems = table
-									.getFilteredSelectedRowModel()
-									.rows.map((row) => row.original);
-								bulkDeleteHandlerAction(selectedItems, () => {
-									table.toggleAllPageRowsSelected(false);
-								});
-							}}
-							className="ml-5"
-						>
-							Delete Selected
-						</Button>
-					)}
+				{selectedCount} of {table.getFilteredRowModel().rows.length} row(s)
+				selected.
+				{selectedCount > 0 && bulkDeleteHandlerAction && (
+					<Button
+						variant="destructive"
+						size="sm"
+						onClick={() => setShowDeleteDialog(true)}
+						className="ml-4 gap-2"
+					>
+						<Trash2 className="h-4 w-4" />
+						Delete {selectedCount}{" "}
+						{selectedCount === 1 ? entityName : `${entityName}s`}
+					</Button>
+				)}
 			</div>
+
+			{/* Delete Confirmation Dialog */}
+			<AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+						<AlertDialogDescription>
+							This action cannot be undone. This will permanently delete{" "}
+							<strong>{selectedCount}</strong>{" "}
+							{selectedCount === 1 ? entityName : `${entityName}s`} and remove
+							all associated data.
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+						<AlertDialogAction
+							disabled={isDeleting}
+							onClick={(e) => {
+								e.preventDefault();
+								handleBulkDelete();
+							}}
+							className="bg-red-600 hover:bg-red-700"
+						>
+							{isDeleting
+								? "Deleting..."
+								: `Delete ${selectedCount} ${selectedCount === 1 ? entityName : `${entityName}s`}`}
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 			<div className="flex items-center space-x-6 lg:space-x-8">
 				<div className="flex items-center space-x-2">
 					<p className="text-sm font-medium">Rows per page</p>

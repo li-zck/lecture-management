@@ -13,8 +13,23 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Badge } from "./shadcn/badge";
 import { Button } from "./shadcn/button";
-import { Card, CardContent, CardHeader, CardTitle } from "./shadcn/card";
+import { Card, CardContent } from "./shadcn/card";
 import { Progress } from "./shadcn/progress";
+import {
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from "./shadcn/table";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+} from "./shadcn/dialog";
 
 const DAYS_OF_WEEK = [
 	"Sunday",
@@ -34,14 +49,12 @@ function formatTime(minutes: number | null): string {
 }
 
 function calculateProgress(grades: EnrolledCourse["grades"]): number {
-	// Mock progress calculation based on available grades
 	let completedAssessments = 0;
 	if (grades.gradeType1 !== null) completedAssessments++;
 	if (grades.gradeType2 !== null) completedAssessments++;
 	if (grades.gradeType3 !== null) completedAssessments++;
-	if (grades.finalGrade !== null) completedAssessments++;
 
-	return (completedAssessments / 4) * 100;
+	return (completedAssessments / 3) * 100;
 }
 
 function getGradeStatus(finalGrade: number | null): {
@@ -56,10 +69,46 @@ function getGradeStatus(finalGrade: number | null): {
 	return { label: "Fail", variant: "destructive" };
 }
 
+/**
+ * Convert numeric grade (0-10 scale) to letter grade
+ * Grade scale:
+ * A: >= 8.5
+ * B+: >= 7.8
+ * B: >= 7.0
+ * C+: >= 6.3
+ * C: >= 5.5
+ * D+: >= 4.8
+ * D: >= 4.0
+ * F: < 4.0
+ */
+function getLetterGrade(grade: number | null): string {
+	if (grade === null) return "-";
+	if (grade >= 8.5) return "A";
+	if (grade >= 7.8) return "B+";
+	if (grade >= 7.0) return "B";
+	if (grade >= 6.3) return "C+";
+	if (grade >= 5.5) return "C";
+	if (grade >= 4.8) return "D+";
+	if (grade >= 4.0) return "D";
+	return "F";
+}
+
+function getLetterGradeColor(grade: number | null): string {
+	if (grade === null) return "text-muted-foreground";
+	if (grade >= 8.5) return "text-emerald-600 font-semibold";
+	if (grade >= 7.0) return "text-blue-600 font-semibold";
+	if (grade >= 5.5) return "text-amber-600 font-semibold";
+	if (grade >= 4.0) return "text-orange-600 font-semibold";
+	return "text-destructive font-semibold";
+}
+
 export function StudentCourses() {
 	const [courses, setCourses] = useState<EnrolledCourse[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
+	const [selectedCourse, setSelectedCourse] = useState<EnrolledCourse | null>(
+		null,
+	);
 
 	useEffect(() => {
 		async function fetchEnrollments() {
@@ -145,7 +194,10 @@ export function StudentCourses() {
 							<Card className="border-border/50">
 								<CardContent className="p-4 text-center">
 									<p className="text-3xl font-bold text-primary">
-										{courses.reduce((sum, c) => sum + c.course.credits, 0)}
+										{courses.reduce(
+											(sum, c) => sum + (c.course?.credits ?? 0),
+											0,
+										)}
 									</p>
 									<p className="text-sm text-muted-foreground">Total Credits</p>
 								</CardContent>
@@ -157,11 +209,11 @@ export function StudentCourses() {
 											courses.filter(
 												(c) =>
 													c.grades.finalGrade !== null &&
-													c.grades.finalGrade >= 5,
+													c.grades.finalGrade >= 4,
 											).length
 										}
 									</p>
-									<p className="text-sm text-muted-foreground">Completed</p>
+									<p className="text-sm text-muted-foreground">Passed</p>
 								</CardContent>
 							</Card>
 							<Card className="border-border/50">
@@ -174,147 +226,221 @@ export function StudentCourses() {
 							</Card>
 						</div>
 
-						{/* Course Cards */}
-						<div className="grid gap-6">
-							{courses.map((course) => {
-								const progress = calculateProgress(course.grades);
-								const status = getGradeStatus(course.grades.finalGrade);
+						{/* Courses Table */}
+						<Card className="border-border/50 shadow-md">
+							<Table>
+								<TableHeader>
+									<TableRow>
+										<TableHead className="pl-4">Course Name</TableHead>
+										<TableHead className="text-center w-24">Credits</TableHead>
+										<TableHead className="text-center w-32">
+											Final Grade
+										</TableHead>
+										<TableHead className="text-center w-28">Status</TableHead>
+									</TableRow>
+								</TableHeader>
+								<TableBody>
+									{courses.map((course) => {
+										const status = getGradeStatus(course.grades.finalGrade);
+										const letterGrade = getLetterGrade(
+											course.grades.finalGrade,
+										);
+										const gradeColor = getLetterGradeColor(
+											course.grades.finalGrade,
+										);
 
-								return (
-									<Card
-										key={course.enrollmentId}
-										className="border-border/50 shadow-md hover:shadow-lg transition-shadow"
-									>
-										<CardHeader className="pb-4">
-											<div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-												<div className="space-y-1">
-													<CardTitle className="text-xl">
-														{course.course.name}
-													</CardTitle>
-													<div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-														<Badge variant="outline">
-															{course.course.credits} Credits
-														</Badge>
-														<span>•</span>
-														<span>{course.semester.name}</span>
-														{course.course.department && (
-															<>
-																<span>•</span>
-																<span>{course.course.department}</span>
-															</>
-														)}
-													</div>
-												</div>
-												<Badge variant={status.variant}>{status.label}</Badge>
-											</div>
-										</CardHeader>
-										<CardContent className="space-y-4">
-											{/* Schedule & Lecturer */}
-											<div className="grid md:grid-cols-2 gap-4">
-												<div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-													<Calendar className="w-5 h-5 text-muted-foreground" />
+										return (
+											<TableRow
+												key={course.enrollmentId}
+												className="cursor-pointer hover:bg-muted/50"
+												onClick={() => setSelectedCourse(course)}
+											>
+												<TableCell className="pl-4">
 													<div>
-														<p className="text-xs text-muted-foreground">
-															Schedule
-														</p>
 														<p className="font-medium">
-															{course.schedule.dayOfWeek !== null
-																? `${DAYS_OF_WEEK[course.schedule.dayOfWeek]}, ${formatTime(course.schedule.startTime)} - ${formatTime(course.schedule.endTime)}`
-																: "TBA"}
+															{course.course?.name ?? "Unknown Course"}
+														</p>
+														<p className="text-sm text-muted-foreground">
+															{course.semester?.name ?? "Unknown Semester"}
 														</p>
 													</div>
-												</div>
-												<div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-													<MapPin className="w-5 h-5 text-muted-foreground" />
-													<div>
-														<p className="text-xs text-muted-foreground">
-															Location
-														</p>
-														<p className="font-medium">
-															{course.schedule.location || "TBA"}
-														</p>
-													</div>
-												</div>
-												<div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-													<User className="w-5 h-5 text-muted-foreground" />
-													<div>
-														<p className="text-xs text-muted-foreground">
-															Lecturer
-														</p>
-														<p className="font-medium">
-															{course.lecturer?.fullName || "TBA"}
-														</p>
-													</div>
-												</div>
-												<div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-													<TrendingUp className="w-5 h-5 text-muted-foreground" />
-													<div>
-														<p className="text-xs text-muted-foreground">
-															Final Grade
-														</p>
-														<p className="font-medium">
-															{course.grades.finalGrade !== null
-																? course.grades.finalGrade.toFixed(2)
-																: "Pending"}
-														</p>
-													</div>
-												</div>
-											</div>
-
-											{/* Progress Bar */}
-											<div className="space-y-2">
-												<div className="flex justify-between text-sm">
-													<span className="text-muted-foreground">
-														Course Progress
-													</span>
-													<span className="font-medium">
-														{progress.toFixed(0)}%
-													</span>
-												</div>
-												<Progress value={progress} className="h-2" />
-											</div>
-
-											{/* Grade Breakdown */}
-											<div className="grid grid-cols-4 gap-2 pt-2">
-												<div className="text-center p-2 bg-muted/30 rounded">
-													<p className="text-xs text-muted-foreground">
-														Assignment 1
-													</p>
-													<p className="font-semibold">
-														{course.grades.gradeType1?.toFixed(1) ?? "-"}
-													</p>
-												</div>
-												<div className="text-center p-2 bg-muted/30 rounded">
-													<p className="text-xs text-muted-foreground">
-														Assignment 2
-													</p>
-													<p className="font-semibold">
-														{course.grades.gradeType2?.toFixed(1) ?? "-"}
-													</p>
-												</div>
-												<div className="text-center p-2 bg-muted/30 rounded">
-													<p className="text-xs text-muted-foreground">
-														Midterm
-													</p>
-													<p className="font-semibold">
-														{course.grades.gradeType3?.toFixed(1) ?? "-"}
-													</p>
-												</div>
-												<div className="text-center p-2 bg-muted/30 rounded">
-													<p className="text-xs text-muted-foreground">Final</p>
-													<p className="font-semibold">
-														{course.grades.finalGrade?.toFixed(1) ?? "-"}
-													</p>
-												</div>
-											</div>
-										</CardContent>
-									</Card>
-								);
-							})}
-						</div>
+												</TableCell>
+												<TableCell className="text-center">
+													{course.course?.credits ?? 0}
+												</TableCell>
+												<TableCell className="text-center">
+													<span className={gradeColor}>{letterGrade}</span>
+													{course.grades.finalGrade !== null && (
+														<span className="text-xs text-muted-foreground ml-1">
+															({course.grades.finalGrade.toFixed(1)})
+														</span>
+													)}
+												</TableCell>
+												<TableCell className="text-center">
+													<Badge variant={status.variant}>{status.label}</Badge>
+												</TableCell>
+											</TableRow>
+										);
+									})}
+								</TableBody>
+							</Table>
+						</Card>
 					</div>
 				)}
 			</div>
+
+			{/* Course Detail Dialog */}
+			<Dialog
+				open={selectedCourse !== null}
+				onOpenChange={(open) => !open && setSelectedCourse(null)}
+			>
+				<DialogContent className="sm:max-w-lg">
+					<DialogHeader>
+						<DialogTitle>
+							{selectedCourse?.course?.name ?? "Course Details"}
+						</DialogTitle>
+						<DialogDescription>
+							{selectedCourse?.semester?.name}
+							{selectedCourse?.course?.department && (
+								<> &bull; {selectedCourse.course.department}</>
+							)}
+						</DialogDescription>
+					</DialogHeader>
+
+					<div className="space-y-4 py-4">
+						{/* Schedule & Location */}
+						<div className="grid gap-3">
+							<div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+								<Calendar className="w-5 h-5 text-muted-foreground shrink-0" />
+								<div>
+									<p className="text-xs text-muted-foreground">Schedule</p>
+									<p className="font-medium">
+										{selectedCourse?.schedule.dayOfWeek !== null &&
+										selectedCourse?.schedule.dayOfWeek !== undefined
+											? `${DAYS_OF_WEEK[selectedCourse.schedule.dayOfWeek]}, ${formatTime(selectedCourse.schedule.startTime)} - ${formatTime(selectedCourse.schedule.endTime)}`
+											: "TBA"}
+									</p>
+								</div>
+							</div>
+
+							<div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+								<MapPin className="w-5 h-5 text-muted-foreground shrink-0" />
+								<div>
+									<p className="text-xs text-muted-foreground">Location</p>
+									<p className="font-medium">
+										{selectedCourse?.schedule.location || "TBA"}
+									</p>
+								</div>
+							</div>
+
+							<div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+								<User className="w-5 h-5 text-muted-foreground shrink-0" />
+								<div>
+									<p className="text-xs text-muted-foreground">Lecturer</p>
+									<p className="font-medium">
+										{selectedCourse?.lecturer?.fullName || "TBA"}
+									</p>
+								</div>
+							</div>
+
+							<div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+								<GraduationCap className="w-5 h-5 text-muted-foreground shrink-0" />
+								<div>
+									<p className="text-xs text-muted-foreground">Credits</p>
+									<p className="font-medium">
+										{selectedCourse?.course?.credits ?? 0}
+									</p>
+								</div>
+							</div>
+						</div>
+
+						{/* Progress Bar */}
+						<div className="space-y-2">
+							<div className="flex justify-between text-sm">
+								<span className="text-muted-foreground">Course Progress</span>
+								<span className="font-medium">
+									{selectedCourse
+										? calculateProgress(selectedCourse.grades).toFixed(0)
+										: 0}
+									%
+								</span>
+							</div>
+							<Progress
+								value={
+									selectedCourse ? calculateProgress(selectedCourse.grades) : 0
+								}
+								className="h-2"
+							/>
+						</div>
+
+						{/* Grade Breakdown */}
+						<div className="space-y-3">
+							<div className="flex items-center gap-2">
+								<TrendingUp className="w-4 h-4 text-muted-foreground" />
+								<p className="text-sm font-medium">Grade Breakdown</p>
+							</div>
+							<div className="grid grid-cols-2 gap-2">
+								<div className="text-center p-3 bg-muted/30 rounded-lg">
+									<p className="text-xs text-muted-foreground mb-1">
+										Assignment (10%)
+									</p>
+									<p className="font-semibold text-lg">
+										{selectedCourse?.grades.gradeType1?.toFixed(1) ?? "-"}
+									</p>
+								</div>
+								<div className="text-center p-3 bg-muted/30 rounded-lg">
+									<p className="text-xs text-muted-foreground mb-1">
+										Midterm (30%)
+									</p>
+									<p className="font-semibold text-lg">
+										{selectedCourse?.grades.gradeType2?.toFixed(1) ?? "-"}
+									</p>
+								</div>
+								<div className="text-center p-3 bg-muted/30 rounded-lg">
+									<p className="text-xs text-muted-foreground mb-1">
+										Final Exam (60%)
+									</p>
+									<p className="font-semibold text-lg">
+										{selectedCourse?.grades.gradeType3?.toFixed(1) ?? "-"}
+									</p>
+								</div>
+								<div className="text-center p-3 bg-primary/10 rounded-lg border border-primary/20">
+									<p className="text-xs text-muted-foreground mb-1">
+										Final Grade
+									</p>
+									<p
+										className={`text-lg ${getLetterGradeColor(selectedCourse?.grades.finalGrade ?? null)}`}
+									>
+										{getLetterGrade(selectedCourse?.grades.finalGrade ?? null)}
+										{selectedCourse?.grades.finalGrade !== null &&
+											selectedCourse?.grades.finalGrade !== undefined && (
+												<span className="text-sm text-muted-foreground ml-1">
+													({selectedCourse.grades.finalGrade.toFixed(2)})
+												</span>
+											)}
+									</p>
+								</div>
+							</div>
+						</div>
+
+						{/* Status Badge */}
+						<div className="flex items-center justify-between pt-2 border-t">
+							<span className="text-sm text-muted-foreground">Status</span>
+							<Badge
+								variant={
+									getGradeStatus(selectedCourse?.grades.finalGrade ?? null)
+										.variant
+								}
+							>
+								{
+									getGradeStatus(selectedCourse?.grades.finalGrade ?? null)
+										.label
+								}
+							</Badge>
+						</div>
+					</div>
+				</DialogContent>
+			</Dialog>
 		</div>
 	);
 }

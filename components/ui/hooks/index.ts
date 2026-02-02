@@ -7,7 +7,7 @@ export * from "./use-courses";
 export * from "./use-semesters";
 export * from "./use-course-semesters";
 export * from "./use-enrollment-sessions";
-export * from "./use-notifications";
+export * from "./use-admin-notifications";
 export * from "./use-posts";
 export * from "./use-exam-schedules";
 export * from "./use-webhooks";
@@ -23,7 +23,7 @@ export * from "./use-active-enrollment-sessions";
 export * from "./use-public-semesters";
 export * from "./use-public-course-semesters";
 export * from "./use-documents";
-export * from "./use-user-notifications";
+// Note: use-notifications.ts handles user notifications for students/lecturers
 export * from "./use-user-webhooks";
 export * from "./use-public-posts";
 export * from "./use-public-exam-schedules";

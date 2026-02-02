@@ -11,7 +11,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
 			theme={theme as ToasterProps["theme"]}
 			className="toaster group"
 			// swipeDirections={["bottom", "top"]}
-			// position="top-left"
+			position="top-right"
 			// duration={500}
 			style={
 				{

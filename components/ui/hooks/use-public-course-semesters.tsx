@@ -22,13 +22,19 @@ export const usePublicCourseSemesters = (
 		queryKey: queryKeys.publicCourseSemesters.list({
 			courseId: params?.courseId,
 			semesterId: params?.semesterId,
+			includeCourses: params?.includeCourses,
+			includeSemesters: params?.includeSemesters,
+			includeLecturer: params?.includeLecturer,
+			includeEnrollmentCount: params?.includeEnrollmentCount,
 		}),
 		queryFn: () => courseSemesterApi.getAll(params),
 	});
 
 	return {
+		data: query.data ?? [],
 		courseSemesters: query.data ?? [],
 		totalCourseSemesters: query.data?.length ?? 0,
+		isLoading: query.isLoading,
 		loading: query.isLoading,
 		error: query.error,
 		refetch: query.refetch,
