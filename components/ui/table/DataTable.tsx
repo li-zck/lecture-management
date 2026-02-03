@@ -1,26 +1,26 @@
 "use client";
 
+import {
+  Input,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/shadcn";
 import { Checkbox } from "@/components/ui/shadcn/checkbox";
 import {
-	Input,
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "@/components/ui/shadcn";
-import {
-	type ColumnDef,
-	type ColumnFiltersState,
-	flexRender,
-	getCoreRowModel,
-	getFilteredRowModel,
-	getPaginationRowModel,
-	getSortedRowModel,
-	type SortingState,
-	useReactTable,
-	type VisibilityState,
+  type ColumnDef,
+  type ColumnFiltersState,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  type SortingState,
+  useReactTable,
+  type VisibilityState,
 } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -33,192 +33,192 @@ import { DataTableViewOptions } from "./DataTableViewOptions";
  * @template TValue - The type of values in the table cells
  */
 type DataTableProps<TData, TValue> = {
-	columns: ColumnDef<TData, TValue>[];
-	data: TData[];
-	filterColumn?: string;
-	filterPlaceholder?: string;
-	entityType?:
-		| "student"
-		| "lecturer"
-		| "department"
-		| "admin"
-		| "course"
-		| "semester"
-		| "course-semester"
-		| "enrollment-session";
-	bulkDeleteHandlerAction?: (
-		selectedItems: TData[],
-		onSuccess?: () => void,
-	) => void;
-	entityName?: string;
+  columns: ColumnDef<TData, TValue>[];
+  data: TData[];
+  filterColumn?: string;
+  filterPlaceholder?: string;
+  entityType?:
+    | "student"
+    | "lecturer"
+    | "department"
+    | "admin"
+    | "course"
+    | "semester"
+    | "course-semester"
+    | "enrollment-session";
+  bulkDeleteHandlerAction?: (
+    selectedItems: TData[],
+    onSuccess?: () => void,
+  ) => void;
+  entityName?: string;
 };
 
 export function DataTable<TData extends { id: string }, TValue>({
-	columns,
-	data,
-	filterColumn,
-	filterPlaceholder = "Filter by name...",
-	entityType,
-	bulkDeleteHandlerAction,
-	entityName,
+  columns,
+  data,
+  filterColumn,
+  filterPlaceholder = "Filter by name...",
+  entityType,
+  bulkDeleteHandlerAction,
+  entityName,
 }: DataTableProps<TData, TValue>) {
-	// Derive entity name from entityType if not provided
-	const resolvedEntityName = entityName || entityType || "item";
-	const getDefaultFilterColumn = () => {
-		if (entityType === "department") return "name";
-		if (entityType === "course-semester") return "courseName";
-		return "fullName";
-	};
-	const actualFilterColumn = filterColumn || getDefaultFilterColumn();
+  // Derive entity name from entityType if not provided
+  const resolvedEntityName = entityName || entityType || "item";
+  const getDefaultFilterColumn = () => {
+    if (entityType === "department") return "name";
+    if (entityType === "course-semester") return "courseName";
+    return "fullName";
+  };
+  const actualFilterColumn = filterColumn || getDefaultFilterColumn();
 
-	const router = useRouter();
-	const [sorting, setSorting] = useState<SortingState>([]);
-	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-	const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-	const [rowSelection, setRowSelection] = useState({});
+  const router = useRouter();
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = useState({});
 
-	// Add select column at the beginning
-	const allColumns = useMemo(() => {
-		const selectColumn: ColumnDef<TData, TValue> = {
-			id: "select",
-			header: ({ table }) => (
-				<Checkbox
-					checked={
-						table.getIsAllPageRowsSelected() ||
-						(table.getIsSomePageRowsSelected() && "indeterminate")
-					}
-					onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-					aria-label="Select all"
-					onClick={(e) => e.stopPropagation()}
-				/>
-			),
-			cell: ({ row }) => (
-				<Checkbox
-					checked={row.getIsSelected()}
-					onCheckedChange={(value) => row.toggleSelected(!!value)}
-					aria-label="Select row"
-					onClick={(e) => e.stopPropagation()}
-				/>
-			),
-			enableSorting: false,
-			enableHiding: false,
-		};
-		return [selectColumn, ...columns];
-	}, [columns]);
+  // Add select column at the beginning
+  const allColumns = useMemo(() => {
+    const selectColumn: ColumnDef<TData, TValue> = {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+          onClick={(e) => e.stopPropagation()}
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+          onClick={(e) => e.stopPropagation()}
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    };
+    return [selectColumn, ...columns];
+  }, [columns]);
 
-	const getDetailUrl = (entityType: string, id: string) => {
-		return `/admin/management/${entityType}/${id}`;
-	};
+  const getDetailUrl = (entityType: string, id: string) => {
+    return `/admin/management/${entityType}/${id}`;
+  };
 
-	const handleRowClick = (row: any) => {
-		if (entityType) {
-			router.push(getDetailUrl(entityType, row.original.id));
-		}
-	};
+  const handleRowClick = (row: any) => {
+    if (entityType) {
+      router.push(getDetailUrl(entityType, row.original.id));
+    }
+  };
 
-	const table = useReactTable({
-		data,
-		columns: allColumns,
-		getCoreRowModel: getCoreRowModel(),
-		getPaginationRowModel: getPaginationRowModel(),
-		onSortingChange: setSorting,
-		getSortedRowModel: getSortedRowModel(),
-		onColumnFiltersChange: setColumnFilters,
-		getFilteredRowModel: getFilteredRowModel(),
-		onColumnVisibilityChange: setColumnVisibility,
-		onRowSelectionChange: setRowSelection,
-		state: {
-			sorting,
-			columnFilters,
-			columnVisibility,
-			rowSelection,
-		},
-	});
+  const table = useReactTable({
+    data,
+    columns: allColumns,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    onSortingChange: setSorting,
+    getSortedRowModel: getSortedRowModel(),
+    onColumnFiltersChange: setColumnFilters,
+    getFilteredRowModel: getFilteredRowModel(),
+    onColumnVisibilityChange: setColumnVisibility,
+    onRowSelectionChange: setRowSelection,
+    state: {
+      sorting,
+      columnFilters,
+      columnVisibility,
+      rowSelection,
+    },
+  });
 
-	return (
-		<div>
-			<div className="flex justify-between mb-3">
-				<div>
-					<Input
-						placeholder={filterPlaceholder}
-						value={
-							(table
-								.getColumn(actualFilterColumn)
-								?.getFilterValue() as string) ?? ""
-						}
-						onChange={(event) =>
-							table
-								.getColumn(actualFilterColumn)
-								?.setFilterValue(event.target.value)
-						}
-						className="max-w-sm"
-					/>
-				</div>
+  return (
+    <div>
+      <div className="flex justify-between mb-3">
+        <div>
+          <Input
+            placeholder={filterPlaceholder}
+            value={
+              (table
+                .getColumn(actualFilterColumn)
+                ?.getFilterValue() as string) ?? ""
+            }
+            onChange={(event) =>
+              table
+                .getColumn(actualFilterColumn)
+                ?.setFilterValue(event.target.value)
+            }
+            className="max-w-sm"
+          />
+        </div>
 
-				<DataTableViewOptions table={table} />
-			</div>
+        <DataTableViewOptions table={table} />
+      </div>
 
-			<div className="rounded-md border mb-5">
-				<Table>
-					<TableHeader>
-						{table.getHeaderGroups().map((headerGroup) => (
-							<TableRow key={headerGroup.id}>
-								{headerGroup.headers.map((header) => (
-									<TableHead key={header.id}>
-										{header.isPlaceholder
-											? null
-											: flexRender(
-													header.column.columnDef.header,
-													header.getContext(),
-												)}
-									</TableHead>
-								))}
-							</TableRow>
-						))}
-					</TableHeader>
+      <div className="rounded-md border mb-5">
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
 
-					<TableBody>
-						{table.getRowModel().rows.length ? (
-							table.getRowModel().rows.map((row) => (
-								<TableRow
-									key={row.id}
-									className={
-										entityType
-											? "cursor-pointer hover:bg-gray-800 transition-colors"
-											: ""
-									}
-									data-state={row.getIsSelected() && "selected"}
-									onClick={() => handleRowClick(row)}
-								>
-									{row.getVisibleCells().map((cell) => (
-										<TableCell key={cell.id}>
-											{flexRender(
-												cell.column.columnDef.cell,
-												cell.getContext(),
-											)}
-										</TableCell>
-									))}
-								</TableRow>
-							))
-						) : (
-							<TableRow>
-								<TableCell
-									colSpan={allColumns.length}
-									className="h-24 text-center"
-								>
-									No results.
-								</TableCell>
-							</TableRow>
-						)}
-					</TableBody>
-				</Table>
-			</div>
+          <TableBody>
+            {table.getRowModel().rows.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  className={
+                    entityType
+                      ? "cursor-pointer hover:bg-gray-800 transition-colors"
+                      : ""
+                  }
+                  data-state={row.getIsSelected() && "selected"}
+                  onClick={() => handleRowClick(row)}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={allColumns.length}
+                  className="h-24 text-center"
+                >
+                  No results.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
 
-			<DataTablePagination
-				table={table}
-				bulkDeleteHandlerAction={bulkDeleteHandlerAction}
-				entityName={resolvedEntityName}
-			/>
-		</div>
-	);
+      <DataTablePagination
+        table={table}
+        bulkDeleteHandlerAction={bulkDeleteHandlerAction}
+        entityName={resolvedEntityName}
+      />
+    </div>
+  );
 }
