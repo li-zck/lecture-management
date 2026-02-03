@@ -56,6 +56,9 @@ export default function EditLecturerPage({ params }: EditLecturerPageProps) {
 			if (!payload.password) {
 				delete payload.password;
 			}
+			if (payload.departmentHeadId === "") {
+				payload.departmentHeadId = null;
+			}
 
 			await adminLecturerApi.update(id, payload);
 			toast.success("Lecturer updated successfully");
