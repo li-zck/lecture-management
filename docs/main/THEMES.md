@@ -56,7 +56,7 @@ Use CSS custom properties defined in [app/globals.css](app/globals.css):
 
 ---
 
-## 🎨 UI/UX UPGRADE PLAN (2024)
+## 🎨 UI/UX UPGRADE PLAN (2026)
 
 ### Overview
 Complete redesign focusing on modern aesthetics, better visual hierarchy, micro-interactions, and improved user experience across all components.
