@@ -45,12 +45,15 @@ type DataTableProps<TData, TValue> = {
     | "course"
     | "semester"
     | "course-semester"
-    | "enrollment-session";
+    | "enrollment-session"
+    | "enrollment";
   bulkDeleteHandlerAction?: (
     selectedItems: TData[],
     onSuccess?: () => void,
   ) => void;
   entityName?: string;
+  /** Initial column visibility (e.g. { recommendedSemester: false }) */
+  initialColumnVisibility?: VisibilityState;
 };
 
 export function DataTable<TData extends { id: string }, TValue>({
@@ -61,6 +64,7 @@ export function DataTable<TData extends { id: string }, TValue>({
   entityType,
   bulkDeleteHandlerAction,
   entityName,
+  initialColumnVisibility,
 }: DataTableProps<TData, TValue>) {
   // Derive entity name from entityType if not provided
   const resolvedEntityName = entityName || entityType || "item";
@@ -74,7 +78,9 @@ export function DataTable<TData extends { id: string }, TValue>({
   const router = useRouter();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
+    initialColumnVisibility ?? {},
+  );
   const [rowSelection, setRowSelection] = useState({});
 
   // Add select column at the beginning
