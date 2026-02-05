@@ -1,21 +1,22 @@
 export { BulkCreatePage } from "./BulkCreatePage";
 export {
-	studentBulkConfig,
-	lecturerBulkConfig,
-	departmentBulkConfig,
-	getBulkCreateConfig,
+  courseBulkConfig,
+  departmentBulkConfig,
+  getBulkCreateConfig,
+  lecturerBulkConfig,
+  studentBulkConfig,
 } from "./configs";
-export type {
-	BulkCreateConfig,
-	BulkCreateField,
-	ParsedRow,
-	RowValidationError,
-	BulkCreateResult,
-} from "./types";
 export {
-	parseContent,
-	parseFile,
-	validateData,
-	transformToApiFormat,
-	downloadCSVTemplate,
+  downloadCSVTemplate,
+  parseContent,
+  parseFile,
+  transformToApiFormat,
+  validateData,
 } from "./csv-parser";
+export type {
+  BulkCreateConfig,
+  BulkCreateField,
+  BulkCreateResult,
+  ParsedRow,
+  RowValidationError,
+} from "./types";

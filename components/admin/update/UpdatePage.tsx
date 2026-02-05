@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/shadcn/button";
+import { DatePickerInput } from "@/components/ui/shadcn/date-picker-input";
 import {
   Form,
   FormControl,
@@ -129,6 +130,12 @@ export const UpdatePage = ({ entityType, entityId }: UpdatePageProps) => {
           // set form default values based on entity type
           if (entityType === "student" && response.data) {
             const studentData = response.data as StudentAccountResponse;
+            const birthDate =
+              studentData.birthDate != null && studentData.birthDate !== ""
+                ? studentData.birthDate.includes("T")
+                  ? studentData.birthDate.split("T")[0]
+                  : studentData.birthDate
+                : "";
 
             studentForm.reset({
               studentId: studentData.studentId,
@@ -137,7 +144,7 @@ export const UpdatePage = ({ entityType, entityId }: UpdatePageProps) => {
               email: studentData.email,
               fullName: studentData.fullName,
               gender: studentData.gender,
-              birthDate: studentData.birthDate,
+              birthDate,
               citizenId: studentData.citizenId,
               phone: studentData.phone,
               address: studentData.address,
@@ -451,15 +458,10 @@ const StudentUpdateForm = ({
               <FormItem>
                 <FormLabel>Birth Date</FormLabel>
                 <FormControl>
-                  <Input
-                    type="date"
-                    {...field}
-                    value={
-                      field.value
-                        ? new Date(field.value).toISOString().split("T")[0]
-                        : ""
-                    }
-                    onChange={(e) => field.onChange(e.target.value)}
+                  <DatePickerInput
+                    value={field.value ?? ""}
+                    onChange={field.onChange}
+                    placeholder="Select date"
                   />
                 </FormControl>
                 <FormMessage />
