@@ -1,27 +1,39 @@
 import parsePhoneNumberFromString from "libphonenumber-js";
 import z from "zod";
-import { passwordSchema } from "../auth";
 
 export const createStudentSchema = z.object({
   studentId: z.string().min(1, "Student ID cannot be empty"),
-  departmentId: z.string().min(1, "Department ID cannot be empty"),
+  departmentId: z.string().min(1, "Department cannot be empty"),
   username: z.string().min(1, "Username cannot be empty"),
   email: z.email(),
   // password: passwordSchema,
   password: z.string().min(1, "Password cannot be empty"),
   fullName: z.string().min(1, "Full name cannot be empty"),
   gender: z.boolean(),
-  birthDate: z.string().optional(),
+  birthDate: z
+    .string()
+    .min(1, "Birth date is required")
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid birth date format")
+    .refine((v) => {
+      const [y, m, d] = v.split("-").map(Number);
+      const date = new Date(Date.UTC(y, m - 1, d));
+      return (
+        date.getUTCFullYear() === y &&
+        date.getUTCMonth() === m - 1 &&
+        date.getUTCDate() === d &&
+        y >= 1900 &&
+        y <= new Date().getUTCFullYear()
+      );
+    }, "Year must be between 1900 and the current year"),
   citizenId: z.string().min(1, "Citizen ID cannot be empty"),
+  // Match backend @IsPhoneNumber("VN"): valid and must be a Vietnam number
   phone: z.string().refine(
     (val) => {
       const num = parsePhoneNumberFromString(val, "VN");
-
-      return num?.isValid() ?? false;
+      if (!num?.isValid()) return false;
+      return num.country === "VN";
     },
-    {
-      message: "Invalid phone number format",
-    },
+    { message: "Invalid phone number format" },
   ),
   address: z.string().optional(),
 });
