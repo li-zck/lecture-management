@@ -119,6 +119,7 @@ const ActionCell = ({ department }: { department: Department }) => {
 export const columns: ColumnDef<Department>[] = [
   {
     accessorKey: "departmentId",
+    meta: { label: "Department ID" },
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Dept ID" />
     ),
@@ -128,12 +129,14 @@ export const columns: ColumnDef<Department>[] = [
   },
   {
     accessorKey: "name",
+    meta: { label: "Name" },
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Name" />
     ),
   },
   {
     accessorKey: "head.fullName",
+    meta: { label: "Head" },
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Head" />
     ),

@@ -1,5 +1,6 @@
 "use client";
 
+import { useManagementTab } from "@/app/admin/management/_hooks/use-management-tab";
 import { useEnrollmentSessions } from "@/components/ui/hooks/use-enrollment-sessions";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/shadcn/button";
@@ -8,10 +9,11 @@ import {
   adminEnrollmentSessionApi,
   type EnrollmentSession,
 } from "@/lib/api/admin-enrollment-session";
+import { sortByUpdatedAtDesc } from "@/lib/utils";
 import { BarChart3, ClipboardList, Plus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo } from "react";
 import { toast } from "sonner";
 import { EnrollmentSessionOverviewChart } from "./_components/enrollment-session-overview-chart";
 import { columns } from "./columns";
@@ -19,9 +21,13 @@ import { columns } from "./columns";
 type TabId = "chart" | "table";
 
 export default function EnrollmentSessionManagementPage() {
+  const [activeTab, setActiveTab] = useManagementTab("edit-enrollment-session");
   const { enrollmentSessions, loading, refetch } = useEnrollmentSessions();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<TabId>("chart");
+  const sortedEnrollmentSessions = useMemo(
+    () => sortByUpdatedAtDesc(enrollmentSessions),
+    [enrollmentSessions],
+  );
 
   const handleBulkDelete = async (
     selectedItems: EnrollmentSession[],
@@ -90,7 +96,7 @@ export default function EnrollmentSessionManagementPage() {
           ) : (
             <DataTable
               columns={columns}
-              data={enrollmentSessions}
+              data={sortedEnrollmentSessions}
               entityType="enrollment-session"
               filterColumn="name"
               bulkDeleteHandlerAction={handleBulkDelete}

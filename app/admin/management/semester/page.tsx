@@ -1,14 +1,16 @@
 "use client";
 
+import { useManagementTab } from "@/app/admin/management/_hooks/use-management-tab";
 import { useSemesters } from "@/components/ui/hooks/use-semesters";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/shadcn/button";
 import { DataTable } from "@/components/ui/table/DataTable";
 import { adminSemesterApi, type Semester } from "@/lib/api/admin-semester";
+import { sortByUpdatedAtDesc } from "@/lib/utils";
 import { BarChart3, Calendar, Plus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo } from "react";
 import { toast } from "sonner";
 import { SemesterOverviewChart } from "./_components/semester-overview-chart";
 import { columns } from "./columns";
@@ -16,9 +18,13 @@ import { columns } from "./columns";
 type TabId = "chart" | "table";
 
 export default function SemesterManagementPage() {
+  const [activeTab, setActiveTab] = useManagementTab("edit-semester");
   const { semesters, loading, refetch } = useSemesters();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<TabId>("chart");
+  const sortedSemesters = useMemo(
+    () => sortByUpdatedAtDesc(semesters),
+    [semesters],
+  );
 
   const handleBulkDelete = async (
     selectedItems: Semester[],
@@ -85,7 +91,7 @@ export default function SemesterManagementPage() {
           ) : (
             <DataTable
               columns={columns}
-              data={semesters}
+              data={sortedSemesters}
               entityType="semester"
               filterColumn="name"
               bulkDeleteHandlerAction={handleBulkDelete}

@@ -102,12 +102,14 @@ const ActionCell = ({ semester }: { semester: Semester }) => {
 export const columns: ColumnDef<Semester>[] = [
   {
     accessorKey: "name",
+    meta: { label: "Semester name" },
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Semester Name" />
     ),
   },
   {
     accessorKey: "startDate",
+    meta: { label: "Start date" },
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Start Date" />
     ),
@@ -117,6 +119,7 @@ export const columns: ColumnDef<Semester>[] = [
   },
   {
     accessorKey: "endDate",
+    meta: { label: "End date" },
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="End Date" />
     ),

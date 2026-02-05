@@ -1,14 +1,16 @@
 "use client";
 
+import { useManagementTab } from "@/app/admin/management/_hooks/use-management-tab";
 import { useLecturers } from "@/components/ui/hooks/use-lecturer";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/shadcn/button";
 import { DataTable } from "@/components/ui/table/DataTable";
 import { adminLecturerApi, type LecturerAdmin } from "@/lib/api/admin-lecturer";
+import { sortByUpdatedAtDesc } from "@/lib/utils";
 import { BarChart3, Plus, Upload, Users } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo } from "react";
 import { toast } from "sonner";
 
 import { LecturerOverviewChart } from "./_components/lecturer-overview-chart";
@@ -17,9 +19,13 @@ import { columns } from "./columns";
 type TabId = "chart" | "table";
 
 export default function LecturerManagementPage() {
+  const [activeTab, setActiveTab] = useManagementTab("edit-lecturer");
   const { lecturers, loading, refetch } = useLecturers();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<TabId>("chart");
+  const sortedLecturers = useMemo(
+    () => sortByUpdatedAtDesc(lecturers),
+    [lecturers],
+  );
 
   const handleBulkDelete = async (
     selectedItems: LecturerAdmin[],
@@ -94,7 +100,7 @@ export default function LecturerManagementPage() {
           ) : (
             <DataTable
               columns={columns}
-              data={lecturers}
+              data={sortedLecturers}
               entityType="lecturer"
               filterColumn="fullName"
               bulkDeleteHandlerAction={handleBulkDelete}

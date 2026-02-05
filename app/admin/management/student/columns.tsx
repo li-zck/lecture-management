@@ -104,6 +104,7 @@ const ActionCell = ({ student }: { student: StudentAdmin }) => {
 export const columns: ColumnDef<StudentAdmin>[] = [
   {
     accessorKey: "studentId",
+    meta: { label: "Student ID" },
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Student ID" />
     ),
@@ -113,24 +114,28 @@ export const columns: ColumnDef<StudentAdmin>[] = [
   },
   {
     accessorKey: "fullName",
+    meta: { label: "Full name" },
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Full Name" />
     ),
   },
   {
     accessorKey: "username",
+    meta: { label: "Username" },
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Username" />
     ),
   },
   {
     accessorKey: "email",
+    meta: { label: "Email" },
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Email" />
     ),
   },
   {
     accessorKey: "department.name",
+    meta: { label: "Department" },
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Department" />
     ),
@@ -141,6 +146,7 @@ export const columns: ColumnDef<StudentAdmin>[] = [
   },
   {
     accessorKey: "active",
+    meta: { label: "Status" },
     header: "Status",
     cell: ({ row }) => (
       <div className={row.original.active ? "text-green-600" : "text-red-600"}>

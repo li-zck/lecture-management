@@ -18,28 +18,26 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/shadcn/dropdown-menu";
-import {
-  adminCourseSemesterApi,
-  type CourseSemester,
-} from "@/lib/api/admin-course-semester";
+import type { Enrollment } from "@/lib/api/admin-enrollment";
+import { adminEnrollmentApi } from "@/lib/api/admin-enrollment";
 import type { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal, Pencil, Trash } from "lucide-react";
+import { MoreHorizontal, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
-const ActionCell = ({ courseSemester }: { courseSemester: CourseSemester }) => {
+const ActionCell = ({ enrollment }: { enrollment: Enrollment }) => {
   const router = useRouter();
   const [openDelete, setOpenDelete] = useState(false);
 
   const handleDelete = async () => {
     try {
-      await adminCourseSemesterApi.delete(courseSemester.id);
-      toast.success("Schedule deleted successfully");
+      await adminEnrollmentApi.delete(enrollment.id);
+      toast.success("Enrollment removed successfully");
       router.refresh();
       window.location.reload();
     } catch {
-      toast.error("Failed to delete schedule");
+      toast.error("Failed to remove enrollment");
     }
   };
 
@@ -55,16 +53,6 @@ const ActionCell = ({ courseSemester }: { courseSemester: CourseSemester }) => {
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuItem
-            onClick={() =>
-              router.push(
-                `/admin/management/course-semester/${courseSemester.id}`,
-              )
-            }
-          >
-            <Pencil className="mr-2 h-4 w-4" />
-            Edit
-          </DropdownMenuItem>
-          <DropdownMenuItem
             onClick={() => setOpenDelete(true)}
             className="text-red-600 focus:text-red-600"
           >
@@ -77,10 +65,10 @@ const ActionCell = ({ courseSemester }: { courseSemester: CourseSemester }) => {
       <AlertDialog open={openDelete} onOpenChange={setOpenDelete}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogTitle>Remove enrollment?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the
-              schedule.
+              This will remove the student from this course. This action cannot
+              be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -101,56 +89,55 @@ const ActionCell = ({ courseSemester }: { courseSemester: CourseSemester }) => {
   );
 };
 
-const DAYS = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-];
-
-export const columns: ColumnDef<CourseSemester>[] = [
+export const columns: ColumnDef<Enrollment>[] = [
   {
-    id: "courseName",
-    accessorKey: "course.name",
-    meta: { label: "Course" },
-    header: "Course",
-    cell: ({ row }) => <div>{row.original.course?.name || "N/A"}</div>,
-  },
-  {
-    id: "semesterName",
-    accessorKey: "semester.name",
-    meta: { label: "Semester" },
-    header: "Semester",
-    cell: ({ row }) => <div>{row.original.semester?.name || "N/A"}</div>,
-  },
-  {
-    id: "lecturerName",
-    accessorKey: "lecturer.fullName",
-    meta: { label: "Lecturer" },
-    header: "Lecturer",
+    id: "student",
+    accessorFn: (row) =>
+      row.student?.fullName ??
+      row.student?.email ??
+      row.student?.studentId ??
+      "",
+    meta: { label: "Student" },
+    header: "Student",
     cell: ({ row }) => (
-      <div>{row.original.lecturer?.fullName || "Unassigned"}</div>
+      <div>
+        <p className="font-medium">
+          {row.original.student?.fullName ?? row.original.student?.email ?? "—"}
+        </p>
+        {row.original.student?.studentId && (
+          <p className="text-xs text-muted-foreground">
+            {row.original.student.studentId}
+          </p>
+        )}
+      </div>
     ),
   },
   {
-    accessorKey: "dayOfWeek",
-    meta: { label: "Day" },
-    header: "Day",
+    id: "course",
+    accessorFn: (row) => row.courseOnSemester?.course?.name ?? "",
+    meta: { label: "Course" },
+    header: "Course",
+    cell: ({ row }) => row.original.courseOnSemester?.course?.name ?? "—",
+  },
+  {
+    id: "semester",
+    accessorFn: (row) => row.courseOnSemester?.semester?.name ?? "",
+    meta: { label: "Semester" },
+    header: "Semester",
+    cell: ({ row }) => row.original.courseOnSemester?.semester?.name ?? "—",
+  },
+  {
+    id: "finalGrade",
+    accessorFn: (row) => row.finalGrade ?? "",
+    meta: { label: "Final grade" },
+    header: "Final grade",
     cell: ({ row }) => {
-      const day = row.getValue<number>("dayOfWeek");
-      return <div>{day !== null ? DAYS[day] : "N/A"}</div>;
+      const g = row.original.finalGrade;
+      return g != null ? String(g) : "—";
     },
   },
   {
-    accessorKey: "location",
-    meta: { label: "Location" },
-    header: "Location",
-  },
-  {
     id: "actions",
-    cell: ({ row }) => <ActionCell courseSemester={row.original} />,
+    cell: ({ row }) => <ActionCell enrollment={row.original} />,
   },
 ];

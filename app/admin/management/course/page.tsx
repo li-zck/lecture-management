@@ -1,14 +1,16 @@
 "use client";
 
+import { useManagementTab } from "@/app/admin/management/_hooks/use-management-tab";
 import { useCourses } from "@/components/ui/hooks/use-courses";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/shadcn/button";
 import { DataTable } from "@/components/ui/table/DataTable";
 import { adminCourseApi, type Course } from "@/lib/api/admin-course";
-import { BarChart3, BookOpen, Plus } from "lucide-react";
+import { sortByUpdatedAtDesc } from "@/lib/utils";
+import { BarChart3, BookOpen, Plus, Upload } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo } from "react";
 import { toast } from "sonner";
 import { CourseOverviewChart } from "./_components/course-overview-chart";
 import { columns } from "./columns";
@@ -16,9 +18,10 @@ import { columns } from "./columns";
 type TabId = "chart" | "table";
 
 export default function CourseManagementPage() {
+  const [activeTab, setActiveTab] = useManagementTab("edit-course");
   const { courses, loading, refetch } = useCourses();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<TabId>("chart");
+  const sortedCourses = useMemo(() => sortByUpdatedAtDesc(courses), [courses]);
 
   const handleBulkDelete = async (
     selectedItems: Course[],
@@ -48,12 +51,20 @@ export default function CourseManagementPage() {
         title="Courses"
         description="Manage courses, credits, and department assignments."
         action={
-          <Button asChild>
-            <Link href="/admin/management/course/create">
-              <Plus className="mr-2 h-4 w-4" />
-              Create New Course
-            </Link>
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" asChild>
+              <Link href="/admin/management/course/bulk-create">
+                <Upload className="mr-2 h-4 w-4" />
+                Bulk Create
+              </Link>
+            </Button>
+            <Button asChild>
+              <Link href="/admin/management/course/create">
+                <Plus className="mr-2 h-4 w-4" />
+                Create New Course
+              </Link>
+            </Button>
+          </div>
         }
       />
 
@@ -85,10 +96,11 @@ export default function CourseManagementPage() {
           ) : (
             <DataTable
               columns={columns}
-              data={courses}
+              data={sortedCourses}
               entityType="course"
               filterColumn="name"
               bulkDeleteHandlerAction={handleBulkDelete}
+              initialColumnVisibility={{ recommendedSemester: false }}
             />
           )}
         </div>

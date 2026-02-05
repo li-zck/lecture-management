@@ -99,24 +99,44 @@ const ActionCell = ({ course }: { course: Course }) => {
 export const columns: ColumnDef<Course>[] = [
   {
     accessorKey: "name",
+    meta: { label: "Course name" },
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Name" />
     ),
   },
   {
     accessorKey: "credits",
+    meta: { label: "Credits" },
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Credits" />
     ),
   },
   {
-    accessorKey: "semester",
+    id: "offeredIn",
+    accessorFn: (row) =>
+      row.courseOnSemesters?.map((c) => c.semester.name).join(", ") ?? "",
+    meta: { label: "Offered in" },
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Semester" />
+      <DataTableColumnHeader column={column} title="Offered in" />
+    ),
+    cell: ({ row }) => {
+      const names = row.original.courseOnSemesters?.map((c) => c.semester.name);
+      return <span>{names?.length ? names.join(", ") : "—"}</span>;
+    },
+  },
+  {
+    accessorKey: "recommendedSemester",
+    meta: { label: "Recommended level" },
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Recommended level" />
+    ),
+    cell: ({ row }) => (
+      <span>{row.original.recommendedSemester?.trim() || "—"}</span>
     ),
   },
   {
     accessorKey: "department.name",
+    meta: { label: "Department" },
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Department" />
     ),

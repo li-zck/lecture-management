@@ -1,14 +1,16 @@
 "use client";
 
+import { useManagementTab } from "@/app/admin/management/_hooks/use-management-tab";
 import { useStudents } from "@/components/ui/hooks/use-students";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/shadcn/button";
 import { DataTable } from "@/components/ui/table/DataTable";
 import { adminStudentApi, type StudentAdmin } from "@/lib/api/admin-student";
+import { sortByUpdatedAtDesc } from "@/lib/utils";
 import { BarChart3, GraduationCap, Plus, Upload } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo } from "react";
 import { toast } from "sonner";
 
 import { StudentOverviewChart } from "./_components/student-overview-chart";
@@ -17,9 +19,13 @@ import { columns } from "./columns";
 type TabId = "chart" | "table";
 
 export default function StudentManagementPage() {
+  const [activeTab, setActiveTab] = useManagementTab("edit-student");
   const { students, loading, refetch } = useStudents();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<TabId>("chart");
+  const sortedStudents = useMemo(
+    () => sortByUpdatedAtDesc(students),
+    [students],
+  );
 
   const handleBulkDelete = async (
     selectedItems: StudentAdmin[],
@@ -94,7 +100,7 @@ export default function StudentManagementPage() {
           ) : (
             <DataTable
               columns={columns}
-              data={students}
+              data={sortedStudents}
               entityType="student"
               filterColumn="fullName"
               bulkDeleteHandlerAction={handleBulkDelete}

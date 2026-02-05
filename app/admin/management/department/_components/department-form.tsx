@@ -151,7 +151,7 @@ export function DepartmentForm({
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="department-form-headId">
-                    Head of Department (Optional)
+                    Head of Department
                   </FieldLabel>
                   <Select
                     onValueChange={field.onChange}
@@ -162,7 +162,7 @@ export function DepartmentForm({
                       <SelectValue placeholder="Select a lecturer" />
                     </SelectTrigger>
                     <SelectContent position="popper" sideOffset={5}>
-                      <SelectItem value="none">None</SelectItem>
+                      <SelectItem value="none">-</SelectItem>
                       {lecturers.map((lecturer) => (
                         <SelectItem key={lecturer.id} value={lecturer.id}>
                           {lecturer.fullName} ({lecturer.lecturerId})

@@ -63,7 +63,7 @@ export function LecturerForm({
             ?.id) ??
         (mode === "edit" &&
           (initialValues as { departmentHeadId?: string })?.departmentHeadId) ??
-        "",
+        "__none__",
     } as any,
   });
 
@@ -230,15 +230,15 @@ export function LecturerForm({
                       </FieldLabel>
                       <Select
                         onValueChange={(value) =>
-                          field.onChange(value === "" ? null : value)
+                          field.onChange(value === "__none__" ? null : value)
                         }
-                        value={field.value ?? ""}
+                        value={field.value ?? "__none__"}
                       >
                         <SelectTrigger id="lecturer-form-departmentHeadId">
                           <SelectValue placeholder="None (not a department head)" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">None</SelectItem>
+                          <SelectItem value="__none__">None</SelectItem>
                           {departments.map((dept) => (
                             <SelectItem key={dept.id} value={dept.id}>
                               {dept.name}
