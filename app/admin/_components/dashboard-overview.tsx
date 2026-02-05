@@ -121,6 +121,7 @@ function DepartmentDistributionChart() {
                 fill="hsl(var(--primary))"
                 radius={[4, 4, 0, 0]}
                 name="Students"
+                className="fill-gray-400 hover:fill-gray-500 transition-all duration-100"
               />
             </BarChart>
           </ResponsiveContainer>
