@@ -5,56 +5,58 @@ import { apiClient } from "./client";
  * Represents a course offering in a specific semester
  */
 export interface CourseSemester {
-	id: string;
-	courseId: string;
-	semesterId: string;
-	lecturerId: string | null;
-	location: string | null;
-	dayOfWeek: number | null;
-	startTime: number | null;
-	endTime: number | null;
-	capacity: number | null;
-	isSummarized: boolean;
-	createdAt: string;
-	updatedAt: string;
-	course?: {
-		id: string;
-		name: string;
-		description: string | null;
-		credits: number;
-		departmentId: string | null;
-		department?: {
-			id: string;
-			name: string;
-		} | null;
-	} | null;
-	semester?: {
-		id: string;
-		name: string;
-		startDate: string;
-		endDate: string;
-	} | null;
-	lecturer?: {
-		id: string;
-		fullName: string | null;
-		lecturerId: string;
-		email: string;
-	} | null;
-	_count?: {
-		enrollments: number;
-	};
+  id: string;
+  courseId: string;
+  semesterId: string;
+  lecturerId: string | null;
+  location: string | null;
+  dayOfWeek: number | null;
+  startTime: number | null;
+  endTime: number | null;
+  capacity: number | null;
+  isSummarized: boolean;
+  createdAt: string;
+  updatedAt: string;
+  course?: {
+    id: string;
+    name: string;
+    description: string | null;
+    credits: number;
+    departmentId: string | null;
+    /** Optional recommended semester/level (e.g. "Year 1 Sem 1") for student guidance */
+    recommendedSemester?: string | null;
+    department?: {
+      id: string;
+      name: string;
+    } | null;
+  } | null;
+  semester?: {
+    id: string;
+    name: string;
+    startDate: string;
+    endDate: string;
+  } | null;
+  lecturer?: {
+    id: string;
+    fullName: string | null;
+    lecturerId: string;
+    email: string;
+  } | null;
+  _count?: {
+    enrollments: number;
+  };
 }
 
 /**
  * Query parameters for course-semester endpoints
  */
 export interface CourseSemesterQueryParams {
-	includeCourses?: boolean;
-	includeSemesters?: boolean;
-	includeLecturer?: boolean;
-	includeEnrollmentCount?: boolean;
-	courseId?: string;
-	semesterId?: string;
+  includeCourses?: boolean;
+  includeSemesters?: boolean;
+  includeLecturer?: boolean;
+  includeEnrollmentCount?: boolean;
+  courseId?: string;
+  semesterId?: string;
 }
 
 /**
@@ -62,44 +64,44 @@ export interface CourseSemesterQueryParams {
  * Endpoints require authentication
  */
 export const courseSemesterApi = {
-	/**
-	 * GET /course-semester/all - Get all course-semesters
-	 */
-	getAll: async (
-		params?: CourseSemesterQueryParams,
-	): Promise<CourseSemester[]> => {
-		const response = await apiClient.get<CourseSemester[]>(
-			"/course-semester/all",
-			{
-				params: {
-					includeCourses: params?.includeCourses,
-					includeSemesters: params?.includeSemesters,
-					includeLecturer: params?.includeLecturer,
-					includeEnrollmentCount: params?.includeEnrollmentCount,
-					courseId: params?.courseId,
-					semesterId: params?.semesterId,
-				},
-			},
-		);
-		return response.data;
-	},
+  /**
+   * GET /course-semester/all - Get all course-semesters
+   */
+  getAll: async (
+    params?: CourseSemesterQueryParams,
+  ): Promise<CourseSemester[]> => {
+    const response = await apiClient.get<CourseSemester[]>(
+      "/course-semester/all",
+      {
+        params: {
+          includeCourses: params?.includeCourses,
+          includeSemesters: params?.includeSemesters,
+          includeLecturer: params?.includeLecturer,
+          includeEnrollmentCount: params?.includeEnrollmentCount,
+          courseId: params?.courseId,
+          semesterId: params?.semesterId,
+        },
+      },
+    );
+    return response.data;
+  },
 
-	/**
-	 * GET /course-semester/find/:id - Get course-semester by ID
-	 */
-	getById: async (
-		id: string,
-		params?: Omit<CourseSemesterQueryParams, "courseId" | "semesterId">,
-	): Promise<CourseSemester> => {
-		const response = await apiClient.get<CourseSemester>(
-			`/course-semester/find/${id}`,
-			{
-				params: {
-					includeCourses: params?.includeCourses,
-					includeSemesters: params?.includeSemesters,
-				},
-			},
-		);
-		return response.data;
-	},
+  /**
+   * GET /course-semester/find/:id - Get course-semester by ID
+   */
+  getById: async (
+    id: string,
+    params?: Omit<CourseSemesterQueryParams, "courseId" | "semesterId">,
+  ): Promise<CourseSemester> => {
+    const response = await apiClient.get<CourseSemester>(
+      `/course-semester/find/${id}`,
+      {
+        params: {
+          includeCourses: params?.includeCourses,
+          includeSemesters: params?.includeSemesters,
+        },
+      },
+    );
+    return response.data;
+  },
 };
