@@ -6,23 +6,27 @@ import type { ReactNode } from "react";
 import { Toaster } from "sonner";
 
 export default function RootProviders({ children }: { children: ReactNode }) {
-	return (
-		<ThemeProvider
-			attribute="class"
-			defaultTheme="dark"
-			enableSystem
-			disableTransitionOnChange
-		>
-			<QueryProvider>
-				<SessionProvider>
-					<TooltipProvider>
-						<KeyboardShortcutProvider>
-							<Toaster className="pointer-events-auto" />
-							{children}
-						</KeyboardShortcutProvider>
-					</TooltipProvider>
-				</SessionProvider>
-			</QueryProvider>
-		</ThemeProvider>
-	);
+  return (
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="dark"
+      enableSystem
+      disableTransitionOnChange
+    >
+      <QueryProvider>
+        <SessionProvider>
+          <TooltipProvider>
+            <KeyboardShortcutProvider>
+              <Toaster
+                className="pointer-events-auto"
+                closeButton={true}
+                position="top-center"
+              />
+              {children}
+            </KeyboardShortcutProvider>
+          </TooltipProvider>
+        </SessionProvider>
+      </QueryProvider>
+    </ThemeProvider>
+  );
 }

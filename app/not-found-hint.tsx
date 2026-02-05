@@ -9,63 +9,63 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export function NotFoundHint() {
-	return (
-		<div>
-			<NotFoundHintChild />
-		</div>
-	);
+  return (
+    <div>
+      <NotFoundHintChild />
+    </div>
+  );
 }
 
 const NotFoundHintChild = () => {
-	const [accessToken, setAccessToken] = useState<string | undefined>();
-	const [userRole, setUserRole] = useState<string | null>(null);
-	const [isLoading, setIsLoading] = useState(false);
+  const [accessToken, setAccessToken] = useState<string | undefined>();
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-	useEffect(() => {
-		const accessToken = Cookies.get("accessToken");
+  useEffect(() => {
+    const accessToken = Cookies.get("accessToken");
 
-		setAccessToken(accessToken);
-		setUserRole(accessToken ? getUserRole(accessToken) : null);
-	}, []);
+    setAccessToken(accessToken);
+    setUserRole(accessToken ? getUserRole(accessToken) : null);
+  }, []);
 
-	const handleSignOut = async () => {
-		try {
-			setIsLoading(true);
-			signOut();
+  const handleSignOut = async () => {
+    try {
+      setIsLoading(true);
+      signOut();
 
-			toast.success("Signed out successfully");
+      toast.success("Signed out successfully");
 
-			window.location.href = "/";
-		} catch (error) {
-			console.log("Error signing out:", error);
-			toast.error("Failed to sign out");
+      window.location.href = "/";
+    } catch (error) {
+      console.log("Error signing out:", error);
+      toast.error("Failed to sign out");
 
-			setIsLoading(false);
-		} finally {
-			setIsLoading(false);
-		}
-	};
+      setIsLoading(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-	if (!accessToken) {
-		return (
-			<Button asChild>
-				<Link href="/">Return home</Link>
-			</Button>
-		);
-	}
+  if (!accessToken) {
+    return (
+      <Button asChild>
+        <Link href="/">Return home</Link>
+      </Button>
+    );
+  }
 
-	return (
-		<>
-			<div className="font-bold mb-5">
-				You&apos;re signed in as:
-				<p>{userRole}</p>
-			</div>
+  return (
+    <>
+      <div className="font-bold mb-5">
+        You&apos;re signed in as:
+        <p>{userRole}</p>
+      </div>
 
-			<span>
-				<Button onClick={handleSignOut} disabled={isLoading}>
-					{isLoading ? "Signing out..." : "Sign out"}
-				</Button>
-			</span>
-		</>
-	);
+      <span>
+        <Button onClick={handleSignOut} disabled={isLoading}>
+          {isLoading ? "Signing out..." : "Sign out"}
+        </Button>
+      </span>
+    </>
+  );
 };
