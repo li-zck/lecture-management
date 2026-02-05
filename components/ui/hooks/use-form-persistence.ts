@@ -3,9 +3,13 @@
 import { useCallback, useEffect, useRef } from "react";
 import type { FieldValues, UseFormReturn } from "react-hook-form";
 
+/** Use sessionStorage so draft data is tab-scoped and doesn't leak to other forms/tabs */
+const storage = typeof window !== "undefined" ? sessionStorage : null;
+
 interface UseFormPersistenceOptions {
   /**
-   * Unique key for storing form data in localStorage
+   * Unique key for this form (e.g. "department-create", "student-create").
+   * Must be a non-empty string; otherwise persistence is disabled.
    */
   key: string;
   /**
@@ -27,19 +31,22 @@ interface UseFormPersistenceOptions {
 }
 
 /**
- * Custom hook to persist form data across page reloads
+ * Persists form data to sessionStorage so it survives accidental refresh in the
+ * same tab. Uses sessionStorage (not localStorage) so data is tab-scoped and
+ * won't leak to other forms or tabs. Only use for create/draft forms; edit
+ * forms should load from the server.
  *
  * @example
  * ```tsx
  * const form = useForm({ defaultValues: { name: "", email: "" } });
  *
  * const { clearPersistedData } = useFormPersistence({
- *   key: "create-student-form",
+ *   key: "student-create",
  *   form,
  *   exclude: ["password"],
+ *   enabled: mode === "create",
  * });
  *
- * // Clear persisted data after successful submission
  * const onSubmit = async (values) => {
  *   await saveData(values);
  *   clearPersistedData();
@@ -53,7 +60,9 @@ export function useFormPersistence({
   debounceMs = 500,
   enabled = true,
 }: UseFormPersistenceOptions) {
-  const storageKey = `form-persist:${key}`;
+  const validKey = typeof key === "string" && key.trim() !== "";
+  const effectiveEnabled = Boolean(storage && enabled && validKey);
+  const storageKey = validKey ? `form-draft:${key.trim()}` : "";
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isRestoringRef = useRef(false);
 
@@ -75,11 +84,11 @@ export function useFormPersistence({
   );
 
   /**
-   * Save form data to localStorage with debounce
+   * Save form data to sessionStorage with debounce
    */
   const saveToStorage = useCallback(
     (values: FieldValues) => {
-      if (!enabled || isRestoringRef.current) return;
+      if (!effectiveEnabled || !storageKey || isRestoringRef.current) return;
 
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
@@ -87,36 +96,37 @@ export function useFormPersistence({
 
       timeoutRef.current = setTimeout(() => {
         try {
+          if (!storage) return;
           const filteredValues = filterValues(values);
           const data = {
             values: filteredValues,
             timestamp: Date.now(),
           };
-          localStorage.setItem(storageKey, JSON.stringify(data));
+          storage.setItem(storageKey, JSON.stringify(data));
         } catch (error) {
           console.warn("[useFormPersistence] Failed to save form data:", error);
         }
       }, debounceMs);
     },
-    [enabled, filterValues, storageKey, debounceMs],
+    [effectiveEnabled, storageKey, filterValues, debounceMs],
   );
 
   /**
-   * Restore form data from localStorage
+   * Restore form data from sessionStorage
    */
   const restoreFromStorage = useCallback(() => {
-    if (!enabled) return null;
+    if (!effectiveEnabled || !storageKey || !storage) return null;
 
     try {
-      const stored = localStorage.getItem(storageKey);
+      const stored = storage.getItem(storageKey);
       if (!stored) return null;
 
       const data = JSON.parse(stored);
 
-      // Check if data is older than 24 hours
-      const maxAge = 24 * 60 * 60 * 1000; // 24 hours
+      // Discard after 24 hours (in case tab was left open)
+      const maxAge = 24 * 60 * 60 * 1000;
       if (Date.now() - data.timestamp > maxAge) {
-        localStorage.removeItem(storageKey);
+        storage.removeItem(storageKey);
         return null;
       }
 
@@ -125,14 +135,15 @@ export function useFormPersistence({
       console.warn("[useFormPersistence] Failed to restore form data:", error);
       return null;
     }
-  }, [enabled, storageKey]);
+  }, [effectiveEnabled, storageKey]);
 
   /**
    * Clear persisted form data
    */
   const clearPersistedData = useCallback(() => {
+    if (!storageKey || !storage) return;
     try {
-      localStorage.removeItem(storageKey);
+      storage.removeItem(storageKey);
     } catch (error) {
       console.warn(
         "[useFormPersistence] Failed to clear persisted data:",
@@ -145,8 +156,9 @@ export function useFormPersistence({
    * Check if there is persisted data
    */
   const hasPersistedData = useCallback((): boolean => {
+    if (!storageKey || !storage) return false;
     try {
-      return localStorage.getItem(storageKey) !== null;
+      return storage.getItem(storageKey) !== null;
     } catch {
       return false;
     }
@@ -154,13 +166,12 @@ export function useFormPersistence({
 
   // Restore data on mount
   useEffect(() => {
-    if (!enabled) return;
+    if (!effectiveEnabled) return;
 
     const savedValues = restoreFromStorage();
     if (savedValues) {
       isRestoringRef.current = true;
 
-      // Reset form with saved values, preserving default values for excluded fields
       const currentValues = form.getValues();
       const mergedValues = {
         ...currentValues,
@@ -171,16 +182,15 @@ export function useFormPersistence({
         keepDefaultValues: false,
       });
 
-      // Small delay to prevent immediate re-save
       setTimeout(() => {
         isRestoringRef.current = false;
       }, 100);
     }
-  }, [enabled, form, restoreFromStorage]);
+  }, [effectiveEnabled, form, restoreFromStorage]);
 
   // Subscribe to form changes and save
   useEffect(() => {
-    if (!enabled) return;
+    if (!effectiveEnabled) return;
 
     const subscription = form.watch((values) => {
       saveToStorage(values);
@@ -192,13 +202,11 @@ export function useFormPersistence({
         clearTimeout(timeoutRef.current);
       }
     };
-  }, [enabled, form, saveToStorage]);
+  }, [effectiveEnabled, form, saveToStorage]);
 
-  // Always return stable function references
-  // When disabled, return no-op functions to prevent runtime errors
   return {
-    clearPersistedData: enabled ? clearPersistedData : noop,
-    hasPersistedData: enabled ? hasPersistedData : () => false,
-    restoreFromStorage: enabled ? restoreFromStorage : () => null,
+    clearPersistedData: effectiveEnabled ? clearPersistedData : noop,
+    hasPersistedData: effectiveEnabled ? hasPersistedData : () => false,
+    restoreFromStorage: effectiveEnabled ? restoreFromStorage : () => null,
   } as const;
 }

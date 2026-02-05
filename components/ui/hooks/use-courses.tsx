@@ -7,7 +7,11 @@ import { useQuery } from "@tanstack/react-query";
 export const useCourses = () => {
   const query = useQuery({
     queryKey: queryKeys.courses.lists(),
-    queryFn: () => adminCourseApi.getAll({ includeDepartment: true }),
+    queryFn: () =>
+      adminCourseApi.getAll({
+        includeDepartment: true,
+        includeCourseOnSemesters: true,
+      }),
   });
 
   return {
