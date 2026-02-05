@@ -4,10 +4,10 @@ import { lecturerApi, type AssignedCourse } from "@/lib/api/lecturer";
 import {
   BookOpen,
   Calendar,
+  Clock,
   GraduationCap,
   MapPin,
   Users,
-  Clock,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Badge } from "./shadcn/badge";
@@ -32,7 +32,7 @@ function formatTime(minutes: number | null): string {
 
 function getSemesterStatus(
   startDate: string,
-  endDate: string
+  endDate: string,
 ): { label: string; variant: "default" | "secondary" | "outline" } {
   const now = new Date();
   const start = new Date(startDate);
@@ -100,7 +100,10 @@ export function LecturerCourses() {
       acc[semesterName].courses.push(course);
       return acc;
     },
-    {} as Record<string, { semester: AssignedCourse["semester"]; courses: AssignedCourse[] }>
+    {} as Record<
+      string,
+      { semester: AssignedCourse["semester"]; courses: AssignedCourse[] }
+    >,
   );
 
   const totalStudents = courses.reduce((sum, c) => sum + c.enrolledCount, 0);
@@ -138,14 +141,20 @@ export function LecturerCourses() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <Card className="border-border/50">
                 <CardContent className="p-4 text-center">
-                  <p className="text-3xl font-bold text-primary">{courses.length}</p>
+                  <p className="text-3xl font-bold text-primary">
+                    {courses.length}
+                  </p>
                   <p className="text-sm text-muted-foreground">Total Courses</p>
                 </CardContent>
               </Card>
               <Card className="border-border/50">
                 <CardContent className="p-4 text-center">
-                  <p className="text-3xl font-bold text-primary">{totalStudents}</p>
-                  <p className="text-sm text-muted-foreground">Total Students</p>
+                  <p className="text-3xl font-bold text-primary">
+                    {totalStudents}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Total Students
+                  </p>
                 </CardContent>
               </Card>
               <Card className="border-border/50">
@@ -167,94 +176,107 @@ export function LecturerCourses() {
             </div>
 
             {/* Courses by Semester */}
-            {Object.entries(coursesBySemester).map(([semesterName, { semester, courses: semesterCourses }]) => {
-              const status = getSemesterStatus(semester.startDate, semester.endDate);
+            {Object.entries(coursesBySemester).map(
+              ([semesterName, { semester, courses: semesterCourses }]) => {
+                const status = getSemesterStatus(
+                  semester.startDate,
+                  semester.endDate,
+                );
 
-              return (
-                <div key={semesterName} className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-semibold flex items-center gap-2">
-                      <Calendar className="w-5 h-5 text-primary" />
-                      {semesterName}
-                    </h2>
-                    <Badge variant={status.variant}>{status.label}</Badge>
-                  </div>
+                return (
+                  <div key={semesterName} className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h2 className="text-xl font-semibold flex items-center gap-2">
+                        <Calendar className="w-5 h-5 text-primary" />
+                        {semesterName}
+                      </h2>
+                      <Badge variant={status.variant}>{status.label}</Badge>
+                    </div>
 
-                  <div className="grid gap-4">
-                    {semesterCourses.map((course) => (
-                      <Card
-                        key={course.courseOnSemesterId}
-                        className="border-border/50 shadow-md hover:shadow-lg transition-shadow"
-                      >
-                        <CardHeader className="pb-4">
-                          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-                            <div className="space-y-1">
-                              <CardTitle className="text-xl">
-                                {course.course.name}
-                              </CardTitle>
-                              <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-                                <Badge variant="outline">
-                                  {course.course.credits} Credits
-                                </Badge>
-                                {course.course.department && (
-                                  <>
-                                    <span>•</span>
-                                    <span>{course.course.department}</span>
-                                  </>
-                                )}
+                    <div className="grid gap-4">
+                      {semesterCourses.map((course) => (
+                        <Card
+                          key={course.courseOnSemesterId}
+                          className="border-border/50 shadow-md hover:shadow-lg transition-shadow"
+                        >
+                          <CardHeader className="pb-4">
+                            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                              <div className="space-y-1">
+                                <CardTitle className="text-xl">
+                                  {course.course.name}
+                                </CardTitle>
+                                <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+                                  <Badge variant="outline">
+                                    {course.course.credits} Credits
+                                  </Badge>
+                                  {course.course.department && (
+                                    <>
+                                      <span>•</span>
+                                      <span>{course.course.department}</span>
+                                    </>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Users className="w-4 h-4 text-muted-foreground" />
+                                <span className="font-medium">
+                                  {course.enrolledCount}
+                                  {course.capacity && ` / ${course.capacity}`}
+                                </span>
+                                <span className="text-sm text-muted-foreground">
+                                  students
+                                </span>
                               </div>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <Users className="w-4 h-4 text-muted-foreground" />
-                              <span className="font-medium">
-                                {course.enrolledCount}
-                                {course.capacity && ` / ${course.capacity}`}
-                              </span>
-                              <span className="text-sm text-muted-foreground">students</span>
-                            </div>
-                          </div>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="grid md:grid-cols-3 gap-4">
-                            <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                              <Clock className="w-5 h-5 text-muted-foreground" />
-                              <div>
-                                <p className="text-xs text-muted-foreground">Schedule</p>
-                                <p className="font-medium">
-                                  {course.schedule.dayOfWeek !== null
-                                    ? DAYS_OF_WEEK[course.schedule.dayOfWeek]
-                                    : "TBA"}
-                                </p>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="grid md:grid-cols-3 gap-4">
+                              <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                                <Clock className="w-5 h-5 text-muted-foreground" />
+                                <div>
+                                  <p className="text-xs text-muted-foreground">
+                                    Schedule
+                                  </p>
+                                  <p className="font-medium">
+                                    {course.schedule.dayOfWeek !== null
+                                      ? DAYS_OF_WEEK[course.schedule.dayOfWeek]
+                                      : "TBA"}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                                <Calendar className="w-5 h-5 text-muted-foreground" />
+                                <div>
+                                  <p className="text-xs text-muted-foreground">
+                                    Time
+                                  </p>
+                                  <p className="font-medium">
+                                    {course.schedule.startTime !== null
+                                      ? `${formatTime(course.schedule.startTime)} - ${formatTime(course.schedule.endTime)}`
+                                      : "TBA"}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                                <MapPin className="w-5 h-5 text-muted-foreground" />
+                                <div>
+                                  <p className="text-xs text-muted-foreground">
+                                    Location
+                                  </p>
+                                  <p className="font-medium">
+                                    {course.schedule.location || "TBA"}
+                                  </p>
+                                </div>
                               </div>
                             </div>
-                            <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                              <Calendar className="w-5 h-5 text-muted-foreground" />
-                              <div>
-                                <p className="text-xs text-muted-foreground">Time</p>
-                                <p className="font-medium">
-                                  {course.schedule.startTime !== null
-                                    ? `${formatTime(course.schedule.startTime)} - ${formatTime(course.schedule.endTime)}`
-                                    : "TBA"}
-                                </p>
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                              <MapPin className="w-5 h-5 text-muted-foreground" />
-                              <div>
-                                <p className="text-xs text-muted-foreground">Location</p>
-                                <p className="font-medium">
-                                  {course.schedule.location || "TBA"}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              },
+            )}
           </div>
         )}
       </div>
