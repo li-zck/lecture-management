@@ -21,6 +21,8 @@ export interface StudentProfile {
 
 export interface EnrolledCourse {
   enrollmentId: string;
+  /** Course-semester (offering) ID for matching browse catalog */
+  courseOnSemesterId: string;
   course: {
     id: string;
     name: string;
@@ -149,6 +151,7 @@ export const studentApi = {
     return response.data.map(
       (enrollment): EnrolledCourse => ({
         enrollmentId: enrollment.id,
+        courseOnSemesterId: enrollment.courseOnSemester.id,
         course: {
           id: enrollment.courseOnSemester.course.id,
           name: enrollment.courseOnSemester.course.name,
