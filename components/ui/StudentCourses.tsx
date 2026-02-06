@@ -2,6 +2,10 @@
 
 import { type EnrolledCourse, studentApi } from "@/lib/api/student";
 import {
+  getGradeTypeLabelWithWeight,
+  GRADE_TYPE_OPTIONS,
+} from "@/lib/utils/grade-labels";
+import {
   BookOpen,
   Calendar,
   GraduationCap,
@@ -380,30 +384,19 @@ export function StudentCourses() {
                 <p className="text-sm font-medium">Grade Breakdown</p>
               </div>
               <div className="grid grid-cols-2 gap-2">
-                <div className="text-center p-3 bg-muted/30 rounded-lg">
-                  <p className="text-xs text-muted-foreground mb-1">
-                    Assignment (10%)
-                  </p>
-                  <p className="font-semibold text-lg">
-                    {selectedCourse?.grades.gradeType1?.toFixed(1) ?? "-"}
-                  </p>
-                </div>
-                <div className="text-center p-3 bg-muted/30 rounded-lg">
-                  <p className="text-xs text-muted-foreground mb-1">
-                    Midterm (30%)
-                  </p>
-                  <p className="font-semibold text-lg">
-                    {selectedCourse?.grades.gradeType2?.toFixed(1) ?? "-"}
-                  </p>
-                </div>
-                <div className="text-center p-3 bg-muted/30 rounded-lg">
-                  <p className="text-xs text-muted-foreground mb-1">
-                    Final Exam (60%)
-                  </p>
-                  <p className="font-semibold text-lg">
-                    {selectedCourse?.grades.gradeType3?.toFixed(1) ?? "-"}
-                  </p>
-                </div>
+                {GRADE_TYPE_OPTIONS.map((opt) => (
+                  <div
+                    key={opt.key}
+                    className="text-center p-3 bg-muted/30 rounded-lg"
+                  >
+                    <p className="text-xs text-muted-foreground mb-1">
+                      {getGradeTypeLabelWithWeight(opt.key)}
+                    </p>
+                    <p className="font-semibold text-lg">
+                      {selectedCourse?.grades?.[opt.key]?.toFixed(1) ?? "-"}
+                    </p>
+                  </div>
+                ))}
                 <div className="text-center p-3 bg-primary/10 rounded-lg border border-primary/20">
                   <p className="text-xs text-muted-foreground mb-1">
                     Final Grade

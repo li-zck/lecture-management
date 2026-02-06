@@ -1,7 +1,11 @@
+"use client";
+
+import { useLocalePath } from "@/lib/i18n";
 import { GraduationCap } from "lucide-react";
 import Link from "next/link";
 
 export const Footer = () => {
+	const localePath = useLocalePath();
 	const footerLinks = [
 		{ href: "/about", label: "About" },
 		{ href: "/support", label: "Support" },
@@ -21,7 +25,7 @@ export const Footer = () => {
 						{footerLinks.map((link) => (
 							<Link
 								key={link.href}
-								href={link.href}
+								href={localePath(link.href)}
 								className="hover:text-foreground transition-colors"
 							>
 								{link.label}

@@ -9,6 +9,7 @@ import {
   MapPin,
   Users,
 } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Badge } from "./shadcn/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "./shadcn/card";
@@ -195,82 +196,87 @@ export function LecturerCourses() {
 
                     <div className="grid gap-4">
                       {semesterCourses.map((course) => (
-                        <Card
+                        <Link
                           key={course.courseOnSemesterId}
-                          className="border-border/50 shadow-md hover:shadow-lg transition-shadow"
+                          href={`/my-courses/${course.courseOnSemesterId}`}
+                          className="block"
                         >
-                          <CardHeader className="pb-4">
-                            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-                              <div className="space-y-1">
-                                <CardTitle className="text-xl">
-                                  {course.course.name}
-                                </CardTitle>
-                                <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-                                  <Badge variant="outline">
-                                    {course.course.credits} Credits
-                                  </Badge>
-                                  {course.course.department && (
-                                    <>
-                                      <span>•</span>
-                                      <span>{course.course.department}</span>
-                                    </>
-                                  )}
+                          <Card className="border-border/50 shadow-md hover:shadow-lg transition-shadow cursor-pointer hover:border-primary/50">
+                            <CardHeader className="pb-4">
+                              <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                                <div className="space-y-1">
+                                  <CardTitle className="text-xl">
+                                    {course.course.name}
+                                  </CardTitle>
+                                  <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+                                    <Badge variant="outline">
+                                      {course.course.credits} Credits
+                                    </Badge>
+                                    {course.course.department && (
+                                      <>
+                                        <span>•</span>
+                                        <span>{course.course.department}</span>
+                                      </>
+                                    )}
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Users className="w-4 h-4 text-muted-foreground" />
+                                  <span className="font-medium">
+                                    {course.enrolledCount}
+                                    {course.capacity && ` / ${course.capacity}`}
+                                  </span>
+                                  <span className="text-sm text-muted-foreground">
+                                    students
+                                  </span>
                                 </div>
                               </div>
-                              <div className="flex items-center gap-2">
-                                <Users className="w-4 h-4 text-muted-foreground" />
-                                <span className="font-medium">
-                                  {course.enrolledCount}
-                                  {course.capacity && ` / ${course.capacity}`}
-                                </span>
-                                <span className="text-sm text-muted-foreground">
-                                  students
-                                </span>
-                              </div>
-                            </div>
-                          </CardHeader>
-                          <CardContent>
-                            <div className="grid md:grid-cols-3 gap-4">
-                              <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                                <Clock className="w-5 h-5 text-muted-foreground" />
-                                <div>
-                                  <p className="text-xs text-muted-foreground">
-                                    Schedule
-                                  </p>
-                                  <p className="font-medium">
-                                    {course.schedule.dayOfWeek !== null
-                                      ? DAYS_OF_WEEK[course.schedule.dayOfWeek]
-                                      : "TBA"}
-                                  </p>
+                            </CardHeader>
+                            <CardContent>
+                              <div className="grid md:grid-cols-3 gap-4">
+                                <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                                  <Clock className="w-5 h-5 text-muted-foreground" />
+                                  <div>
+                                    <p className="text-xs text-muted-foreground">
+                                      Schedule
+                                    </p>
+                                    <p className="font-medium">
+                                      {course.schedule.dayOfWeek !== null
+                                        ? DAYS_OF_WEEK[
+                                            course.schedule.dayOfWeek
+                                          ]
+                                        : "TBA"}
+                                    </p>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                                  <Calendar className="w-5 h-5 text-muted-foreground" />
+                                  <div>
+                                    <p className="text-xs text-muted-foreground">
+                                      Time
+                                    </p>
+                                    <p className="font-medium">
+                                      {course.schedule.startTime !== null
+                                        ? `${formatTime(course.schedule.startTime)} - ${formatTime(course.schedule.endTime)}`
+                                        : "TBA"}
+                                    </p>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                                  <MapPin className="w-5 h-5 text-muted-foreground" />
+                                  <div>
+                                    <p className="text-xs text-muted-foreground">
+                                      Location
+                                    </p>
+                                    <p className="font-medium">
+                                      {course.schedule.location || "TBA"}
+                                    </p>
+                                  </div>
                                 </div>
                               </div>
-                              <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                                <Calendar className="w-5 h-5 text-muted-foreground" />
-                                <div>
-                                  <p className="text-xs text-muted-foreground">
-                                    Time
-                                  </p>
-                                  <p className="font-medium">
-                                    {course.schedule.startTime !== null
-                                      ? `${formatTime(course.schedule.startTime)} - ${formatTime(course.schedule.endTime)}`
-                                      : "TBA"}
-                                  </p>
-                                </div>
-                              </div>
-                              <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                                <MapPin className="w-5 h-5 text-muted-foreground" />
-                                <div>
-                                  <p className="text-xs text-muted-foreground">
-                                    Location
-                                  </p>
-                                  <p className="font-medium">
-                                    {course.schedule.location || "TBA"}
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
+                            </CardContent>
+                          </Card>
+                        </Link>
                       ))}
                     </div>
                   </div>
