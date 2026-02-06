@@ -1,0 +1,200 @@
+{
+  "nav": {
+    "home": "Trang chủ",
+    "about": "Giới thiệu",
+    "courses": "Khóa học",
+    "signIn": "Đăng nhập",
+    "signOut": "Đăng xuất",
+    "dashboard": "Bảng điều khiển",
+    "myCourses": "Khóa học của tôi",
+    "browseCourses": "Duyệt khóa học",
+    "settings": "Cài đặt",
+    "loading": "Đang tải..."
+  },
+  "locale": {
+    "english": "English",
+    "vietnamese": "Tiếng Việt"
+  },
+  "home": {
+    "badge": "Nền tảng quản lý học vụ",
+    "titleLine1": "Hệ thống quản lý",
+    "titleLine2": "giảng dạy hiện đại",
+    "subtitle": "Nền tảng toàn diện giúp tối ưu vận hành học thuật. Kết nối sinh viên, giảng viên và quản trị viên qua trải nghiệm thống nhất, dễ sử dụng.",
+    "getStarted": "Bắt đầu",
+    "learnMore": "Tìm hiểu thêm",
+    "trustItems": ["Bảo mật & Ổn định", "Tích hợp dễ dàng", "Hoạt động 24/7"],
+    "stats": {
+      "activeStudents": "Sinh viên",
+      "courses": "Khóa học",
+      "departments": "Khoa/Bộ môn",
+      "uptime": "Thời gian hoạt động"
+    },
+    "featuresSection": {
+      "title": "Thiết kế cho mọi vai trò",
+      "subtitle": "Trải nghiệm riêng cho sinh viên, giảng viên và quản trị viên với công cụ và giao diện theo từng vai trò."
+    },
+    "features": [
+      {
+        "title": "Cổng sinh viên",
+        "description": "Xem lịch, theo dõi điểm, đăng ký môn học và quản lý hành trình học tập tại một nơi."
+      },
+      {
+        "title": "Bảng điều khiển giảng viên",
+        "description": "Quản lý môn học, điểm danh, nhập điểm và giao tiếp hiệu quả với sinh viên."
+      },
+      {
+        "title": "Điều hành quản trị",
+        "description": "Giám sát toàn hệ thống với quản lý người dùng, cấu hình học kỳ và báo cáo toàn diện."
+      }
+    ],
+    "studentSection": {
+      "badge": "Dành cho sinh viên",
+      "title": "Nâng tầm hành trình học tập",
+      "subtitle": "Mọi thứ bạn cần để học tập hiệu quả trong một nền tảng tập trung."
+    },
+    "studentFeatures": [
+      {
+        "title": "Đăng ký môn học",
+        "description": "Duyệt và đăng ký các môn học với cập nhật theo thời gian thực."
+      },
+      {
+        "title": "Theo dõi điểm",
+        "description": "Theo dõi kết quả học tập trên mọi môn đã đăng ký."
+      },
+      {
+        "title": "Lịch học hàng tuần",
+        "description": "Xem lịch học cá nhân kèm địa điểm và giờ học."
+      },
+      {
+        "title": "Tài liệu môn học",
+        "description": "Truy cập và tải bài giảng, bài tập và tài nguyên."
+      }
+    ],
+    "lecturerSection": {
+      "badge": "Dành cho giảng viên",
+      "title": "Tối ưu công tác giảng dạy",
+      "subtitle": "Công cụ mạnh mẽ để quản lý môn học, theo dõi tiến độ sinh viên và nâng cao trải nghiệm học tập."
+    },
+    "lecturerFeatures": [
+      {
+        "title": "Quản lý sinh viên",
+        "description": "Xem sinh viên đăng ký và theo dõi tiến độ trong từng môn."
+      },
+      {
+        "title": "Nhập điểm",
+        "description": "Ghi nhận và cập nhật điểm sinh viên với nhiều hình thức đánh giá."
+      },
+      {
+        "title": "Lịch giảng dạy",
+        "description": "Quản lý lịch dạy và phân phòng học."
+      },
+      {
+        "title": "Chia sẻ tài liệu",
+        "description": "Tải lên và chia sẻ tài liệu môn học với sinh viên."
+      }
+    ],
+    "benefitsSection": {
+      "title": "Xây dựng cho giáo dục hiện đại",
+      "subtitle": "Nền tảng kết hợp tính năng mạnh mẽ với giao diện trực quan để nâng cao trải nghiệm giáo dục cho mọi người."
+    },
+    "benefits": [
+      {
+        "title": "Cập nhật thời gian thực",
+        "description": "Đồng bộ tức thì trên mọi thiết bị và người dùng để hợp tác liền mạch."
+      },
+      {
+        "title": "Giao diện trực quan",
+        "description": "Thiết kế gọn, hiện đại giúp điều hướng dễ dàng."
+      },
+      {
+        "title": "Phân tích & Báo cáo",
+        "description": "Cái nhìn toàn diện về kết quả học tập và xu hướng."
+      },
+      {
+        "title": "Quản lý lịch",
+        "description": "Điều phối hiệu quả lớp học, thi cử và sự kiện học thuật."
+      },
+      {
+        "title": "Quản lý tài liệu",
+        "description": "Tải lên, chia sẻ và tải xuống tài liệu môn học an toàn."
+      },
+      {
+        "title": "Thông báo",
+        "description": "Luôn nắm thông tin với cập nhật và nhắc nhở theo thời gian thực."
+      }
+    ],
+    "cta": {
+      "title": "Sẵn sàng bắt đầu?",
+      "subtitle": "Tham gia nền tảng và trải nghiệm cách quản lý học vụ tối ưu."
+    }
+  },
+  "about": {
+    "version": "Phiên bản 1.0.0",
+    "title": "Giới thiệu",
+    "titleBrand": "Hệ thống quản lý giảng dạy",
+    "intro": "Nền tảng toàn diện giúp tối ưu vận hành học thuật, kết nối sinh viên, giảng viên và quản trị viên qua trải nghiệm thống nhất, dễ sử dụng.",
+    "missionTitle": "Sứ mệnh của chúng tôi",
+    "missionBody": "Hiện đại hóa quản lý học thuật bằng cách cung cấp cho các cơ sở giáo dục công cụ mạnh mẽ, thân thiện, nâng cao chất lượng giảng dạy, cải thiện hiệu quả hành chính và hỗ trợ thành công của sinh viên thông qua các giải pháp công nghệ tiên tiến.",
+    "coreFeaturesTitle": "Tính năng cốt lõi",
+    "coreFeaturesSubtitle": "Bộ công cụ toàn diện hỗ trợ mọi khía cạnh của quản trị học thuật và quản lý học tập.",
+    "features": [
+      {
+        "title": "Quản lý môn học",
+        "description": "Công cụ quản trị môn học toàn diện cho chương trình đào tạo, lịch học và chương trình học thuật giữa các khoa."
+      },
+      {
+        "title": "Cổng sinh viên",
+        "description": "Nền tảng tích hợp để sinh viên truy cập tài liệu, theo dõi tiến độ và quản lý đăng ký."
+      },
+      {
+        "title": "Bảng điều khiển giảng viên",
+        "description": "Giao diện chuyên nghiệp cho giảng viên quản lý môn học, theo dõi sinh viên và lưu hồ sơ học thuật."
+      },
+      {
+        "title": "Quản lý điểm",
+        "description": "Hệ thống chấm điểm nâng cao hỗ trợ nhiều loại đánh giá, tính trọng số và báo cáo toàn diện."
+      },
+      {
+        "title": "Quản lý lịch",
+        "description": "Hệ thống lên lịch thông minh với phát hiện xung đột, phân bổ tài nguyên và theo dõi trạng thái theo thời gian thực."
+      },
+      {
+        "title": "Xác thực bảo mật",
+        "description": "Bảo mật cấp doanh nghiệp với kiểm soát truy cập theo vai trò, mã hóa và ghi nhật ký kiểm toán."
+      }
+    ],
+    "techStackTitle": "Công nghệ sử dụng",
+    "techStackSubtitle": "Xây dựng bằng các công nghệ hiện đại, chuẩn ngành để đảm bảo hiệu năng, khả năng mở rộng và bảo trì.",
+    "techStack": [
+      "Next.js 16",
+      "React 19",
+      "NestJS",
+      "PostgreSQL",
+      "Prisma ORM",
+      "TailwindCSS",
+      "TypeScript",
+      "Xác thực JWT"
+    ],
+    "whyChooseTitle": "Vì sao chọn nền tảng của chúng tôi",
+    "benefits": [
+      {
+        "title": "Hành chính tinh gọn",
+        "body": "Giảm gánh nặng hành chính nhờ quy trình tự động, quản lý dữ liệu tập trung và công cụ báo cáo thông minh tiết kiệm thời gian và hạn chế sai sót."
+      },
+      {
+        "title": "Hợp tác tốt hơn",
+        "body": "Thúc đẩy giao tiếp giữa sinh viên, giảng viên và quản trị viên qua tin nhắn tích hợp, thông báo và tài nguyên dùng chung."
+      },
+      {
+        "title": "Quyết định dựa trên dữ liệu",
+        "body": "Ra quyết định có căn cứ nhờ phân tích và báo cáo toàn diện, mang lại cái nhìn rõ ràng về kết quả học tập và chỉ số vận hành."
+      },
+      {
+        "title": "Giải pháp có thể mở rộng",
+        "body": "Kiến trúc được thiết kế để phát triển cùng cơ sở của bạn, từ quy mô khoa nhỏ đến đại học lớn với hàng nghìn người dùng."
+      }
+    ],
+    "ctaTitle": "Sẵn sàng bắt đầu?",
+    "ctaSubtitle": "Tham gia cùng các cơ sở giáo dục đang dùng nền tảng của chúng tôi để chuyển đổi quản lý học thuật."
+  }
+}

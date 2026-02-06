@@ -1,0 +1,204 @@
+{
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "courses": "Courses",
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "dashboard": "Dashboard",
+    "myCourses": "My Courses",
+    "browseCourses": "Browse Courses",
+    "settings": "Settings",
+    "loading": "Loading..."
+  },
+  "locale": {
+    "english": "English",
+    "vietnamese": "Tiếng Việt"
+  },
+  "home": {
+    "badge": "Academic Management Platform",
+    "titleLine1": "Modern Lecture",
+    "titleLine2": "Management System",
+    "subtitle": "A comprehensive platform designed to streamline academic operations. Connect students, lecturers, and administrators through an intuitive, unified experience.",
+    "getStarted": "Get Started",
+    "learnMore": "Learn More",
+    "trustItems": [
+      "Secure & Reliable",
+      "Easy Integration",
+      "24/7 Availability"
+    ],
+    "stats": {
+      "activeStudents": "Active Students",
+      "courses": "Courses",
+      "departments": "Departments",
+      "uptime": "Uptime"
+    },
+    "featuresSection": {
+      "title": "Designed for Every Role",
+      "subtitle": "Tailored experiences for students, lecturers, and administrators with role-specific tools and interfaces."
+    },
+    "features": [
+      {
+        "title": "Student Portal",
+        "description": "Access schedules, track grades, enroll in courses, and manage your academic journey in one place."
+      },
+      {
+        "title": "Lecturer Dashboard",
+        "description": "Manage courses, record attendance, input grades, and communicate effectively with students."
+      },
+      {
+        "title": "Admin Control",
+        "description": "Full system oversight with user management, semester configuration, and comprehensive reporting."
+      }
+    ],
+    "studentSection": {
+      "badge": "For Students",
+      "title": "Empower Your Learning Journey",
+      "subtitle": "Access everything you need to succeed academically in one centralized platform."
+    },
+    "studentFeatures": [
+      {
+        "title": "Course Enrollment",
+        "description": "Browse and enroll in available courses with real-time updates."
+      },
+      {
+        "title": "Grade Tracking",
+        "description": "Monitor your academic performance across all enrolled courses."
+      },
+      {
+        "title": "Weekly Schedule",
+        "description": "View your personalized class schedule with location and time details."
+      },
+      {
+        "title": "Course Materials",
+        "description": "Access and download lecture notes, assignments, and resources."
+      }
+    ],
+    "lecturerSection": {
+      "badge": "For Lecturers",
+      "title": "Streamline Your Teaching",
+      "subtitle": "Powerful tools to manage courses, track student progress, and enhance the learning experience."
+    },
+    "lecturerFeatures": [
+      {
+        "title": "Student Management",
+        "description": "View enrolled students and track their progress in your courses."
+      },
+      {
+        "title": "Grade Input",
+        "description": "Record and update student grades with multiple assessment types."
+      },
+      {
+        "title": "Course Scheduling",
+        "description": "Manage your teaching schedule and classroom assignments."
+      },
+      {
+        "title": "Resource Sharing",
+        "description": "Upload and share course materials with your students."
+      }
+    ],
+    "benefitsSection": {
+      "title": "Built for Modern Education",
+      "subtitle": "Our platform combines powerful features with an intuitive design to enhance the educational experience for everyone."
+    },
+    "benefits": [
+      {
+        "title": "Real-time Updates",
+        "description": "Instant synchronization across all users and devices for seamless collaboration."
+      },
+      {
+        "title": "Intuitive Interface",
+        "description": "Clean, modern design that makes navigation effortless for everyone."
+      },
+      {
+        "title": "Analytics & Reports",
+        "description": "Comprehensive insights into academic performance and trends."
+      },
+      {
+        "title": "Schedule Management",
+        "description": "Efficient coordination of classes, exams, and academic events."
+      },
+      {
+        "title": "Document Management",
+        "description": "Upload, share, and download course materials securely."
+      },
+      {
+        "title": "Notifications",
+        "description": "Stay informed with real-time updates and reminders."
+      }
+    ],
+    "cta": {
+      "title": "Ready to Get Started?",
+      "subtitle": "Join our platform and experience a streamlined approach to academic management."
+    }
+  },
+  "about": {
+    "version": "Version 1.0.0",
+    "title": "About the",
+    "titleBrand": "Lecture Management System",
+    "intro": "A comprehensive platform designed to streamline academic operations, connecting students, lecturers, and administrators through an intuitive, unified experience.",
+    "missionTitle": "Our Mission",
+    "missionBody": "To modernize academic management by providing institutions with powerful, user-friendly tools that enhance educational delivery, improve administrative efficiency, and support student success through innovative technology solutions.",
+    "coreFeaturesTitle": "Core Features",
+    "coreFeaturesSubtitle": "Comprehensive tools designed to support every aspect of academic administration and learning management.",
+    "features": [
+      {
+        "title": "Course Management",
+        "description": "Comprehensive course administration tools for managing curriculum, schedules, and academic programs across departments."
+      },
+      {
+        "title": "Student Portal",
+        "description": "Integrated platform for students to access course materials, track academic progress, and manage enrollments."
+      },
+      {
+        "title": "Lecturer Dashboard",
+        "description": "Professional interface for instructors to manage courses, monitor student performance, and maintain academic records."
+      },
+      {
+        "title": "Grade Management",
+        "description": "Advanced grading system supporting multiple assessment types, weighted calculations, and comprehensive reporting."
+      },
+      {
+        "title": "Schedule Management",
+        "description": "Intelligent scheduling system with conflict detection, resource allocation, and real-time availability tracking."
+      },
+      {
+        "title": "Secure Authentication",
+        "description": "Enterprise-grade security with role-based access control, encrypted communications, and audit logging."
+      }
+    ],
+    "techStackTitle": "Technology Stack",
+    "techStackSubtitle": "Built with modern, industry-standard technologies to ensure performance, scalability, and maintainability.",
+    "techStack": [
+      "Next.js 16",
+      "React 19",
+      "NestJS",
+      "PostgreSQL",
+      "Prisma ORM",
+      "TailwindCSS",
+      "TypeScript",
+      "JWT Authentication"
+    ],
+    "whyChooseTitle": "Why Choose Our Platform",
+    "benefits": [
+      {
+        "title": "Streamlined Administration",
+        "body": "Reduce administrative overhead with automated workflows, centralized data management, and intelligent reporting tools that save time and minimize errors."
+      },
+      {
+        "title": "Enhanced Collaboration",
+        "body": "Foster better communication between students, lecturers, and administrators through integrated messaging, notifications, and shared resources."
+      },
+      {
+        "title": "Data-Driven Insights",
+        "body": "Make informed decisions with comprehensive analytics and reporting capabilities that provide visibility into academic performance and operational metrics."
+      },
+      {
+        "title": "Scalable Solution",
+        "body": "Our architecture is designed to grow with your institution, supporting everything from small departments to large universities with thousands of users."
+      }
+    ],
+    "ctaTitle": "Ready to Get Started?",
+    "ctaSubtitle": "Join educational institutions already using our platform to transform their academic management."
+  }
+}
