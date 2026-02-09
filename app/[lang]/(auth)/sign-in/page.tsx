@@ -66,14 +66,15 @@ export default function SignInPage() {
 		password: "",
 	} as const;
 
-	const onSubmit = async (values: {
-		identifier: string;
-		loginMethod: string;
-		password: string;
-	}) => {
+	const onSubmit = async (values: Record<string, unknown>) => {
+		const { identifier, password } = values as {
+			identifier: string;
+			loginMethod: string;
+			password: string;
+		};
 		// Construct the form data with the correct loginMethod based on current state
 		const formData = {
-			identifier: values.identifier,
+			identifier,
 			loginMethod:
 				role === "student"
 					? loginMethod === "id"
@@ -82,7 +83,7 @@ export default function SignInPage() {
 					: loginMethod === "id"
 						? ("lecturerId" as const)
 						: ("username" as const),
-			password: values.password,
+			password,
 		};
 
 		// The signInStudent/signInLecturer functions handle the transformation
