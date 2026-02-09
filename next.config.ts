@@ -4,15 +4,17 @@ import type { NextConfig } from "next";
 const originalConsoleWarn = console.warn;
 
 console.warn = (...args) => {
-	const message = args.join(" ");
+  const message = args.join(" ");
 
-	if (message.includes("Package pg can't be external")) {
-		return;
-	}
+  if (message.includes("Package pg can't be external")) {
+    return;
+  }
 
-	originalConsoleWarn.apply(console, args);
+  originalConsoleWarn.apply(console, args);
 };
 
-const nextConfig: NextConfig = {};
+const nextConfig: NextConfig = {
+  output: "standalone",
+};
 
 export default nextConfig;

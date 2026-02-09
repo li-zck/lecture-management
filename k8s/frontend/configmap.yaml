@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-config
+  namespace: thesis
+data:
+  NEXT_PUBLIC_BACKEND_URL: "http://thesis.local/api"
+  NODE_ENV: "production"
+  # NOTE: This value is injected at runtime via entrypoint.sh, NOT at build time.

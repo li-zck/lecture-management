@@ -1,8 +1,20 @@
-const CONTEXT = "api";
+/**
+ * Get runtime environment variable.
+ * On the client, reads from window.__ENV (injected by entrypoint.sh at container start).
+ * On the server, reads from process.env.
+ * Falls back to build-time NEXT_PUBLIC_* values.
+ */
+function getRuntimeEnv(key: string): string | undefined {
+  if (typeof window !== "undefined") {
+    const windowEnv = (window as unknown as { __ENV?: Record<string, string> })
+      .__ENV;
+    if (windowEnv?.[key]) return windowEnv[key];
+  }
+  return process.env[key] || undefined;
+}
 
-export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL
-  ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${CONTEXT}`
-  : "http://localhost:8080/api";
+export const BACKEND_URL =
+  getRuntimeEnv("NEXT_PUBLIC_BACKEND_URL") || "http://localhost:8080/api";
 
 export const ROUTES = {
   mainSite: {
