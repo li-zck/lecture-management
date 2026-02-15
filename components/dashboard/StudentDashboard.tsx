@@ -1,16 +1,21 @@
 "use client";
 
 import { useSession } from "@/components/provider/SessionProvider";
+import {
+  AITimetableGenerator,
+  TimetableDownload,
+  TimetableGrid,
+} from "@/components/timetable";
 import { Badge } from "@/components/ui/shadcn/badge";
 import { Button } from "@/components/ui/shadcn/button";
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/shadcn/card";
-import { Separator } from "@/components/ui/shadcn/separator";
 import {
   studentApi,
   type AvailableCourse,
@@ -21,6 +26,7 @@ import {
   type WeeklySchedule,
 } from "@/lib/api/student";
 import { GRADE_TYPE_OPTIONS } from "@/lib/utils/grade-labels";
+import { enrollmentsToWeeklySchedule } from "@/lib/utils/schedule";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -66,17 +72,15 @@ export function StudentDashboard() {
 
     try {
       setLoading(true);
-      const [profileData, enrollmentsData, gradesData, scheduleData] =
-        await Promise.all([
-          studentApi.getById(user.id),
-          studentApi.getEnrollments(),
-          studentApi.getGrades(),
-          studentApi.getSchedule(),
-        ]);
+      const [profileData, enrollmentsData, gradesData] = await Promise.all([
+        studentApi.getById(user.id),
+        studentApi.getEnrollments(),
+        studentApi.getGrades(),
+      ]);
       setProfile(profileData);
       setCourses(enrollmentsData);
       setGrades(gradesData);
-      setSchedule(scheduleData);
+      setSchedule(enrollmentsToWeeklySchedule(enrollmentsData));
     } catch (err) {
       setError("Failed to load data. Please try again.");
       console.error(err);
@@ -539,58 +543,43 @@ export function StudentDashboard() {
 
       {/* Schedule Tab */}
       {activeTab === "schedule" && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Weekly Schedule</CardTitle>
-            <CardDescription>Current semester timetable</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {Object.keys(schedule).length === 0 ? (
-              <p className="text-center text-muted-foreground py-4">
-                No schedule for current semester.
-              </p>
-            ) : (
-              <div className="space-y-4">
-                {Object.entries(schedule)
-                  .sort(([a], [b]) => Number(a) - Number(b))
-                  .map(([day, classes]) => (
-                    <div key={day}>
-                      <h3 className="font-semibold text-lg mb-2">
-                        {DAY_NAMES[Number(day)]}
-                      </h3>
-                      <div className="space-y-2">
-                        {classes.map((classInfo, idx: number) => (
-                          <div
-                            key={`${classInfo.courseName}-${idx}`}
-                            className="flex justify-between items-center p-3 bg-muted rounded-md"
-                          >
-                            <div>
-                              <p className="font-medium">
-                                {classInfo.courseName}
-                              </p>
-                              <p className="text-sm text-muted-foreground">
-                                {classInfo.lecturer || "No lecturer"}
-                              </p>
-                            </div>
-                            <div className="text-right">
-                              <p className="font-medium">
-                                {formatTime(classInfo.startTime)} -{" "}
-                                {formatTime(classInfo.endTime)}
-                              </p>
-                              <p className="text-sm text-muted-foreground">
-                                {classInfo.location || "-"}
-                              </p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                      <Separator className="mt-4" />
-                    </div>
-                  ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Weekly Schedule</CardTitle>
+              <CardDescription>Current semester timetable</CardDescription>
+              <CardAction>
+                <TimetableDownload
+                  schedule={schedule}
+                  title={
+                    courses[0]?.semester?.name
+                      ? `Timetable - ${courses[0].semester.name}`
+                      : "Timetable"
+                  }
+                  includeLecturer
+                />
+              </CardAction>
+            </CardHeader>
+            <CardContent>
+              {Object.keys(schedule).length === 0 ? (
+                <p className="text-center text-muted-foreground py-4">
+                  No schedule for current semester.
+                </p>
+              ) : (
+                <TimetableGrid schedule={schedule} />
+              )}
+            </CardContent>
+          </Card>
+          <AITimetableGenerator
+            schedule={schedule}
+            userRole="student"
+            context={
+              courses[0]?.semester?.name
+                ? `Semester: ${courses[0].semester.name}`
+                : undefined
+            }
+          />
+        </div>
       )}
     </div>
   );
