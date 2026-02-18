@@ -91,12 +91,18 @@ export const studentApi = {
   /**
    * Update own profile (authenticated student)
    * Uses @GetUser() decorator on backend - no ID needed
+   * Matches backend StudentUpdateAccountDto
    */
   updateProfile: async (data: {
+    username?: string;
     fullName?: string;
+    gender?: boolean;
+    birthDate?: string;
+    citizenId?: string;
     phone?: string;
     address?: string;
-    avatar?: string;
+    oldPassword?: string;
+    password?: string;
   }): Promise<StudentProfile> => {
     const response = await apiClient.patch<StudentProfile, typeof data>(
       "/student/update",

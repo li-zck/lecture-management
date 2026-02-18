@@ -152,9 +152,13 @@ export const lecturerApi = {
   /**
    * Update own profile (authenticated lecturer)
    * Uses @GetUser() decorator on backend - no ID needed
+   * Matches backend LecturerUpdateAccountDto
    */
   updateProfile: async (data: {
+    username?: string;
     fullName?: string;
+    oldPassword?: string;
+    password?: string;
   }): Promise<LecturerProfile> => {
     const response = await apiClient.patch<LecturerProfile, typeof data>(
       "/lecturer/update",
