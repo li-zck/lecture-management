@@ -40,11 +40,12 @@ const DAY_NAMES: Record<number, string> = {
   6: "Saturday",
 };
 
-function formatTime(time: number | null): string {
-  if (time === null) return "-";
-  const hours = Math.floor(time / 100);
-  const minutes = time % 100;
-  return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
+/** Backend stores time as minutes since midnight (e.g. 8:00 = 480) */
+function formatTime(minutes: number | null): string {
+  if (minutes === null) return "-";
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  return `${hours.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}`;
 }
 
 export function StudentDashboard() {
