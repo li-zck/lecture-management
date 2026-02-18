@@ -43,7 +43,10 @@ export function TimetableDownload({
         title,
         includeLecturer,
       });
-      downloadBlob(new Blob([bytes], { type: "application/pdf" }), `${baseFilename}.pdf`);
+      downloadBlob(
+        new Blob([new Uint8Array(bytes)], { type: "application/pdf" }),
+        `${baseFilename}.pdf`,
+      );
     } finally {
       setLoading(null);
     }
@@ -51,7 +54,10 @@ export function TimetableDownload({
 
   const handleTxt = () => {
     const text = exportTimetableAsText({ schedule, title, includeLecturer });
-    downloadBlob(new Blob([text], { type: "text/plain" }), `${baseFilename}.txt`);
+    downloadBlob(
+      new Blob([text], { type: "text/plain" }),
+      `${baseFilename}.txt`,
+    );
   };
 
   const handleCsv = () => {

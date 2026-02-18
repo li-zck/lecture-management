@@ -11,6 +11,7 @@ import {
 import { generateTimetable, type ScheduleData } from "@/lib/ai";
 import { Sparkles } from "lucide-react";
 import { useState } from "react";
+import ReactMarkdown from "react-markdown";
 
 export type AITimetableGeneratorProps = {
   schedule: ScheduleData;
@@ -53,14 +54,15 @@ export function AITimetableGenerator({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Sparkles className="size-5" />
-          AI Timetable
+          Schedule Insights (Beta)
         </CardTitle>
         <CardDescription>
-          Generate a formatted timetable with AI. Add{" "}
+          Get AI-powered analysis: study gaps, workload tips, and practical
+          advice. Add{" "}
           <code className="rounded bg-muted px-1">
-            NEXT_PUBLIC_OPENAI_API_KEY
+            NEXT_PUBLIC_GEMINI_API_KEY
           </code>{" "}
-          to .env.local for full AI features.
+          to .env.local.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -70,13 +72,11 @@ export function AITimetableGenerator({
           variant="secondary"
         >
           {loading ? (
-            <>
-              <span className="animate-pulse">Generating…</span>
-            </>
+            <span className="animate-pulse">Analyzing…</span>
           ) : (
             <>
               <Sparkles className="size-4" />
-              Generate with AI
+              Get Schedule Insights
             </>
           )}
         </Button>
@@ -84,10 +84,8 @@ export function AITimetableGenerator({
         {error && <p className="text-sm text-destructive">{error}</p>}
 
         {result && (
-          <div className="rounded-lg border bg-muted/30 p-4">
-            <pre className="whitespace-pre-wrap font-sans text-sm">
-              {result}
-            </pre>
+          <div className="rounded-lg border bg-muted/30 p-4 text-sm [&_ul]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_li]:my-1 [&_strong]:font-semibold [&_p]:my-2 first:[&_p]:mt-0 last:[&_p]:mb-0">
+            <ReactMarkdown>{result}</ReactMarkdown>
           </div>
         )}
       </CardContent>
