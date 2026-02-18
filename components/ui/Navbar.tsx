@@ -62,11 +62,12 @@ export function Navbar() {
   const navRef = useRef<HTMLDivElement>(null);
   const isAdmin = user?.role?.toLowerCase() === "admin";
 
-  // Unauthorized: Home, About only. Authorized (student/lecturer): Courses (browse), My Courses. Admin: no main nav.
+  // Unauthorized: Home, About, Site Policy. Authorized (student/lecturer): Courses (browse), My Courses. Admin: no main nav.
   const navItems = !isAuthenticated
     ? [
         { href: "/", labelKey: "home" as const },
         { href: "/about", labelKey: "about" as const },
+        { href: "/site-policy", labelKey: "sitePolicy" as const },
       ]
     : isAdmin
       ? []

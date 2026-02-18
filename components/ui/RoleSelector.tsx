@@ -1,8 +1,14 @@
 "use client";
 
+import { getClientDictionary, isLocale } from "@/lib/i18n";
 import type { roleQuerySchema } from "@/lib/zod/schemas/navigation";
 import { BookOpen, GraduationCap } from "lucide-react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import {
+  useParams,
+  usePathname,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
 import { useCallback } from "react";
 import type { z } from "zod";
 
@@ -19,6 +25,11 @@ export function RoleSelector({ value, onChange }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const params = useParams();
+  const lang = (params?.lang as string) || "en";
+  const locale = isLocale(lang) ? lang : "en";
+  const dict = getClientDictionary(locale);
+  const r = dict.roleSelector;
 
   const setRole = useCallback(
     (nextRole: "student" | "lecturer") => {
@@ -39,7 +50,7 @@ export function RoleSelector({ value, onChange }: Props) {
   return (
     <div className="space-y-3">
       <p className="text-sm font-medium text-muted-foreground text-center">
-        Select your role
+        {r.selectRole}
       </p>
 
       {/* Segmented Control */}
@@ -62,7 +73,7 @@ export function RoleSelector({ value, onChange }: Props) {
           }`}
         >
           <GraduationCap className="w-4 h-4" />
-          <span>Student</span>
+          <span>{r.student}</span>
         </button>
 
         {/* Lecturer Button */}
@@ -76,7 +87,7 @@ export function RoleSelector({ value, onChange }: Props) {
           }`}
         >
           <BookOpen className="w-4 h-4" />
-          <span>Lecturer</span>
+          <span>{r.lecturer}</span>
         </button>
       </div>
     </div>

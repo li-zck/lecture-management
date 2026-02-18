@@ -18,13 +18,19 @@ import {
   SelectValue,
 } from "@/components/ui/shadcn/select";
 import { Textarea } from "@/components/ui/shadcn/textarea";
+import { getClientDictionary, isLocale } from "@/lib/i18n";
 import { ArrowRight, HelpCircle, Mail, Phone, User } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
 export function SupportForm() {
   const router = useRouter();
+  const params = useParams();
+  const lang = (params?.lang as string) || "en";
+  const locale = isLocale(lang) ? lang : "en";
+  const dict = getClientDictionary(locale);
+  const s = dict.support;
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -43,18 +49,15 @@ export function SupportForm() {
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
     // Show success toast
-    toast.success("Support request submitted!", {
-      description: "We'll get back to you within 24 hours.",
+    toast.success(s.successTitle, {
+      description: s.successDescription,
     });
 
     // Redirect to success page
-    router.push("/support/success");
+    router.push(`/${locale}/support/success`);
   };
 
-  const handleChange = (
-    field: string,
-    value: string,
-  ) => {
+  const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -66,23 +69,15 @@ export function SupportForm() {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
             <HelpCircle className="w-8 h-8 text-primary" />
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold mb-3">
-            How can we help you?
-          </h1>
-          <p className="text-muted-foreground text-lg">
-            Fill out the form below and our support team will get back to you as
-            soon as possible.
-          </p>
+          <h1 className="text-3xl md:text-4xl font-bold mb-3">{s.title}</h1>
+          <p className="text-muted-foreground text-lg">{s.subtitle}</p>
         </div>
 
         {/* Support Form */}
         <Card className="border-border/50 shadow-lg">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl">Support Request</CardTitle>
-            <CardDescription>
-              Please provide as much detail as possible to help us assist you
-              better.
-            </CardDescription>
+            <CardTitle className="text-2xl">{s.formTitle}</CardTitle>
+            <CardDescription>{s.formDescription}</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -90,7 +85,7 @@ export function SupportForm() {
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="name" className="text-sm font-medium">
-                    Full Name <span className="text-destructive">*</span>
+                    {s.fullName} <span className="text-destructive">*</span>
                   </Label>
                   <div className="relative">
                     <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -109,7 +104,7 @@ export function SupportForm() {
 
                 <div className="space-y-2">
                   <Label htmlFor="email" className="text-sm font-medium">
-                    Email Address <span className="text-destructive">*</span>
+                    {s.email} <span className="text-destructive">*</span>
                   </Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -131,7 +126,7 @@ export function SupportForm() {
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="role" className="text-sm font-medium">
-                    Your Role <span className="text-destructive">*</span>
+                    {s.yourRole} <span className="text-destructive">*</span>
                   </Label>
                   <Select
                     required
@@ -140,20 +135,23 @@ export function SupportForm() {
                     disabled={isSubmitting}
                   >
                     <SelectTrigger id="role">
-                      <SelectValue placeholder="Select your role" />
+                      <SelectValue placeholder={s.selectRole} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="student">Student</SelectItem>
-                      <SelectItem value="lecturer">Lecturer</SelectItem>
-                      <SelectItem value="admin">Administrator</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
+                      <SelectItem value="student">{s.roles.student}</SelectItem>
+                      <SelectItem value="lecturer">
+                        {s.roles.lecturer}
+                      </SelectItem>
+                      <SelectItem value="admin">{s.roles.admin}</SelectItem>
+                      <SelectItem value="other">{s.roles.other}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="category" className="text-sm font-medium">
-                    Issue Category <span className="text-destructive">*</span>
+                    {s.issueCategory}{" "}
+                    <span className="text-destructive">*</span>
                   </Label>
                   <Select
                     required
@@ -162,18 +160,30 @@ export function SupportForm() {
                     disabled={isSubmitting}
                   >
                     <SelectTrigger id="category">
-                      <SelectValue placeholder="Select a category" />
+                      <SelectValue placeholder={s.selectCategory} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="login">Login Issues</SelectItem>
-                      <SelectItem value="enrollment">
-                        Course Enrollment
+                      <SelectItem value="login">
+                        {s.categories.login}
                       </SelectItem>
-                      <SelectItem value="grades">Grades & Assessment</SelectItem>
-                      <SelectItem value="schedule">Schedule & Timetable</SelectItem>
-                      <SelectItem value="technical">Technical Issues</SelectItem>
-                      <SelectItem value="account">Account Management</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
+                      <SelectItem value="enrollment">
+                        {s.categories.enrollment}
+                      </SelectItem>
+                      <SelectItem value="grades">
+                        {s.categories.grades}
+                      </SelectItem>
+                      <SelectItem value="schedule">
+                        {s.categories.schedule}
+                      </SelectItem>
+                      <SelectItem value="technical">
+                        {s.categories.technical}
+                      </SelectItem>
+                      <SelectItem value="account">
+                        {s.categories.account}
+                      </SelectItem>
+                      <SelectItem value="other">
+                        {s.categories.other}
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -182,12 +192,12 @@ export function SupportForm() {
               {/* Subject */}
               <div className="space-y-2">
                 <Label htmlFor="subject" className="text-sm font-medium">
-                  Subject <span className="text-destructive">*</span>
+                  {s.subject} <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="subject"
                   type="text"
-                  placeholder="Brief description of your issue"
+                  placeholder={s.subjectPlaceholder}
                   required
                   value={formData.subject}
                   onChange={(e) => handleChange("subject", e.target.value)}
@@ -198,20 +208,18 @@ export function SupportForm() {
               {/* Message */}
               <div className="space-y-2">
                 <Label htmlFor="message" className="text-sm font-medium">
-                  Message <span className="text-destructive">*</span>
+                  {s.message} <span className="text-destructive">*</span>
                 </Label>
                 <Textarea
                   id="message"
-                  placeholder="Please provide detailed information about your issue..."
+                  placeholder={s.messagePlaceholder}
                   required
                   value={formData.message}
                   onChange={(e) => handleChange("message", e.target.value)}
                   className="min-h-[150px] resize-none"
                   disabled={isSubmitting}
                 />
-                <p className="text-xs text-muted-foreground">
-                  Include any error messages, screenshots, or relevant details.
-                </p>
+                <p className="text-xs text-muted-foreground">{s.messageHint}</p>
               </div>
 
               {/* Submit Button */}
@@ -223,11 +231,11 @@ export function SupportForm() {
                 >
                   {isSubmitting ? (
                     <>
-                      <span className="mr-2">Submitting...</span>
+                      <span className="mr-2">{s.submitting}</span>
                     </>
                   ) : (
                     <>
-                      Submit Request
+                      {s.submitRequest}
                       <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                     </>
                   )}
@@ -239,7 +247,7 @@ export function SupportForm() {
                   onClick={() => router.back()}
                   disabled={isSubmitting}
                 >
-                  Cancel
+                  {dict.common.cancel}
                 </Button>
               </div>
             </form>
@@ -249,7 +257,7 @@ export function SupportForm() {
         {/* Additional Help */}
         <div className="mt-8 text-center">
           <p className="text-sm text-muted-foreground mb-4">
-            Need immediate assistance?
+            {s.needImmediate}
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <div className="flex items-center gap-2 text-sm">
@@ -259,9 +267,7 @@ export function SupportForm() {
             <div className="hidden sm:block w-px h-4 bg-border" />
             <div className="flex items-center gap-2 text-sm">
               <Mail className="w-4 h-4 text-primary" />
-              <span className="text-muted-foreground">
-                support@lms.edu
-              </span>
+              <span className="text-muted-foreground">support@lms.edu</span>
             </div>
           </div>
         </div>
