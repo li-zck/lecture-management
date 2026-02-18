@@ -1,5 +1,5 @@
-import { PDFDocument, StandardFonts } from "pdf-lib";
 import type { ScheduleData } from "@/lib/ai";
+import { PDFDocument, StandardFonts } from "pdf-lib";
 
 const DAY_NAMES: Record<number, string> = {
   0: "Sunday",
@@ -11,11 +11,12 @@ const DAY_NAMES: Record<number, string> = {
   6: "Saturday",
 };
 
-function formatTime(time: number | null): string {
-  if (time === null) return "–";
-  const hours = Math.floor(time / 100);
-  const minutes = time % 100;
-  return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
+/** Backend stores time as minutes since midnight (e.g. 8:00 = 480) */
+function formatTime(minutes: number | null): string {
+  if (minutes === null) return "–";
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  return `${hours.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}`;
 }
 
 export type ExportOptions = {
@@ -42,10 +43,13 @@ export function exportTimetableAsText(options: ExportOptions): string {
 
     lines.push(`${DAY_NAMES[day]}`);
     lines.push("-".repeat(DAY_NAMES[day].length));
-    for (const slot of slots.sort((a, b) => (a.startTime ?? 0) - (b.startTime ?? 0))) {
+    for (const slot of slots.sort(
+      (a, b) => (a.startTime ?? 0) - (b.startTime ?? 0),
+    )) {
       const timeStr = `${formatTime(slot.startTime)} – ${formatTime(slot.endTime)}`;
       const loc = slot.location ?? "TBA";
-      const extra = includeLecturer && slot.lecturer ? ` | ${slot.lecturer}` : "";
+      const extra =
+        includeLecturer && slot.lecturer ? ` | ${slot.lecturer}` : "";
       lines.push(`  ${slot.courseName}`);
       lines.push(`    ${timeStr} @ ${loc}${extra}`);
     }
@@ -73,7 +77,9 @@ export function exportTimetableAsCsv(options: ExportOptions): string {
     const slots = schedule[day];
     if (!slots?.length) continue;
 
-    for (const slot of slots.sort((a, b) => (a.startTime ?? 0) - (b.startTime ?? 0))) {
+    for (const slot of slots.sort(
+      (a, b) => (a.startTime ?? 0) - (b.startTime ?? 0),
+    )) {
       const row = [
         DAY_NAMES[day],
         slot.courseName,
@@ -86,13 +92,17 @@ export function exportTimetableAsCsv(options: ExportOptions): string {
     }
   }
 
-  return rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
+  return rows
+    .map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(","))
+    .join("\n");
 }
 
 /**
  * Export timetable as PDF
  */
-export async function exportTimetableAsPdf(options: ExportOptions): Promise<Uint8Array> {
+export async function exportTimetableAsPdf(
+  options: ExportOptions,
+): Promise<Uint8Array> {
   const { schedule, title = "Timetable", includeLecturer = true } = options;
 
   const doc = await PDFDocument.create();
@@ -143,10 +153,13 @@ export async function exportTimetableAsPdf(options: ExportOptions): Promise<Uint
     drawText(DAY_NAMES[day], { size: 12, bold: true });
     y -= 4;
 
-    for (const slot of slots.sort((a, b) => (a.startTime ?? 0) - (b.startTime ?? 0))) {
+    for (const slot of slots.sort(
+      (a, b) => (a.startTime ?? 0) - (b.startTime ?? 0),
+    )) {
       const timeStr = `${formatTime(slot.startTime)} – ${formatTime(slot.endTime)}`;
       const loc = slot.location ?? "TBA";
-      const extra = includeLecturer && slot.lecturer ? ` (${slot.lecturer})` : "";
+      const extra =
+        includeLecturer && slot.lecturer ? ` (${slot.lecturer})` : "";
       drawText(`  ${slot.courseName}`, { size: 10 });
       drawText(`    ${timeStr} @ ${loc}${extra}`, { size: 9 });
     }
