@@ -342,7 +342,13 @@
     "enrollSuccess": "Đăng ký môn học thành công!",
     "enrollFailed": "Đăng ký môn học thất bại",
     "requestFailed": "Gửi yêu cầu thất bại",
-    "capacityFullWarning": "Môn học này đã đủ. Bạn vẫn có thể thử đăng ký và được đưa vào danh sách chờ."
+    "capacityFullWarning": "Môn học này đã đủ. Bạn vẫn có thể thử đăng ký và được đưa vào danh sách chờ.",
+    "tableCourse": "Môn học",
+    "tableSemester": "Học kỳ",
+    "tableDepartment": "Khoa",
+    "viewCards": "Thẻ",
+    "viewTable": "Bảng",
+    "filterMyCoursesOnly": "Chỉ môn của tôi"
   },
   "signIn": {
     "welcomeTitle": "Chào mừng đến Cổng học thuật",

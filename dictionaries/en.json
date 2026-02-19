@@ -346,7 +346,13 @@
     "enrollSuccess": "Successfully enrolled in the course!",
     "enrollFailed": "Failed to enroll in course",
     "requestFailed": "Failed to submit request",
-    "capacityFullWarning": "This course is currently full. You may still attempt to enroll and be placed on a waitlist."
+    "capacityFullWarning": "This course is currently full. You may still attempt to enroll and be placed on a waitlist.",
+    "tableCourse": "Course",
+    "tableSemester": "Semester",
+    "tableDepartment": "Department",
+    "viewCards": "Cards",
+    "viewTable": "Table",
+    "filterMyCoursesOnly": "My courses only"
   },
   "signIn": {
     "welcomeTitle": "Welcome to Your Academic Portal",
@@ -416,7 +422,7 @@
   "settings": {
     "title": "Account Settings",
     "subtitle": "Manage your account. Some changes apply immediately; others require approval.",
-    "warning": "Important: Student and lecturer information (name, gender, address, citizen ID, etc.) affects official records and cannot be changed freely. Only username and password update immediately. Changes to other details require administrator approval.",
+    "warning": "Important: Student and Lecturer information (name, gender, address, citizen ID, etc.) affects official records and cannot be changed freely. Only username and password update immediately. Changes to other details require administrator approval.",
     "unauthorized": "Unauthorized",
     "signInRequired": "Please sign in to access settings.",
     "currentInfo": "Current Information",
