@@ -7,8 +7,6 @@ import {
   Button,
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
   Dialog,
   DialogContent,
   DialogDescription,
@@ -22,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/shadcn";
+import { Checkbox } from "@/components/ui/shadcn/checkbox";
 import type { CourseSemester } from "@/lib/api/course-semester";
 import {
   lecturerApi,
@@ -36,16 +35,20 @@ import {
   Calendar,
   Clock,
   GraduationCap,
+  LayoutGrid,
   MapPin,
   RefreshCw,
   Search,
+  Table2,
   User,
   Users,
 } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+
 import { toast } from "sonner";
+import { CoursesTable } from "./_components/CoursesTable";
 
 function formatTime(minutes: number | null, tba = "TBA"): string {
   if (minutes === null) return tba;
@@ -89,6 +92,8 @@ export default function CoursesPage() {
   >([]);
   const [enrolledCourseOnSemesterIds, setEnrolledCourseOnSemesterIds] =
     useState<Set<string>>(new Set());
+  const [viewMode, setViewMode] = useState<"cards" | "table">("table");
+  const [myCoursesOnly, setMyCoursesOnly] = useState(false);
 
   // Extract unique semesters for filter dropdown
   const availableSemesters = useMemo(() => {
@@ -134,10 +139,45 @@ export default function CoursesPage() {
     });
   }, [searchQuery, semesterFilter, courseOfferings]);
 
-  // Group courses by department
   const isLecturer = role === "lecturer";
-
   const isStudent = role === "student";
+
+  const myAssignedIds = useMemo(
+    () => new Set(myCourses.map((c) => c.courseOnSemesterId)),
+    [myCourses],
+  );
+
+  // Apply "my courses only" filter for students (enrolled) and lecturers (teaching)
+  const displayCourses = useMemo(() => {
+    if (!myCoursesOnly || (!isStudent && !isLecturer)) return filteredCourses;
+    if (isStudent) {
+      return filteredCourses.filter((o) =>
+        enrolledCourseOnSemesterIds.has(o.id),
+      );
+    }
+    return filteredCourses.filter((o) => myAssignedIds.has(o.id));
+  }, [
+    filteredCourses,
+    myCoursesOnly,
+    isStudent,
+    isLecturer,
+    enrolledCourseOnSemesterIds,
+    myAssignedIds,
+  ]);
+
+  const coursesByDepartment = useMemo(() => {
+    return displayCourses.reduce(
+      (acc, offering) => {
+        const deptName = offering.course?.department?.name || common.other;
+        if (!acc[deptName]) {
+          acc[deptName] = [];
+        }
+        acc[deptName].push(offering);
+        return acc;
+      },
+      {} as Record<string, CourseSemester[]>,
+    );
+  }, [displayCourses, common.other]);
 
   useEffect(() => {
     if (isLecturer) {
@@ -164,25 +204,6 @@ export default function CoursesPage() {
         .catch(() => setEnrolledCourseOnSemesterIds(new Set()));
     }
   }, [isStudent]);
-
-  const coursesByDepartment = useMemo(() => {
-    return filteredCourses.reduce(
-      (acc, offering) => {
-        const deptName = offering.course?.department?.name || common.other;
-        if (!acc[deptName]) {
-          acc[deptName] = [];
-        }
-        acc[deptName].push(offering);
-        return acc;
-      },
-      {} as Record<string, CourseSemester[]>,
-    );
-  }, [filteredCourses, common.other]);
-
-  const myAssignedIds = useMemo(
-    () => new Set(myCourses.map((c) => c.courseOnSemesterId)),
-    [myCourses],
-  );
 
   function semesterHasStarted(startDate: string | undefined): boolean {
     if (!startDate) return false;
@@ -343,11 +364,58 @@ export default function CoursesPage() {
             </SelectContent>
           </Select>
           <div className="flex flex-wrap items-center gap-2">
+            <div className="flex rounded-lg border p-1">
+              <Button
+                type="button"
+                variant={viewMode === "cards" ? "secondary" : "ghost"}
+                size="sm"
+                onClick={() => setViewMode("cards")}
+                className="gap-1.5"
+                title={c.viewCards}
+                aria-label={c.viewCards}
+              >
+                <LayoutGrid className="h-4 w-4" />
+                <span className="hidden sm:inline">{c.viewCards}</span>
+              </Button>
+              <Button
+                type="button"
+                variant={viewMode === "table" ? "secondary" : "ghost"}
+                size="sm"
+                onClick={() => setViewMode("table")}
+                className="gap-1.5"
+                title={c.viewTable}
+                aria-label={c.viewTable}
+              >
+                <Table2 className="h-4 w-4" />
+                <span className="hidden sm:inline">{c.viewTable}</span>
+              </Button>
+            </div>
+            {(isStudent || isLecturer) && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Checkbox
+                  checked={myCoursesOnly}
+                  onCheckedChange={(checked) =>
+                    setMyCoursesOnly(checked === true)
+                  }
+                  aria-label={c.filterMyCoursesOnly}
+                />
+                <button
+                  type="button"
+                  className="cursor-pointer hover:text-foreground bg-transparent border-none p-0 font-inherit"
+                  onClick={() => setMyCoursesOnly((v) => !v)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      setMyCoursesOnly((v) => !v);
+                    }
+                  }}
+                >
+                  {c.filterMyCoursesOnly}
+                </button>
+              </div>
+            )}
             <Badge variant="secondary" className="px-4 py-2">
-              {filteredCourses.length} {c.offerings}
-            </Badge>
-            <Badge variant="outline" className="px-4 py-2">
-              {Object.keys(coursesByDepartment).length} {c.departments}
+              {displayCourses.length} {c.offerings}
             </Badge>
             <Button
               type="button"
@@ -382,7 +450,7 @@ export default function CoursesPage() {
           </Link>
         </div>
 
-        {filteredCourses.length === 0 ? (
+        {displayCourses.length === 0 ? (
           <Card className="border-border/50 shadow-lg">
             <CardContent className="p-12 text-center">
               <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-muted mb-6">
@@ -390,12 +458,37 @@ export default function CoursesPage() {
               </div>
               <h2 className="text-2xl font-bold mb-3">{c.noCoursesFound}</h2>
               <p className="text-muted-foreground max-w-md mx-auto">
-                {searchQuery || semesterFilter !== "all"
+                {searchQuery || semesterFilter !== "all" || myCoursesOnly
                   ? c.noMatchCriteria
                   : c.noOfferingsAvailable}
               </p>
             </CardContent>
           </Card>
+        ) : viewMode === "table" ? (
+          <CoursesTable
+            data={displayCourses}
+            daysOfWeek={DAYS_OF_WEEK}
+            labels={{
+              course: c.tableCourse,
+              semester: c.tableSemester,
+              department: c.tableDepartment,
+              credits: common.credits,
+              schedule: common.schedule,
+              location: common.location,
+              lecturer: common.lecturer,
+              enrollment: common.enrollment,
+              enrolled: c.enrolled,
+              teaching: c.teaching,
+              full: c.full,
+              tba: common.tba,
+              unknownCourse: common.unknownCourse,
+            }}
+            enrolledIds={enrolledCourseOnSemesterIds}
+            myAssignedIds={myAssignedIds}
+            isStudent={isStudent}
+            isLecturer={isLecturer}
+            onRowClick={setSelectedCourse}
+          />
         ) : (
           <div className="space-y-8">
             {Object.entries(coursesByDepartment)
@@ -428,11 +521,11 @@ export default function CoursesPage() {
                             setSelectedCourse(offering)
                           }
                         >
-                          <CardHeader className="pb-2">
+                          <CardContent className="p-4 space-y-3">
                             <div className="flex items-start justify-between gap-2">
-                              <CardTitle className="text-lg line-clamp-2">
+                              <h3 className="text-lg font-semibold line-clamp-2">
                                 {offering.course?.name ?? common.unknownCourse}
-                              </CardTitle>
+                              </h3>
                               <div className="flex shrink-0 flex-wrap items-center gap-1.5 justify-end">
                                 {isStudent &&
                                   enrolledCourseOnSemesterIds.has(
@@ -468,8 +561,6 @@ export default function CoursesPage() {
                                 {offering.course.recommendedSemester}
                               </p>
                             )}
-                          </CardHeader>
-                          <CardContent className="space-y-3">
                             <div className="flex items-center justify-between">
                               <Badge variant="outline">
                                 {offering.course?.credits ?? 0} {common.credits}
@@ -482,8 +573,6 @@ export default function CoursesPage() {
                                 </span>
                               </div>
                             </div>
-
-                            {/* Schedule info */}
                             {offering.dayOfWeek !== null && (
                               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                 <Clock className="w-4 h-4" />
@@ -494,16 +583,12 @@ export default function CoursesPage() {
                                 </span>
                               </div>
                             )}
-
-                            {/* Location */}
                             {offering.location && (
                               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                 <MapPin className="w-4 h-4" />
                                 <span>{offering.location}</span>
                               </div>
                             )}
-
-                            {/* Lecturer */}
                             {offering.lecturer && (
                               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                 <User className="w-4 h-4" />
