@@ -126,18 +126,18 @@ export function LecturerDashboard() {
   };
 
   const saveGrade = async (studentId: string) => {
-    if (!selectedCourse) return;
+    const student = students.find((s) => s.student.id === studentId);
+    if (!student) return;
     try {
-      await lecturerApi.updateGrade(selectedCourse.courseOnSemesterId, {
-        studentId,
-        ...editingGrades[studentId],
+      const updated = await lecturerApi.updateGrade(student.enrollmentId, {
+        gradeType1: editingGrades[studentId]?.gradeType1 ?? undefined,
+        gradeType2: editingGrades[studentId]?.gradeType2 ?? undefined,
+        gradeType3: editingGrades[studentId]?.gradeType3 ?? undefined,
       });
-      // Update local state
+      // Update local state with backend response (includes calculated finalGrade)
       setStudents((prev) =>
         prev.map((s) =>
-          s.student.id === studentId
-            ? { ...s, grades: editingGrades[studentId] }
-            : s,
+          s.student.id === studentId ? { ...s, grades: updated.grades } : s,
         ),
       );
     } catch (err) {

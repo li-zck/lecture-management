@@ -155,11 +155,14 @@ export function StudentDashboard() {
     }
   };
 
-  const handleViewDocuments = async (enrollmentId: string) => {
+  const handleViewDocuments = async (
+    courseOnSemesterId: string,
+    enrollmentId: string,
+  ) => {
     setViewingDocuments(enrollmentId);
     setLoadingDocs(true);
     try {
-      const docs = await studentApi.getCourseDocuments(enrollmentId);
+      const docs = await studentApi.getCourseDocuments(courseOnSemesterId);
       setDocuments(docs);
     } catch (err) {
       console.error("Failed to fetch documents", err);
@@ -348,7 +351,10 @@ export function StudentDashboard() {
                       variant="outline"
                       size="sm"
                       onClick={() =>
-                        handleViewDocuments(enrollment.enrollmentId)
+                        handleViewDocuments(
+                          enrollment.courseOnSemesterId,
+                          enrollment.enrollmentId,
+                        )
                       }
                     >
                       View Documents
