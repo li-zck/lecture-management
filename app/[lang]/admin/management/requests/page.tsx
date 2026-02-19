@@ -16,13 +16,15 @@ import {
   adminRequestApi,
   type LecturerTeachingRequestAdmin,
   type LecturerTeachingRequestStatus,
+  type ProfileUpdateRequestAdmin,
+  type ProfileUpdateRequestStatus,
 } from "@/lib/api/admin-request";
 import { getErrorInfo } from "@/lib/api/error";
-import { GraduationCap, Send, Users } from "lucide-react";
+import { GraduationCap, Send, UserCog, Users } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
-type EntityTab = "lecturer" | "student";
+type EntityTab = "lecturer" | "student" | "profile";
 
 function formatTime(minutes: number | null): string {
   if (minutes === null) return "TBA";
@@ -46,8 +48,14 @@ export default function RequestsManagementPage() {
   const [statusFilter, setStatusFilter] = useState<
     LecturerTeachingRequestStatus | "all"
   >("all");
+  const [profileStatusFilter, setProfileStatusFilter] = useState<
+    ProfileUpdateRequestStatus | "all"
+  >("all");
   const [lecturerRequests, setLecturerRequests] = useState<
     LecturerTeachingRequestAdmin[]
+  >([]);
+  const [profileRequests, setProfileRequests] = useState<
+    ProfileUpdateRequestAdmin[]
   >([]);
   const [loading, setLoading] = useState(true);
   const [actingId, setActingId] = useState<string | null>(null);
@@ -66,9 +74,25 @@ export default function RequestsManagementPage() {
     }
   }, [statusFilter]);
 
+  const fetchProfileRequests = useCallback(async () => {
+    setLoading(true);
+    try {
+      const status =
+        profileStatusFilter === "all" ? undefined : profileStatusFilter;
+      const data = await adminRequestApi.getProfileUpdateRequests(status);
+      setProfileRequests(data);
+    } catch {
+      toast.error("Failed to load profile update requests");
+      setProfileRequests([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [profileStatusFilter]);
+
   useEffect(() => {
     if (entityTab === "lecturer") fetchLecturerRequests();
-  }, [entityTab, fetchLecturerRequests]);
+    if (entityTab === "profile") fetchProfileRequests();
+  }, [entityTab, fetchLecturerRequests, fetchProfileRequests]);
 
   const handleApprove = async (id: string) => {
     setActingId(id);
@@ -90,6 +114,34 @@ export default function RequestsManagementPage() {
       await adminRequestApi.rejectLecturerRequest(id);
       toast.success("Request rejected.");
       fetchLecturerRequests();
+    } catch (err: unknown) {
+      const { message } = getErrorInfo(err);
+      toast.error(message ?? "Failed to reject");
+    } finally {
+      setActingId(null);
+    }
+  };
+
+  const handleApproveProfile = async (id: string) => {
+    setActingId(id);
+    try {
+      await adminRequestApi.approveProfileUpdateRequest(id);
+      toast.success("Profile update approved.");
+      fetchProfileRequests();
+    } catch (err: unknown) {
+      const { message } = getErrorInfo(err);
+      toast.error(message ?? "Failed to approve");
+    } finally {
+      setActingId(null);
+    }
+  };
+
+  const handleRejectProfile = async (id: string) => {
+    setActingId(id);
+    try {
+      await adminRequestApi.rejectProfileUpdateRequest(id);
+      toast.success("Profile update rejected.");
+      fetchProfileRequests();
     } catch (err: unknown) {
       const { message } = getErrorInfo(err);
       toast.error(message ?? "Failed to reject");
@@ -125,8 +177,35 @@ export default function RequestsManagementPage() {
             <GraduationCap className="h-4 w-4" />
             Student requests
           </Button>
+          <Button
+            variant={entityTab === "profile" ? "secondary" : "ghost"}
+            size="sm"
+            onClick={() => setEntityTab("profile")}
+            className="gap-2"
+          >
+            <UserCog className="h-4 w-4" />
+            Profile updates
+          </Button>
         </div>
 
+        {entityTab === "profile" && (
+          <Select
+            value={profileStatusFilter}
+            onValueChange={(v) =>
+              setProfileStatusFilter(v as ProfileUpdateRequestStatus | "all")
+            }
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All statuses</SelectItem>
+              <SelectItem value="PENDING">Pending</SelectItem>
+              <SelectItem value="APPROVED">Approved</SelectItem>
+              <SelectItem value="REJECTED">Rejected</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
         {entityTab === "lecturer" && (
           <Select
             value={statusFilter}
@@ -246,6 +325,91 @@ export default function RequestsManagementPage() {
             </p>
           </CardContent>
         </Card>
+      )}
+
+      {entityTab === "profile" && (
+        <div className="w-full">
+          {loading ? (
+            <div className="flex items-center justify-center p-12 text-muted-foreground">
+              Loading requests...
+            </div>
+          ) : profileRequests.length === 0 ? (
+            <Card>
+              <CardContent className="p-12 text-center">
+                <UserCog className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                <p className="text-muted-foreground">
+                  No profile update requests
+                  {profileStatusFilter !== "all"
+                    ? ` with status ${profileStatusFilter}`
+                    : ""}
+                  .
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-4">
+              {profileRequests.map((req) => (
+                <Card key={req.id}>
+                  <CardContent className="p-4">
+                    <div className="flex flex-wrap items-center justify-between gap-4">
+                      <div className="space-y-1">
+                        <p className="font-medium">
+                          {req.user?.fullName ??
+                            req.user?.studentId ??
+                            req.user?.lecturerId}{" "}
+                          ({req.user?.email})
+                        </p>
+                        <p className="text-sm text-muted-foreground capitalize">
+                          {req.role}
+                        </p>
+                        <div className="text-sm text-muted-foreground mt-2">
+                          <span className="font-medium">
+                            Requested changes:{" "}
+                          </span>
+                          {Object.entries(req.requestedData)
+                            .map(([k, v]) => `${k}: ${String(v)}`)
+                            .join(", ")}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge
+                          variant={
+                            req.status === "PENDING"
+                              ? "secondary"
+                              : req.status === "APPROVED"
+                                ? "default"
+                                : "destructive"
+                          }
+                        >
+                          {req.status}
+                        </Badge>
+                        {req.status === "PENDING" && (
+                          <>
+                            <Button
+                              size="sm"
+                              onClick={() => handleApproveProfile(req.id)}
+                              disabled={actingId !== null}
+                            >
+                              {actingId === req.id ? "Approving..." : "Approve"}
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleRejectProfile(req.id)}
+                              disabled={actingId !== null}
+                            >
+                              {actingId === req.id ? "Rejecting..." : "Reject"}
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
       )}
     </div>
   );
