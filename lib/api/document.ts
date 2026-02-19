@@ -1,3 +1,5 @@
+import Cookies from "js-cookie";
+import { BACKEND_URL } from "../utils";
 import { apiClient } from "./client";
 
 /**
@@ -52,13 +54,12 @@ export const documentApi = {
   },
 
   /**
-   * GET /document/:id - Get document by ID
-   * Note: Backend uses @Query('id') instead of @Param('id')
+   * GET /document/find/:id - Get document by ID
    */
   getById: async (id: string): Promise<CourseDocument> => {
-    const response = await apiClient.get<CourseDocument>("/document/:id", {
-      params: { id },
-    });
+    const response = await apiClient.get<CourseDocument>(
+      `/document/find/${id}`,
+    );
     return response.data;
   },
 
@@ -78,11 +79,6 @@ export const documentApi = {
     const response = await apiClient.post<CourseDocument, FormData>(
       "/document/create",
       formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      },
     );
     return response.data;
   },
@@ -107,11 +103,6 @@ export const documentApi = {
     const response = await apiClient.patch<CourseDocument, FormData>(
       `/document/update/${id}`,
       formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      },
     );
     return response.data;
   },
@@ -124,5 +115,30 @@ export const documentApi = {
       `/document/delete/${id}`,
     );
     return response.data;
+  },
+
+  /**
+   * Download document file - fetches with auth and triggers browser download
+   */
+  download: async (id: string, filename?: string): Promise<void> => {
+    const token = Cookies.get("accessToken");
+    const response = await fetch(`${BACKEND_URL}/document/download/${id}`, {
+      method: "GET",
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      credentials: "include",
+    });
+    if (!response.ok) throw new Error("Failed to download document");
+    const blob = await response.blob();
+    const disposition = response.headers.get("Content-Disposition");
+    const name =
+      filename ??
+      disposition?.match(/filename="?([^";\n]+)"?/)?.[1] ??
+      "document";
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = name;
+    a.click();
+    URL.revokeObjectURL(url);
   },
 };

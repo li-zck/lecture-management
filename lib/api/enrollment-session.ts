@@ -19,11 +19,11 @@ export const enrollmentSessionApi = {
   },
 
   /**
-   * GET /enrollment/session/:id - Get active session by ID
+   * GET /enrollment/session/find/:id - Get active session by ID
    */
   getActiveById: async (id: string): Promise<EnrollmentSession> => {
     const response = await apiClient.get<EnrollmentSession>(
-      `/enrollment/session/${id}`,
+      `/enrollment/session/find/${id}`,
     );
     return response.data;
   },

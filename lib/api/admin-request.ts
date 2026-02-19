@@ -35,6 +35,30 @@ export interface LecturerTeachingRequestAdmin {
   };
 }
 
+export type ProfileUpdateRequestStatus = "PENDING" | "APPROVED" | "REJECTED";
+
+export interface ProfileUpdateRequestAdmin {
+  id: string;
+  userId: string;
+  role: string;
+  requestedData: Record<string, unknown>;
+  status: ProfileUpdateRequestStatus;
+  createdAt: string;
+  updatedAt: string;
+  user: {
+    id: string;
+    fullName: string | null;
+    studentId?: string;
+    lecturerId?: string;
+    email: string;
+    phone?: string | null;
+    address?: string | null;
+    gender?: boolean | null;
+    birthDate?: string | null;
+    citizenId?: string | null;
+  };
+}
+
 export const adminRequestApi = {
   getLecturerRequests: async (
     status?: LecturerTeachingRequestStatus,
@@ -56,6 +80,30 @@ export const adminRequestApi = {
   rejectLecturerRequest: async (id: string): Promise<{ message: string }> => {
     const response = await apiClient.patch<{ message: string }>(
       `/admin/request/lecturer/reject/${id}`,
+    );
+    return response.data;
+  },
+
+  getProfileUpdateRequests: async (
+    status?: ProfileUpdateRequestStatus,
+  ): Promise<ProfileUpdateRequestAdmin[]> => {
+    const response = await apiClient.get<ProfileUpdateRequestAdmin[]>(
+      "/admin/profile-update-request/all",
+      { params: status ? { status } : {} },
+    );
+    return response.data ?? [];
+  },
+
+  approveProfileUpdateRequest: async (id: string) => {
+    const response = await apiClient.patch(
+      `/admin/profile-update-request/approve/${id}`,
+    );
+    return response.data;
+  },
+
+  rejectProfileUpdateRequest: async (id: string) => {
+    const response = await apiClient.patch(
+      `/admin/profile-update-request/reject/${id}`,
     );
     return response.data;
   },

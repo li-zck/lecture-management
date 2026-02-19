@@ -128,15 +128,22 @@ class ApiClient {
   ): Promise<ApiResponse<T>> {
     const url = this.buildURL(path, config?.params);
     const token = this.getAccessToken();
+    const isFormData = body instanceof FormData;
+    const requestBody = isFormData
+      ? body
+      : body
+        ? JSON.stringify(body)
+        : undefined;
+    const headers: Record<string, string> = {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...((config?.headers as Record<string, string>) || {}),
+    };
+    if (!isFormData) headers["Content-Type"] = "application/json";
 
     const response = await fetch(url, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        ...(config?.headers || {}),
-      },
-      body: body ? JSON.stringify(body) : undefined,
+      headers,
+      body: (config?.body as BodyInit) ?? requestBody,
       credentials: "include",
       ...config,
     });
@@ -154,15 +161,22 @@ class ApiClient {
   ): Promise<ApiResponse<T>> {
     const url = this.buildURL(path, config?.params);
     const token = this.getAccessToken();
+    const isFormData = body instanceof FormData;
+    const requestBody = isFormData
+      ? body
+      : body
+        ? JSON.stringify(body)
+        : undefined;
+    const headers: Record<string, string> = {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...((config?.headers as Record<string, string>) || {}),
+    };
+    if (!isFormData) headers["Content-Type"] = "application/json";
 
     const response = await fetch(url, {
       method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        ...(config?.headers || {}),
-      },
-      body: body ? JSON.stringify(body) : undefined,
+      headers,
+      body: (config?.body as BodyInit) ?? requestBody,
       credentials: "include",
       ...config,
     });

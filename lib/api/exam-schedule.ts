@@ -71,11 +71,11 @@ export const examScheduleApi = {
   },
 
   /**
-   * GET /exam-schedule/:id - Get exam schedule by ID
+   * GET /exam-schedule/find/:id - Get exam schedule by ID
    */
   getById: async (id: string): Promise<PublicExamSchedule> => {
     const response = await apiClient.get<PublicExamSchedule>(
-      `/exam-schedule/${id}`,
+      `/exam-schedule/find/${id}`,
     );
     return response.data;
   },
