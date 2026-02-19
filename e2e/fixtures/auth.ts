@@ -1,6 +1,23 @@
 import { test as base, expect } from "@playwright/test";
 
 /**
+ * Mock successful admin sign-up response
+ */
+export const mockAdminSignUp = (page: import("@playwright/test").Page) => {
+  return page.route("**/api/auth/admin/signup", (route) => {
+    route.fulfill({
+      status: 201,
+      contentType: "application/json",
+      body: JSON.stringify({
+        accessToken:
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbi0xIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNTE2MjM5MDIyfQ.test",
+        message: "Admin account created successfully",
+      }),
+    });
+  });
+};
+
+/**
  * Mock successful admin sign-in response
  */
 export const mockAdminSignIn = (page: import("@playwright/test").Page) => {
@@ -26,10 +43,8 @@ export const mockStudentSignIn = (page: import("@playwright/test").Page) => {
       status: 200,
       contentType: "application/json",
       body: JSON.stringify({
-        data: {
-          accessToken:
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzdHVkZW50LTEiLCJyb2xlIjoic3R1ZGVudCIsImlhdCI6MTUxNjIzOTAyMn0.test",
-        },
+        accessToken:
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzdHVkZW50LTEiLCJyb2xlIjoic3R1ZGVudCIsImlhdCI6MTUxNjIzOTAyMn0.test",
       }),
     });
   });
@@ -44,10 +59,8 @@ export const mockLecturerSignIn = (page: import("@playwright/test").Page) => {
       status: 200,
       contentType: "application/json",
       body: JSON.stringify({
-        data: {
-          accessToken:
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJsZWN0dXJlci0xIiwicm9sZSI6ImxlY3R1cmVyIiwiaWF0IjoxNTE2MjM5MDIyfQ.test",
-        },
+        accessToken:
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJsZWN0dXJlci0xIiwicm9sZSI6ImxlY3R1cmVyIiwiaWF0IjoxNTE2MjM5MDIyfQ.test",
       }),
     });
   });
@@ -63,6 +76,7 @@ export async function expectAuthCookie(page: import("@playwright/test").Page) {
   expect(accessToken?.value).toBeTruthy();
 }
 
+// biome-ignore lint/suspicious/noConfusingVoidType: Playwright fixture with no return value
 export const test = base.extend<{ authenticatedAdmin: void }>({
   authenticatedAdmin: async ({ page }, use) => {
     await mockAdminSignIn(page);
