@@ -23,6 +23,7 @@ import { useParams, usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useSession } from "../provider/SessionProvider";
 import { useUserProfile } from "./hooks/use-user-profile";
+import { ModeToggle } from "./ModeToggle";
 import { NotificationBell } from "./NotificationBell";
 import { Button } from "./shadcn/button";
 import {
@@ -62,7 +63,7 @@ export function Navbar() {
   const navRef = useRef<HTMLDivElement>(null);
   const isAdmin = user?.role?.toLowerCase() === "admin";
 
-  // Unauthorized: Home, About, Site Policy. Authorized (student/lecturer): Courses (browse), My Courses. Admin: no main nav.
+  // Unauthorized: Home, About, Site Policy. Authorized (student/lecturer): Dashboard, Courses, My Courses. Admin: no main nav.
   const navItems = !isAuthenticated
     ? [
         { href: "/", labelKey: "home" as const },
@@ -72,6 +73,7 @@ export function Navbar() {
     : isAdmin
       ? []
       : [
+          { href: "/dashboard", labelKey: "dashboard" as const },
           { href: "/courses", labelKey: "courses" as const },
           { href: "/my-courses", labelKey: "myCourses" as const },
         ];
@@ -165,6 +167,7 @@ export function Navbar() {
             {/* Mobile menu button could go here */}
           </div>
           <nav className="flex items-center space-x-2">
+            <ModeToggle />
             {/* Locale switcher: globe icon */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

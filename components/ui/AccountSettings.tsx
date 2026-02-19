@@ -34,6 +34,7 @@ import {
   SelectValue,
 } from "@/components/ui/shadcn/select";
 import { lecturerApi } from "@/lib/api/lecturer";
+import { profileUpdateRequestApi } from "@/lib/api/profile-update-request";
 import { studentApi } from "@/lib/api/student";
 import { getClientDictionary, isLocale } from "@/lib/i18n";
 import {
@@ -169,11 +170,31 @@ export function AccountSettings() {
     setRequestDialogOpen(true);
   };
 
-  const handleRequestConfirm = () => {
+  const handleRequestConfirm = async () => {
     setRequestDialogOpen(false);
-    toast.success(st.requestSuccessTitle, {
-      description: st.requestSuccessDescription,
-    });
+    const requestedData: Record<string, unknown> = {};
+    if (formData.fullName) requestedData.fullName = formData.fullName;
+    if (formData.phone) requestedData.phone = formData.phone;
+    if (formData.address) requestedData.address = formData.address;
+    if (formData.gender) requestedData.gender = formData.gender;
+    if (formData.birthDate) requestedData.birthDate = formData.birthDate;
+    if (formData.citizenId) requestedData.citizenId = formData.citizenId;
+
+    if (Object.keys(requestedData).length === 0) {
+      toast.error("Please fill in at least one field to request changes");
+      return;
+    }
+
+    try {
+      await profileUpdateRequestApi.create({ requestedData });
+      toast.success(st.requestSuccessTitle, {
+        description: st.requestSuccessDescription,
+      });
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "Failed to submit request";
+      toast.error(message);
+    }
   };
 
   const handleChange = (field: string, value: string) => {
