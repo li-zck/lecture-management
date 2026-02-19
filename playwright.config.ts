@@ -16,6 +16,11 @@ export default defineConfig({
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
     video: "retain-on-failure",
+    actionTimeout: 10_000,
+    navigationTimeout: 15_000,
+  },
+  expect: {
+    timeout: 10_000,
   },
   projects: [
     {
@@ -27,7 +32,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "npm run dev",
+    command: "bun dev",
     url: "http://localhost:3000",
     reuseExistingServer: true,
     timeout: 120_000,
