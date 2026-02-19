@@ -79,6 +79,12 @@ export type Dictionary = {
     enrollFailed: string;
     requestFailed: string;
     capacityFullWarning: string;
+    tableCourse: string;
+    tableSemester: string;
+    tableDepartment: string;
+    viewCards: string;
+    viewTable: string;
+    filterMyCoursesOnly: string;
   };
   signIn: {
     welcomeTitle: string;
