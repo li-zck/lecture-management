@@ -14,100 +14,100 @@ import {
 } from "react";
 
 type SessionContextType = {
-	isAuthenticated: boolean;
-	user: AccessTokenPayload | null;
-	role: string | undefined;
-	login: (token: string) => void;
-	logout: () => void;
-	isLoading: boolean;
+  isAuthenticated: boolean;
+  user: AccessTokenPayload | null;
+  role: string | undefined;
+  login: (token: string) => void;
+  logout: () => void;
+  isLoading: boolean;
 };
 
 const SessionContext = createContext<SessionContextType | undefined>(undefined);
 
 export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({
-	children,
+  children,
 }) => {
-	const [isAuthenticated, setIsAuthenticated] = useState(false);
-	const [user, setUser] = useState<AccessTokenPayload | null>(null);
-	const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<AccessTokenPayload | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-	const logout = useCallback(() => {
-		signOut();
+  const logout = useCallback(() => {
+    signOut();
 
-		setIsAuthenticated(false);
-		setUser(null);
-	}, []);
+    setIsAuthenticated(false);
+    setUser(null);
+  }, []);
 
-	const updateSession = useCallback(
-		(token: string | undefined) => {
-			if (token) {
-				const decoded = decodeAccessToken(token);
+  const updateSession = useCallback(
+    (token: string | undefined) => {
+      if (token) {
+        const decoded = decodeAccessToken(token);
 
-				if (decoded) {
-					setIsAuthenticated(true);
-					setUser(decoded);
-				} else {
-					logout();
-				}
-			} else {
-				setIsAuthenticated(false);
-				setUser(null);
-			}
-			setIsLoading(false);
-		},
-		[logout],
-	);
+        if (decoded) {
+          setIsAuthenticated(true);
+          setUser(decoded);
+        } else {
+          logout();
+        }
+      } else {
+        setIsAuthenticated(false);
+        setUser(null);
+      }
+      setIsLoading(false);
+    },
+    [logout],
+  );
 
-	const login = useCallback(
-		(token: string) => {
-			Cookies.set("accessToken", token, {
-				path: "/",
-				expires: 365,
-				secure: process.env.NODE_ENV === "production",
-				sameSite: "strict",
-			});
+  const login = useCallback(
+    (token: string) => {
+      Cookies.set("accessToken", token, {
+        path: "/",
+        expires: 365,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+      });
 
-			updateSession(token);
-		},
-		[updateSession],
-	);
+      updateSession(token);
+    },
+    [updateSession],
+  );
 
-	useEffect(() => {
-		const token = Cookies.get("accessToken");
+  useEffect(() => {
+    const token = Cookies.get("accessToken");
 
-		updateSession(token);
+    updateSession(token);
 
-		const handleStorageChange = () => {
-			const newToken = Cookies.get("accessToken");
+    const handleStorageChange = () => {
+      const newToken = Cookies.get("accessToken");
 
-			updateSession(newToken);
-		};
+      updateSession(newToken);
+    };
 
-		window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("storage", handleStorageChange);
 
-		return () => window.removeEventListener("storage", handleStorageChange);
-	}, [updateSession]);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, [updateSession]);
 
-	const value: SessionContextType = {
-		isAuthenticated,
-		user,
-		role: user?.role,
-		login,
-		logout,
-		isLoading,
-	};
+  const value: SessionContextType = {
+    isAuthenticated,
+    user,
+    role: user?.role,
+    login,
+    logout,
+    isLoading,
+  };
 
-	return (
-		<SessionContext.Provider value={value}>{children}</SessionContext.Provider>
-	);
+  return (
+    <SessionContext.Provider value={value}>{children}</SessionContext.Provider>
+  );
 };
 
 export const useSession = () => {
-	const context = useContext(SessionContext);
+  const context = useContext(SessionContext);
 
-	if (context === undefined) {
-		throw new Error("useSession must be used within a SessionProvider");
-	}
+  if (context === undefined) {
+    throw new Error("useSession must be used within a SessionProvider");
+  }
 
-	return context;
+  return context;
 };
