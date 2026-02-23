@@ -14,6 +14,7 @@ import {
   Building2,
   Calendar,
   CalendarDays,
+  FileText,
   GraduationCap,
   LayoutDashboard,
   Plus,
@@ -78,6 +79,12 @@ const navigationItems = [
     icon: Send,
     keywords: ["request", "teaching request", "approve", "lecturer request"],
   },
+  {
+    title: "Posts",
+    url: "/admin/management/post",
+    icon: FileText,
+    keywords: ["post", "announcement", "news", "article"],
+  },
 ];
 
 const quickActions = [
@@ -116,6 +123,12 @@ const quickActions = [
     url: "/admin/management/course-semester/create",
     icon: Plus,
     keywords: ["add course semester", "new course semester"],
+  },
+  {
+    title: "Create Post",
+    url: "/admin/management/post/create",
+    icon: Plus,
+    keywords: ["add post", "new post", "announcement", "news"],
   },
 ];
 

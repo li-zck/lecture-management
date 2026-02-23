@@ -3,18 +3,50 @@
 import { AdminNotificationBell } from "@/components/admin/AdminNotificationBell";
 import { ModeToggle } from "@/components/ui/ModeToggle";
 import { Button } from "@/components/ui/shadcn/button";
-import { Menu, Search } from "lucide-react";
+import {
+  getClientDictionary,
+  isLocale,
+  Locale,
+  LOCALES,
+  useLocale,
+} from "@/lib/i18n";
+import Cookies from "js-cookie";
+import { Globe, Menu, Search } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useMemo } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/shadcn/dropdown-menu";
+
+const LOCALE_COOKIE = "NEXT_LOCALE";
 
 interface AdminHeaderProps {
   onSearchClick?: () => void;
   onMenuClick?: () => void;
 }
 
+function pathWithoutLocale(pathname: string): string {
+  const segments = pathname.slice(1).split("/").filter(Boolean);
+  if (segments.length > 0 && isLocale(segments[0]))
+    return `/${segments.slice(1).join("/")}` || "/";
+  return pathname;
+}
+
 export function AdminHeader({ onSearchClick, onMenuClick }: AdminHeaderProps) {
   const pathname = usePathname();
+  const router = useRouter();
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
+
+  const handleLocaleChange = (newLocale: Locale) => {
+    Cookies.set(LOCALE_COOKIE, newLocale, { path: "/" });
+    const path = pathWithoutLocale(pathname);
+    router.push(path === "/" ? `/${newLocale}` : `/${newLocale}${path}`);
+  };
 
   const breadcrumbs = useMemo(() => {
     const paths = pathname.split("/").filter(Boolean);
@@ -91,6 +123,36 @@ export function AdminHeader({ onSearchClick, onMenuClick }: AdminHeaderProps) {
 
       <AdminNotificationBell />
       <ModeToggle />
+
+      {/* Locale switcher: globe icon */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-muted-foreground hover:text-foreground"
+            aria-label="Change language"
+          >
+            <Globe className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          {LOCALES.map((loc) => (
+            <DropdownMenuItem
+              key={loc}
+              onClick={() => handleLocaleChange(loc)}
+              className="cursor-pointer"
+            >
+              {loc === "en" ? dict.locale.english : dict.locale.vietnamese}
+              {locale === loc && (
+                <span className="ml-2 text-xs text-muted-foreground">
+                  (active)
+                </span>
+              )}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
 
       {/* Search Button */}
       <Button

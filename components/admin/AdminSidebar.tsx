@@ -11,6 +11,7 @@ import {
   CalendarDays,
   ChevronRight,
   ClipboardList,
+  FileText,
   GraduationCap,
   LayoutDashboard,
   ListChecks,
@@ -41,15 +42,56 @@ export function AdminSidebar({
   const [managementOpen, setManagementOpen] = useState(isManagementActive);
 
   const managementItems = [
-    { title: dict.admin.sidebar.students, url: localePath("admin/management/student"), icon: GraduationCap },
-    { title: dict.admin.sidebar.lecturers, url: localePath("admin/management/lecturer"), icon: Users },
-    { title: dict.admin.sidebar.departments, url: localePath("admin/management/department"), icon: Building2 },
-    { title: dict.admin.sidebar.courses, url: localePath("admin/management/course"), icon: BookOpen },
-    { title: dict.admin.sidebar.semesters, url: localePath("admin/management/semester"), icon: Calendar },
-    { title: dict.admin.sidebar.courseSemesters, url: localePath("admin/management/course-semester"), icon: CalendarDays },
-    { title: dict.admin.sidebar.enrollmentSessions, url: localePath("admin/management/enrollment-session"), icon: ClipboardList },
-    { title: dict.admin.sidebar.enrollments, url: localePath("admin/management/enrollment"), icon: ListChecks },
-    { title: dict.admin.sidebar.requests, url: localePath("admin/management/requests"), icon: Send },
+    {
+      title: dict.admin.sidebar.students,
+      url: localePath("admin/management/student"),
+      icon: GraduationCap,
+    },
+    {
+      title: dict.admin.sidebar.lecturers,
+      url: localePath("admin/management/lecturer"),
+      icon: Users,
+    },
+    {
+      title: dict.admin.sidebar.departments,
+      url: localePath("admin/management/department"),
+      icon: Building2,
+    },
+    {
+      title: dict.admin.sidebar.courses,
+      url: localePath("admin/management/course"),
+      icon: BookOpen,
+    },
+    {
+      title: dict.admin.sidebar.semesters,
+      url: localePath("admin/management/semester"),
+      icon: Calendar,
+    },
+    {
+      title: dict.admin.sidebar.courseSemesters,
+      url: localePath("admin/management/course-semester"),
+      icon: CalendarDays,
+    },
+    {
+      title: dict.admin.sidebar.enrollmentSessions,
+      url: localePath("admin/management/enrollment-session"),
+      icon: ClipboardList,
+    },
+    {
+      title: dict.admin.sidebar.enrollments,
+      url: localePath("admin/management/enrollment"),
+      icon: ListChecks,
+    },
+    {
+      title: dict.admin.sidebar.requests,
+      url: localePath("admin/management/requests"),
+      icon: Send,
+    },
+    {
+      title: dict.admin.sidebar.posts,
+      url: localePath("admin/management/post"),
+      icon: FileText,
+    },
   ];
 
   const sidebarContent = (
@@ -61,7 +103,9 @@ export function AdminSidebar({
             <Shield className="size-4" />
           </div>
           <div className="flex flex-col">
-            <span className="text-sm font-semibold">{dict.admin.sidebar.adminPanel}</span>
+            <span className="text-sm font-semibold">
+              {dict.admin.sidebar.adminPanel}
+            </span>
             <span className="text-xs text-muted-foreground">
               {dict.admin.sidebar.managementSystem}
             </span>
@@ -80,7 +124,8 @@ export function AdminSidebar({
             href={localePath("admin")}
             className={cn(
               "flex items-center gap-2 rounded-md px-2 py-2 text-sm transition-colors",
-              pathname.endsWith("/admin") || pathname === `${localePath("admin")}`
+              pathname.endsWith("/admin") ||
+                pathname === `${localePath("admin")}`
                 ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
                 : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
             )}
