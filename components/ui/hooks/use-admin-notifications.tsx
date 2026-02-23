@@ -29,7 +29,7 @@ export function useAdminNotifications() {
     queryKey: adminNotificationKeys.adminBroadcast(),
     queryFn: () => adminNotificationApi.getAdminBroadcast(),
     staleTime: 30 * 1000,
-    refetchInterval: 60 * 1000,
+    // Real-time updates via Socket.IO (SocketProvider invalidates on "notification" event)
   });
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;

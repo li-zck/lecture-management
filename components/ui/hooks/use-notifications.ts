@@ -46,7 +46,7 @@ export function useNotifications() {
     },
     enabled: isAuthenticated && (isStudent || isLecturer),
     staleTime: 30 * 1000, // 30 seconds
-    refetchInterval: 60 * 1000, // Refetch every 60 seconds for real-time updates
+    // Real-time updates via Socket.IO (SocketProvider invalidates on "notification" event)
   });
 
   // Calculate unread count
