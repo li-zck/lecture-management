@@ -23,90 +23,99 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/shadcn/card";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale, useLocalePath } from "@/lib/i18n/use-locale";
 
 export function AdminDashboard() {
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
+  const localePath = useLocalePath();
   const { totalStudents, loading: loadingStudents } = useStudents();
   const { totalLecturers, loading: loadingLecturers } = useLecturers();
   const { totalDepartments, loading: loadingDepartments } = useDepartments();
 
   const stats = [
     {
-      label: "Total Students",
+      label: dict.admin.dashboard.totalStudents,
       value: loadingStudents ? "..." : totalStudents,
       icon: Users,
-      href: "/admin/management/student",
+      href: localePath("admin/management/student"),
       color: "text-blue-600",
-      description: "Active students enrolled",
+      description: dict.admin.dashboard.activeStudentsEnrolled,
     },
     {
-      label: "Total Lecturers",
+      label: dict.admin.dashboard.totalLecturers,
       value: loadingLecturers ? "..." : totalLecturers,
       icon: GraduationCap,
-      href: "/admin/management/lecturer",
+      href: localePath("admin/management/lecturer"),
       color: "text-green-600",
-      description: "Faculty members",
+      description: dict.admin.dashboard.facultyMembers,
     },
     {
-      label: "Departments",
+      label: dict.admin.dashboard.departments,
       value: loadingDepartments ? "..." : totalDepartments,
       icon: Building2,
-      href: "/admin/management/department",
+      href: localePath("admin/management/department"),
       color: "text-purple-600",
-      description: "Academic departments",
+      description: dict.admin.dashboard.academicDepartments,
     },
   ];
 
   const quickActions = [
     {
-      label: "Add Student",
-      href: "/admin/management/student/create",
+      label: dict.admin.dashboard.addStudent,
+      href: localePath("admin/management/student/create"),
       icon: Plus,
     },
     {
-      label: "Add Lecturer",
-      href: "/admin/management/lecturer/create",
+      label: dict.admin.dashboard.addLecturer,
+      href: localePath("admin/management/lecturer/create"),
       icon: Plus,
     },
     {
-      label: "Add Department",
-      href: "/admin/management/department/create",
+      label: dict.admin.dashboard.addDepartment,
+      href: localePath("admin/management/department/create"),
       icon: Plus,
     },
     {
-      label: "Manage Courses",
-      href: "/admin/management/course",
+      label: dict.admin.dashboard.manageCourses,
+      href: localePath("admin/management/course"),
       icon: BookOpen,
     },
     {
-      label: "Manage Semesters",
-      href: "/admin/management/semester",
+      label: dict.admin.dashboard.manageSemesters,
+      href: localePath("admin/management/semester"),
       icon: Calendar,
     },
     {
-      label: "Manage Schedule",
-      href: "/admin/management/course-semester",
+      label: dict.admin.dashboard.manageSchedule,
+      href: localePath("admin/management/course-semester"),
       icon: Calendar,
     },
   ];
 
   return (
-    <div className="p-8 space-y-8">
-      <div className="flex justify-between items-center">
+    <div className="space-y-6 p-4 sm:space-y-8 sm:p-6 lg:p-8">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground mt-1">
-            Overview of the Lecture Management System
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+            {dict.admin.dashboard.title}
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground sm:text-base">
+            {dict.admin.dashboard.subtitle}
           </p>
         </div>
-        <div className="flex gap-2">
-          <Link href="/admin/management">
-            <Button variant="outline">View All Management</Button>
+        <div className="shrink-0">
+          <Link href={localePath("admin/management")}>
+            <Button variant="outline" size="sm" className="w-full sm:w-auto">
+              {dict.admin.dashboard.viewAllManagement}
+            </Button>
           </Link>
         </div>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {stats.map((stat) => (
           <Link key={stat.href} href={stat.href}>
             <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
@@ -128,12 +137,14 @@ export function AdminDashboard() {
       </div>
 
       {/* Quick Actions & Recent Activity Layout */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+      <div className="grid gap-4 lg:grid-cols-7">
         {/* Quick Actions */}
-        <Card className="col-span-3">
+        <Card className="lg:col-span-3">
           <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-            <CardDescription>Commonly used management tasks</CardDescription>
+            <CardTitle>{dict.admin.dashboard.quickActions}</CardTitle>
+            <CardDescription>
+              {dict.admin.dashboard.quickActionsDesc}
+            </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4">
             {quickActions.map((action) => (
@@ -146,7 +157,7 @@ export function AdminDashboard() {
                     <span className="font-medium">{action.label}</span>
                   </div>
                   <Button variant="ghost" size="sm">
-                    Go
+                    {dict.admin.dashboard.go}
                   </Button>
                 </div>
               </Link>
@@ -155,38 +166,37 @@ export function AdminDashboard() {
         </Card>
 
         {/* System Overview / Welcome */}
-        <Card className="col-span-4">
+        <Card className="lg:col-span-4">
           <CardHeader>
-            <CardTitle>Welcome to Admin Panel</CardTitle>
+            <CardTitle>{dict.admin.dashboard.welcomeTitle}</CardTitle>
             <CardDescription>
-              You have full access to manage the system.
+              {dict.admin.dashboard.welcomeDesc}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <p className="mb-4 text-sm text-muted-foreground">
-              Use the sidebar to navigate to specific management sections. Here
-              you can manage:
+              {dict.admin.dashboard.sidebarHint}
             </p>
             <ul className="grid gap-2 text-sm">
               <li className="flex items-center gap-2">
                 <Users className="h-4 w-4 text-blue-500" />
-                <span>Manage Student accounts and enrollments</span>
+                <span>{dict.admin.dashboard.manageStudents}</span>
               </li>
               <li className="flex items-center gap-2">
                 <GraduationCap className="h-4 w-4 text-green-500" />
-                <span>Manage Lecturer profiles and assignments</span>
+                <span>{dict.admin.dashboard.manageLecturers}</span>
               </li>
               <li className="flex items-center gap-2">
                 <Building2 className="h-4 w-4 text-purple-500" />
-                <span>Configure Departments and structure</span>
+                <span>{dict.admin.dashboard.configureDepartments}</span>
               </li>
               <li className="flex items-center gap-2">
                 <BookOpen className="h-4 w-4 text-orange-500" />
-                <span>Organize Courses and curriculum</span>
+                <span>{dict.admin.dashboard.organizeCourses}</span>
               </li>
               <li className="flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-red-500" />
-                <span>Schedule Semesters and classes</span>
+                <span>{dict.admin.dashboard.scheduleSemesters}</span>
               </li>
             </ul>
           </CardContent>

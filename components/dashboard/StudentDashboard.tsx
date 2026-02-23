@@ -194,15 +194,13 @@ export function StudentDashboard() {
   }
 
   return (
-    <div className="container mx-auto p-6 max-w-6xl">
+    <div className="container mx-auto max-w-6xl px-4 py-6 sm:px-6">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-3xl font-bold">Student Dashboard</h1>
-          <p className="text-muted-foreground">
-            Welcome back, {profile?.fullName || profile?.username}
-          </p>
-        </div>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold sm:text-3xl">Student Dashboard</h1>
+        <p className="mt-1 text-sm text-muted-foreground sm:text-base">
+          Welcome back, {profile?.fullName || profile?.username}
+        </p>
       </div>
 
       {/* Profile Card */}
@@ -241,11 +239,11 @@ export function StudentDashboard() {
       </Card>
 
       {/* Tab Navigation */}
-      <div className="flex flex-wrap gap-2 mb-4">
+      <div className="mb-4 flex flex-wrap gap-2">
         <button
           type="button"
           onClick={() => setActiveTab("courses")}
-          className={`px-4 py-2 rounded-md font-medium transition ${
+          className={`rounded-md px-3 py-2 text-sm font-medium transition sm:px-4 ${
             activeTab === "courses"
               ? "bg-primary text-primary-foreground"
               : "bg-muted hover:bg-muted/80"
@@ -256,7 +254,7 @@ export function StudentDashboard() {
         <button
           type="button"
           onClick={() => setActiveTab("enroll")}
-          className={`px-4 py-2 rounded-md font-medium transition ${
+          className={`rounded-md px-3 py-2 text-sm font-medium transition sm:px-4 ${
             activeTab === "enroll"
               ? "bg-primary text-primary-foreground"
               : "bg-muted hover:bg-muted/80"
@@ -267,7 +265,7 @@ export function StudentDashboard() {
         <button
           type="button"
           onClick={() => setActiveTab("grades")}
-          className={`px-4 py-2 rounded-md font-medium transition ${
+          className={`rounded-md px-3 py-2 text-sm font-medium transition sm:px-4 ${
             activeTab === "grades"
               ? "bg-primary text-primary-foreground"
               : "bg-muted hover:bg-muted/80"
@@ -278,7 +276,7 @@ export function StudentDashboard() {
         <button
           type="button"
           onClick={() => setActiveTab("schedule")}
-          className={`px-4 py-2 rounded-md font-medium transition ${
+          className={`rounded-md px-3 py-2 text-sm font-medium transition sm:px-4 ${
             activeTab === "schedule"
               ? "bg-primary text-primary-foreground"
               : "bg-muted hover:bg-muted/80"

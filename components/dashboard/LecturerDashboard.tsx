@@ -17,6 +17,7 @@ import {
   CardTitle,
 } from "@/components/ui/shadcn/card";
 import { Input } from "@/components/ui/shadcn/input";
+import { getErrorInfo } from "@/lib/api/error";
 import {
   type AssignedCourse,
   type CourseStudent,
@@ -27,6 +28,7 @@ import {
 import { GRADE_TYPE_OPTIONS } from "@/lib/utils/grade-labels";
 import { coursesToLecturerSchedule } from "@/lib/utils/schedule";
 import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const DAY_NAMES: Record<number, string> = {
   0: "Sunday",
@@ -127,7 +129,7 @@ export function LecturerDashboard() {
 
   const saveGrade = async (studentId: string) => {
     const student = students.find((s) => s.student.id === studentId);
-    if (!student) return;
+    if (!student?.enrollmentId) return;
     try {
       const updated = await lecturerApi.updateGrade(student.enrollmentId, {
         gradeType1: editingGrades[studentId]?.gradeType1 ?? undefined,
@@ -140,8 +142,10 @@ export function LecturerDashboard() {
           s.student.id === studentId ? { ...s, grades: updated.grades } : s,
         ),
       );
+      toast.success("Grade saved successfully");
     } catch (err) {
       console.error(err);
+      toast.error(getErrorInfo(err).message);
     }
   };
 
@@ -167,15 +171,13 @@ export function LecturerDashboard() {
   }
 
   return (
-    <div className="container mx-auto p-6 max-w-6xl">
+    <div className="container mx-auto max-w-6xl px-4 py-6 sm:px-6">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-3xl font-bold">Lecturer Dashboard</h1>
-          <p className="text-muted-foreground">
-            Welcome back, {profile?.fullName || profile?.username}
-          </p>
-        </div>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold sm:text-3xl">Lecturer Dashboard</h1>
+        <p className="mt-1 text-sm text-muted-foreground sm:text-base">
+          Welcome back, {profile?.fullName || profile?.username}
+        </p>
       </div>
 
       {/* Profile Card */}
@@ -208,14 +210,14 @@ export function LecturerDashboard() {
       </Card>
 
       {/* Tab Navigation */}
-      <div className="flex gap-2 mb-4">
+      <div className="mb-4 flex flex-wrap gap-2">
         <button
           type="button"
           onClick={() => {
             setActiveTab("courses");
             setSelectedCourse(null);
           }}
-          className={`px-4 py-2 rounded-md font-medium transition ${
+          className={`rounded-md px-3 py-2 text-sm font-medium transition sm:px-4 ${
             activeTab === "courses"
               ? "bg-primary text-primary-foreground"
               : "bg-muted hover:bg-muted/80"
@@ -226,7 +228,7 @@ export function LecturerDashboard() {
         <button
           type="button"
           onClick={() => setActiveTab("schedule")}
-          className={`px-4 py-2 rounded-md font-medium transition ${
+          className={`rounded-md px-3 py-2 text-sm font-medium transition sm:px-4 ${
             activeTab === "schedule"
               ? "bg-primary text-primary-foreground"
               : "bg-muted hover:bg-muted/80"
@@ -330,11 +332,16 @@ export function LecturerDashboard() {
                         <th className="text-left py-3 px-2">Student ID</th>
                         <th className="text-left py-3 px-2">Name</th>
                         {GRADE_TYPE_OPTIONS.map((opt) => (
-                          <th key={opt.key} className="text-center py-3 px-2">
+                          <th
+                            key={opt.key}
+                            className="text-center py-3 px-2 w-[100px]"
+                          >
                             {opt.label}
                           </th>
                         ))}
-                        <th className="text-center py-3 px-2">Final</th>
+                        <th className="text-center py-3 px-2 w-[100px]">
+                          Final
+                        </th>
                         <th className="text-center py-3 px-2">Action</th>
                       </tr>
                     </thead>
@@ -351,84 +358,92 @@ export function LecturerDashboard() {
                             {student.student.fullName || student.student.email}
                           </td>
                           <td className="py-3 px-2">
-                            <Input
-                              type="number"
-                              step="0.1"
-                              min="0"
-                              max="10"
-                              className="w-16 text-center"
-                              value={
-                                editingGrades[student.student.id]?.gradeType1 ??
-                                ""
-                              }
-                              onChange={(e) =>
-                                handleGradeChange(
-                                  student.student.id,
-                                  "gradeType1",
-                                  e.target.value,
-                                )
-                              }
-                            />
+                            <div className="flex justify-center">
+                              <Input
+                                type="number"
+                                step="0.1"
+                                min="0"
+                                max="10"
+                                className="w-16 text-center"
+                                value={
+                                  editingGrades[student.student.id]
+                                    ?.gradeType1 ?? ""
+                                }
+                                onChange={(e) =>
+                                  handleGradeChange(
+                                    student.student.id,
+                                    "gradeType1",
+                                    e.target.value,
+                                  )
+                                }
+                              />
+                            </div>
                           </td>
                           <td className="py-3 px-2">
-                            <Input
-                              type="number"
-                              step="0.1"
-                              min="0"
-                              max="10"
-                              className="w-16 text-center"
-                              value={
-                                editingGrades[student.student.id]?.gradeType2 ??
-                                ""
-                              }
-                              onChange={(e) =>
-                                handleGradeChange(
-                                  student.student.id,
-                                  "gradeType2",
-                                  e.target.value,
-                                )
-                              }
-                            />
+                            <div className="flex justify-center">
+                              <Input
+                                type="number"
+                                step="0.1"
+                                min="0"
+                                max="10"
+                                className="w-16 text-center"
+                                value={
+                                  editingGrades[student.student.id]
+                                    ?.gradeType2 ?? ""
+                                }
+                                onChange={(e) =>
+                                  handleGradeChange(
+                                    student.student.id,
+                                    "gradeType2",
+                                    e.target.value,
+                                  )
+                                }
+                              />
+                            </div>
                           </td>
                           <td className="py-3 px-2">
-                            <Input
-                              type="number"
-                              step="0.1"
-                              min="0"
-                              max="10"
-                              className="w-16 text-center"
-                              value={
-                                editingGrades[student.student.id]?.gradeType3 ??
-                                ""
-                              }
-                              onChange={(e) =>
-                                handleGradeChange(
-                                  student.student.id,
-                                  "gradeType3",
-                                  e.target.value,
-                                )
-                              }
-                            />
+                            <div className="flex justify-center">
+                              <Input
+                                type="number"
+                                step="0.1"
+                                min="0"
+                                max="10"
+                                className="w-16 text-center"
+                                value={
+                                  editingGrades[student.student.id]
+                                    ?.gradeType3 ?? ""
+                                }
+                                onChange={(e) =>
+                                  handleGradeChange(
+                                    student.student.id,
+                                    "gradeType3",
+                                    e.target.value,
+                                  )
+                                }
+                              />
+                            </div>
                           </td>
                           <td className="py-3 px-2">
-                            <Input
-                              type="number"
-                              step="0.1"
-                              min="0"
-                              max="10"
-                              className="w-16 text-center"
-                              value={
-                                editingGrades[student.student.id]?.finalGrade ??
-                                ""
-                              }
-                              onChange={(e) =>
-                                handleGradeChange(
-                                  student.student.id,
-                                  "finalGrade",
-                                  e.target.value,
-                                )
-                              }
-                            />
+                            <div className="flex justify-center">
+                              <Input
+                                type="number"
+                                step="0.1"
+                                min="0"
+                                max="10"
+                                className="w-16 text-center"
+                                value={
+                                  editingGrades[student.student.id]
+                                    ?.finalGrade ?? ""
+                                }
+                                onChange={(e) =>
+                                  handleGradeChange(
+                                    student.student.id,
+                                    "finalGrade",
+                                    e.target.value,
+                                  )
+                                }
+                              />
+                            </div>
                           </td>
                           <td className="py-3 px-2 text-center">
                             <Button
