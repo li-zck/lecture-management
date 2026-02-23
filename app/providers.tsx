@@ -1,5 +1,6 @@
 import { QueryProvider, ThemeProvider } from "@/components/provider";
 import { SessionProvider } from "@/components/provider/SessionProvider";
+import { SocketProvider } from "@/components/provider/SocketProvider";
 import { KeyboardShortcutProvider } from "@/components/ui";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
 import type { ReactNode } from "react";
@@ -15,16 +16,18 @@ export default function RootProviders({ children }: { children: ReactNode }) {
     >
       <QueryProvider>
         <SessionProvider>
-          <TooltipProvider>
-            <KeyboardShortcutProvider>
-              <Toaster
-                className="pointer-events-auto"
-                closeButton={true}
-                position="top-center"
-              />
-              {children}
-            </KeyboardShortcutProvider>
-          </TooltipProvider>
+          <SocketProvider>
+            <TooltipProvider>
+              <KeyboardShortcutProvider>
+                <Toaster
+                  className="pointer-events-auto"
+                  closeButton={true}
+                  position="top-center"
+                />
+                {children}
+              </KeyboardShortcutProvider>
+            </TooltipProvider>
+          </SocketProvider>
         </SessionProvider>
       </QueryProvider>
     </ThemeProvider>
