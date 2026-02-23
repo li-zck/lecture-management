@@ -205,15 +205,38 @@ export const lecturerApi = {
   /**
    * Get students enrolled in a course (lecturer only)
    * Uses GET /enrollment/course-semester/:courseOnSemesterId endpoint
+   * Backend returns enrollment with `id`; we map to `enrollmentId` for CourseStudent
    */
   getCourseStudents: async (
     courseOnSemesterId: string,
   ): Promise<CourseStudent[]> => {
-    // Note: Backend returns enrollment data with student info
-    const response = await apiClient.get<CourseStudent[]>(
+    interface BackendEnrollment {
+      id: string;
+      gradeType1: number | null;
+      gradeType2: number | null;
+      gradeType3: number | null;
+      finalGrade: number | null;
+      student: {
+        id: string;
+        studentId: string | null;
+        fullName: string | null;
+        email: string;
+        avatar: string | null;
+      };
+    }
+    const response = await apiClient.get<BackendEnrollment[]>(
       `/enrollment/course-semester/${courseOnSemesterId}`,
     );
-    return response.data;
+    return (response.data ?? []).map((e) => ({
+      enrollmentId: e.id,
+      student: e.student,
+      grades: {
+        gradeType1: e.gradeType1,
+        gradeType2: e.gradeType2,
+        gradeType3: e.gradeType3,
+        finalGrade: e.finalGrade,
+      },
+    }));
   },
 
   /**
