@@ -16,6 +16,7 @@ export type Dictionary = {
     sitePolicy: string;
     support: string;
     courses: string;
+    posts: string;
     signIn: string;
     signOut: string;
     dashboard: string;
@@ -321,6 +322,7 @@ export type Dictionary = {
       enrollmentSessions: string;
       enrollments: string;
       requests: string;
+      posts: string;
     };
     management: {
       overview: string;
