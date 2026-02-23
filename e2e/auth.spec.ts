@@ -64,13 +64,13 @@ test.describe("Auth Flow", () => {
 
       await expect(page).toHaveURL(/\/admin\/sign-up/);
       await expect(
-        page.getByText("Sign up to manage the system"),
+        page.getByText("Register as an administrator"),
       ).toBeVisible();
 
       await page.getByPlaceholder("admin").fill("newadmin");
       await page.locator('input[type="password"]').first().fill("password123");
       await page.locator('input[type="password"]').nth(1).fill("password123");
-      await page.getByRole("button", { name: "Create Admin Account" }).click();
+      await page.getByRole("button", { name: "Create Account" }).click();
 
       await expect(page).toHaveURL(/\/admin\/?$/);
       await expectAuthCookie(page);

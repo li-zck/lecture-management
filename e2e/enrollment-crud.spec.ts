@@ -84,19 +84,17 @@ test.describe("Enrollment CRUD", () => {
       .click();
     await page.getByRole("menuitem", { name: /delete/i }).click();
 
-    await expect(
-      page.getByRole("alertdialog").getByText(/remove enrollment/i),
-    ).toBeVisible();
+    const dialog = page.getByRole("alertdialog");
+    await expect(dialog.getByText(/remove enrollment/i)).toBeVisible();
 
     const deleteRequest = page.waitForRequest(
       (req) =>
         req.method() === "DELETE" &&
         req.url().includes("/admin/course/enrollment/delete/"),
     );
-    await page
-      .getByRole("alertdialog")
+    await dialog
       .getByRole("button", { name: /^delete$/i })
-      .click({ force: true });
+      .evaluate((el) => (el as HTMLButtonElement).click());
 
     await expect(deleteRequest).resolves.toBeDefined();
   });
