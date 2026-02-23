@@ -2,6 +2,8 @@
 
 import { useSession } from "@/components/provider/SessionProvider";
 import { Button } from "@/components/ui/shadcn/button";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale, useLocalePath } from "@/lib/i18n/use-locale";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/shadcn/card";
 import {
   Form,
@@ -22,19 +24,22 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 
-const formSchema = z.object({
-    username: z.string().min(3, "Username must be at least 3 characters"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
-    confirmPassword: z.string().min(1, "Please confirm your password"),
-}).refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ["confirmPassword"],
-});
-
 export default function AdminSignUpPage() {
     const router = useRouter();
+    const locale = useLocale();
+    const localePath = useLocalePath();
+    const dict = getClientDictionary(locale);
     const { login } = useSession();
     const [isLoading, setIsLoading] = useState(false);
+
+    const formSchema = z.object({
+        username: z.string().min(3, dict.admin.signUp.usernameMin),
+        password: z.string().min(6, dict.admin.signUp.passwordMin),
+        confirmPassword: z.string().min(1, dict.admin.signUp.confirmRequired),
+    }).refine((data) => data.password === data.confirmPassword, {
+        message: dict.admin.signUp.passwordsDontMatch,
+        path: ["confirmPassword"],
+    });
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -50,19 +55,19 @@ export default function AdminSignUpPage() {
     try {
       const response = await authApi.adminSignUp(values);
       login(response.accessToken);
-      toast.success("Admin account created successfully!");
-      router.push("/admin");
+      toast.success(dict.admin.signUp.success);
+      router.push(localePath("admin"));
     } catch (error: unknown) {
       const err = error as { status?: number; message?: string };
       const status = err.status || 500;
 
       const messages: Record<number, string> = {
-        400: "Please check your information and try again.",
-        409: "An admin with this username already exists.",
-        422: "Invalid registration information. Please review the form.",
+        400: dict.admin.signUp.checkInfo,
+        409: dict.admin.signUp.usernameExists,
+        422: dict.admin.signUp.invalidRegistration,
       };
 
-      toast.error(messages[status] || err.message || "Failed to create admin account.");
+      toast.error(messages[status] || err.message || dict.admin.signUp.failed);
     } finally {
       setIsLoading(false);
     }
@@ -72,9 +77,9 @@ export default function AdminSignUpPage() {
         <div className="flex items-center justify-center min-h-screen bg-muted/50">
             <Card className="w-full max-w-md">
                 <CardHeader>
-                    <CardTitle className="text-2xl text-center">Create Admin Account</CardTitle>
+                    <CardTitle className="text-2xl text-center">{dict.admin.signUp.title}</CardTitle>
                     <CardDescription className="text-center">
-                        Sign up to manage the system
+                        {dict.admin.signUp.subtitle}
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -85,7 +90,7 @@ export default function AdminSignUpPage() {
                                 name="username"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Username</FormLabel>
+                                        <FormLabel>{dict.admin.signIn.username}</FormLabel>
                                         <FormControl>
                                             <Input placeholder="admin" {...field} />
                                         </FormControl>
@@ -98,7 +103,7 @@ export default function AdminSignUpPage() {
                                 name="password"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Password</FormLabel>
+                                        <FormLabel>{dict.admin.signIn.password}</FormLabel>
                                         <FormControl>
                                             <Input type="password" placeholder="••••••••" {...field} />
                                         </FormControl>
@@ -111,7 +116,7 @@ export default function AdminSignUpPage() {
                                 name="confirmPassword"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Confirm Password</FormLabel>
+                                        <FormLabel>{dict.admin.signUp.confirmPassword}</FormLabel>
                                         <FormControl>
                                             <Input type="password" placeholder="••••••••" {...field} />
                                         </FormControl>
@@ -121,14 +126,14 @@ export default function AdminSignUpPage() {
                             />
                             <Button type="submit" className="w-full" disabled={isLoading}>
                                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                Create Admin Account
+                                {dict.admin.signUp.createAccount}
                             </Button>
                         </form>
                     </Form>
                     <div className="mt-4 text-center text-sm text-muted-foreground">
-                        Already have an account?{" "}
-                        <Link href="/admin/sign-in" className="text-primary hover:underline">
-                            Sign in
+                        {dict.admin.signUp.alreadyHave}{" "}
+                        <Link href={localePath("admin/sign-in")} className="text-primary hover:underline">
+                            {dict.admin.signUp.signIn}
                         </Link>
                     </div>
                 </CardContent>

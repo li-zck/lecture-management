@@ -4,6 +4,7 @@ import { AdminHeader } from "@/components/admin/AdminHeader";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { CommandPalette } from "@/components/admin/CommandPalette";
 import { useSession } from "@/components/provider/SessionProvider";
+import { SkipLink } from "@/components/ui/SkipLink";
 import { usePathname, useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
@@ -17,6 +18,7 @@ const authRoutes = ["/admin/sign-in", "/admin/sign-up"];
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const [commandOpen, setCommandOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const { isAuthenticated, isLoading } = useSession();
@@ -34,6 +36,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     }
   }, [isLoading, isAuthenticated, isAuthRoute, pathname, router]);
 
+  // Close mobile sidebar on route change
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, []);
+
   // Show plain layout for auth routes or unauthenticated users (before redirect)
   if (isAuthRoute || (!isLoading && !isAuthenticated)) {
     return <>{children}</>;
@@ -49,16 +56,31 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   }
 
   // Show full admin layout for authenticated users
-  // Sidebar is fixed at 256px (w-64) width
+  // Desktop (lg+): fixed sidebar | Mobile/tablet: hamburger + sheet
   return (
     <div className="min-h-screen bg-background">
-      {/* Fixed Sidebar (w-64 = 256px) */}
-      <AdminSidebar />
+      <SkipLink />
+      {/* Desktop sidebar: hidden on mobile/tablet, fixed on lg+ */}
+      <div className="hidden lg:block">
+        <AdminSidebar />
+      </div>
 
-      {/* Main content with left margin to account for fixed sidebar */}
-      <div className="ml-64 min-h-screen flex flex-col">
-        <AdminHeader onSearchClick={() => setCommandOpen(true)} />
-        <main className="flex-1 p-6">{children}</main>
+      {/* Mobile sidebar: Sheet drawer */}
+      <AdminSidebar
+        variant="sheet"
+        open={sidebarOpen}
+        onOpenChange={setSidebarOpen}
+      />
+
+      {/* Main content: full width on mobile, ml-64 on desktop */}
+      <div className="min-h-screen flex flex-col lg:ml-64">
+        <AdminHeader
+          onSearchClick={() => setCommandOpen(true)}
+          onMenuClick={() => setSidebarOpen(true)}
+        />
+        <main id="main-content" className="flex-1 p-4 sm:p-6" tabIndex={-1}>
+          {children}
+        </main>
       </div>
 
       <CommandPalette open={commandOpen} onOpenChange={setCommandOpen} />

@@ -29,8 +29,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/shadcn/card";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale, useLocalePath } from "@/lib/i18n/use-locale";
 
-export default function AdminDashboard() {
+export default function AdminPage() {
+  const locale = useLocale();
+  const localePath = useLocalePath();
+  const dict = getClientDictionary(locale);
   const { totalStudents, loading: loadingStudents } = useStudents();
   const { totalLecturers, loading: loadingLecturers } = useLecturers();
   const { totalDepartments, loading: loadingDepartments } = useDepartments();
@@ -39,88 +44,88 @@ export default function AdminDashboard() {
 
   const stats = [
     {
-      label: "Students",
+      label: dict.admin.sidebar.students,
       value: loadingStudents ? "..." : totalStudents,
       icon: GraduationCap,
-      href: "/admin/management/student",
+      href: localePath("admin/management/student"),
       color: "text-blue-600",
       bgColor: "bg-blue-100 dark:bg-blue-900/20",
-      description: "Active students enrolled",
+      description: dict.admin.dashboard.activeStudentsEnrolled,
     },
     {
-      label: "Lecturers",
+      label: dict.admin.sidebar.lecturers,
       value: loadingLecturers ? "..." : totalLecturers,
       icon: Users,
-      href: "/admin/management/lecturer",
+      href: localePath("admin/management/lecturer"),
       color: "text-green-600",
       bgColor: "bg-green-100 dark:bg-green-900/20",
-      description: "Faculty members",
+      description: dict.admin.dashboard.facultyMembers,
     },
     {
-      label: "Departments",
+      label: dict.admin.sidebar.departments,
       value: loadingDepartments ? "..." : totalDepartments,
       icon: Building2,
-      href: "/admin/management/department",
+      href: localePath("admin/management/department"),
       color: "text-purple-600",
       bgColor: "bg-purple-100 dark:bg-purple-900/20",
-      description: "Academic departments",
+      description: dict.admin.dashboard.academicDepartments,
     },
     {
-      label: "Courses",
+      label: dict.admin.sidebar.courses,
       value: loadingCourses ? "..." : totalCourses,
       icon: BookOpen,
-      href: "/admin/management/course",
+      href: localePath("admin/management/course"),
       color: "text-orange-600",
       bgColor: "bg-orange-100 dark:bg-orange-900/20",
-      description: "Available courses",
+      description: dict.admin.dashboard.availableCourses,
     },
     {
-      label: "Semesters",
+      label: dict.admin.sidebar.semesters,
       value: loadingSemesters ? "..." : totalSemesters,
       icon: Calendar,
-      href: "/admin/management/semester",
+      href: localePath("admin/management/semester"),
       color: "text-pink-600",
       bgColor: "bg-pink-100 dark:bg-pink-900/20",
-      description: "Academic terms",
+      description: dict.admin.dashboard.academicTerms,
     },
   ];
 
   const quickActions = [
     {
-      label: "Add Student",
-      href: "/admin/management/student/create",
+      label: dict.admin.dashboard.addStudent,
+      href: localePath("admin/management/student/create"),
       icon: GraduationCap,
-      description: "Register a new student",
+      description: dict.admin.dashboard.addStudent,
     },
     {
-      label: "Add Lecturer",
-      href: "/admin/management/lecturer/create",
+      label: dict.admin.dashboard.addLecturer,
+      href: localePath("admin/management/lecturer/create"),
       icon: Users,
-      description: "Add faculty member",
+      description: dict.admin.dashboard.addLecturer,
     },
     {
-      label: "Create Course",
-      href: "/admin/management/course/create",
+      label: dict.admin.dashboard.manageCourses,
+      href: localePath("admin/management/course/create"),
       icon: BookOpen,
-      description: "Add new course",
+      description: dict.admin.dashboard.manageCourses,
     },
     {
-      label: "Create Semester",
-      href: "/admin/management/semester/create",
+      label: dict.admin.dashboard.manageSemesters,
+      href: localePath("admin/management/semester/create"),
       icon: Calendar,
-      description: "Add academic term",
+      description: dict.admin.dashboard.manageSemesters,
     },
     {
-      label: "Schedule Course",
-      href: "/admin/management/course-semester/create",
+      label: dict.admin.dashboard.manageSchedule,
+      href: localePath("admin/management/course-semester/create"),
       icon: CalendarDays,
-      description: "Assign course to semester",
+      description: dict.admin.dashboard.manageSchedule,
     },
     {
-      label: "Add Department",
-      href: "/admin/management/department/create",
+      label: dict.admin.dashboard.addDepartment,
+      href: localePath("admin/management/department/create"),
       icon: Building2,
-      description: "Create department",
+      description: dict.admin.dashboard.addDepartment,
     },
   ];
 
@@ -128,16 +133,18 @@ export default function AdminDashboard() {
     <div className="space-y-6">
       {/* Page Title */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground">
-          Welcome to the admin panel. Here's an overview of your system.
+        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+          {dict.admin.dashboard.title}
+        </h1>
+        <p className="mt-1 text-sm text-muted-foreground sm:text-base">
+          {dict.admin.dashboard.subtitle}
         </p>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {stats.map((stat) => (
-          <Link key={stat.label} href={stat.href}>
+          <Link key={stat.label} href={stat.href as string}>
             <Card className="hover:shadow-md transition-all hover:scale-[1.02] cursor-pointer h-full">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -160,7 +167,9 @@ export default function AdminDashboard() {
 
       {/* Overview widgets: enrollments, schedules, department distribution, enrollment sessions */}
       <div>
-        <h2 className="text-lg font-semibold mb-2">Overview</h2>
+        <h2 className="text-lg font-semibold mb-2">
+          {dict.admin.management.overview}
+        </h2>
         <DashboardOverview />
       </div>
 
@@ -171,9 +180,11 @@ export default function AdminDashboard() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Plus className="h-5 w-5" />
-              Quick Actions
+              {dict.admin.dashboard.quickActions}
             </CardTitle>
-            <CardDescription>Commonly used management tasks</CardDescription>
+            <CardDescription>
+              {dict.admin.dashboard.quickActionsDesc}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-3 sm:grid-cols-2">
@@ -244,8 +255,8 @@ export default function AdminDashboard() {
 
             <div className="pt-2">
               <Button variant="outline" className="w-full" asChild>
-                <Link href="/admin/management/student">
-                  View All Management Options
+                <Link href={localePath("admin/management")}>
+                  {dict.admin.dashboard.viewAllManagement}
                 </Link>
               </Button>
             </div>

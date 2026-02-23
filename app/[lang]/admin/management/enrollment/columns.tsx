@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/shadcn/dropdown-menu";
 import type { Enrollment } from "@/lib/api/admin-enrollment";
 import { adminEnrollmentApi } from "@/lib/api/admin-enrollment";
+import { useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -28,14 +29,17 @@ import { toast } from "sonner";
 
 const ActionCell = ({ enrollment }: { enrollment: Enrollment }) => {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [openDelete, setOpenDelete] = useState(false);
 
   const handleDelete = async () => {
     try {
       await adminEnrollmentApi.delete(enrollment.id);
+      await queryClient.invalidateQueries({
+        queryKey: ["admin", "enrollments"],
+      });
       toast.success("Enrollment removed successfully");
       router.refresh();
-      window.location.reload();
     } catch {
       toast.error("Failed to remove enrollment");
     }
