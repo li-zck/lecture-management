@@ -5,6 +5,7 @@
     "sitePolicy": "Chính sách trang",
     "support": "Hỗ trợ",
     "courses": "Khóa học",
+    "posts": "Bài viết",
     "signIn": "Đăng nhập",
     "signOut": "Đăng xuất",
     "dashboard": "Bảng điều khiển",
@@ -556,7 +557,8 @@
       "courseSemesters": "Môn học-Học kỳ",
       "enrollmentSessions": "Phiên đăng ký",
       "enrollments": "Đăng ký",
-      "requests": "Yêu cầu"
+      "requests": "Yêu cầu",
+      "posts": "Bài viết"
     },
     "management": {
       "overview": "Tổng quan",

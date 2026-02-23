@@ -5,6 +5,7 @@
     "sitePolicy": "Site Policy",
     "support": "Support",
     "courses": "Courses",
+    "posts": "Posts",
     "signIn": "Sign in",
     "signOut": "Sign out",
     "dashboard": "Dashboard",
@@ -560,7 +561,8 @@
       "courseSemesters": "Course-Semesters",
       "enrollmentSessions": "Enrollment Sessions",
       "enrollments": "Enrollments",
-      "requests": "Requests"
+      "requests": "Requests",
+      "posts": "Posts"
     },
     "management": {
       "overview": "Overview",
