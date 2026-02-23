@@ -3,16 +3,17 @@
 import { AdminNotificationBell } from "@/components/admin/AdminNotificationBell";
 import { ModeToggle } from "@/components/ui/ModeToggle";
 import { Button } from "@/components/ui/shadcn/button";
-import { Search } from "lucide-react";
+import { Menu, Search } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useMemo } from "react";
 
 interface AdminHeaderProps {
   onSearchClick?: () => void;
+  onMenuClick?: () => void;
 }
 
-export function AdminHeader({ onSearchClick }: AdminHeaderProps) {
+export function AdminHeader({ onSearchClick, onMenuClick }: AdminHeaderProps) {
   const pathname = usePathname();
 
   const breadcrumbs = useMemo(() => {
@@ -52,11 +53,24 @@ export function AdminHeader({ onSearchClick }: AdminHeaderProps) {
   }, [pathname]);
 
   return (
-    <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-4 border-b bg-background px-6">
-      {/* Breadcrumbs */}
-      <nav className="flex items-center gap-1 text-sm">
+    <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-2 sm:gap-4 border-b bg-background px-4 sm:px-6">
+      {/* Mobile menu button */}
+      {onMenuClick && (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="lg:hidden shrink-0"
+          onClick={onMenuClick}
+          aria-label="Open menu"
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
+      )}
+
+      {/* Breadcrumbs - truncate on small screens */}
+      <nav className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto text-sm">
         {breadcrumbs.map((item, index) => (
-          <div key={item.href} className="flex items-center gap-1">
+          <div key={item.href} className="flex shrink-0 items-center gap-1">
             {index > 0 && <span className="text-muted-foreground">/</span>}
             {index === breadcrumbs.length - 1 ? (
               <span className="font-medium text-foreground">{item.label}</span>
