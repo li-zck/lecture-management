@@ -66,10 +66,10 @@ export function DataTablePagination<TData>({
   };
 
   return (
-    <div className="flex items-center justify-between px-2">
+    <div className="flex flex-col gap-4 px-2 py-4 sm:flex-row sm:items-center sm:justify-between sm:py-2">
       {showSelection && (
         <>
-          <div className="text-muted-foreground flex-1 text-sm flex items-center gap-2">
+          <div className="flex flex-1 flex-wrap items-center gap-2 text-sm text-muted-foreground">
             {selectedCount} of {table.getFilteredRowModel().rows.length} row(s)
             selected.
             {selectedCount > 0 && bulkDeleteHandlerAction && (
@@ -123,7 +123,7 @@ export function DataTablePagination<TData>({
         </>
       )}
       <div
-        className={`flex items-center space-x-6 lg:space-x-8 ${!showSelection ? "ml-auto" : ""}`}
+        className={`flex flex-wrap items-center justify-center gap-4 sm:justify-end sm:gap-6 lg:gap-8 ${!showSelection ? "ml-auto" : ""}`}
       >
         <div className="flex items-center space-x-2">
           <p className="text-sm font-medium">Rows per page</p>
