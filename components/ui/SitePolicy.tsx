@@ -17,7 +17,6 @@ export function SitePolicyComponent() {
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <section className="relative overflow-hidden py-16 sm:py-20 lg:py-24 px-6">
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-background to-background" />
         <div className="container mx-auto max-w-4xl relative z-10">
           <div className="text-center space-y-6">
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight">

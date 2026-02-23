@@ -65,12 +65,13 @@ export function Navbar() {
   const navRef = useRef<HTMLDivElement>(null);
   const isAdmin = user?.role?.toLowerCase() === "admin";
 
-  // Unauthorized: Home, About, Site Policy. Authorized (student/lecturer): Dashboard, Courses, My Courses. Admin: no main nav.
+  // Unauthorized: Home, About, Site Policy, Posts. Authorized (student/lecturer): Dashboard, Courses, My Courses, Posts. Admin: no main nav.
   const navItems = !isAuthenticated
     ? [
         { href: "/", labelKey: "home" as const },
         { href: "/about", labelKey: "about" as const },
         { href: "/site-policy", labelKey: "sitePolicy" as const },
+        { href: "/posts", labelKey: "posts" as const },
       ]
     : isAdmin
       ? []
@@ -78,6 +79,7 @@ export function Navbar() {
           { href: "/dashboard", labelKey: "dashboard" as const },
           { href: "/courses", labelKey: "courses" as const },
           { href: "/my-courses", labelKey: "myCourses" as const },
+          { href: "/posts", labelKey: "posts" as const },
         ];
 
   useEffect(() => {
@@ -158,7 +160,13 @@ export function Navbar() {
               </SheetContent>
             </Sheet>
           )}
-          <Wordmark className="mr-4 md:mr-8" />
+          <Wordmark
+            className="mr-4 md:mr-8"
+            href={localePath(
+              locale,
+              isAuthenticated && !isAdmin ? "/dashboard" : "/",
+            )}
+          />
 
           {navItems.length > 0 && (
             <nav

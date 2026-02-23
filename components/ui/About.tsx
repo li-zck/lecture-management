@@ -23,7 +23,6 @@ export function AboutComponent() {
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <section className="relative overflow-hidden py-16 sm:py-20 lg:py-24 px-6">
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-background to-background" />
         <div className="container mx-auto max-w-4xl relative z-10">
           <div className="text-center space-y-6">
             <Badge variant="secondary" className="text-sm px-4 py-1.5">
@@ -31,9 +30,7 @@ export function AboutComponent() {
             </Badge>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">
               {a.title} <br className="hidden md:block" />
-              <span className="bg-gradient-to-r from-primary via-violet-600 to-emerald-600 bg-clip-text text-transparent">
-                {a.titleBrand}
-              </span>
+              <span className="text-primary">{a.titleBrand}</span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
               {a.intro}
@@ -137,7 +134,7 @@ export function AboutComponent() {
       {/* CTA Section */}
       <section className="py-16 px-6 border-t border-border/50">
         <div className="container mx-auto max-w-4xl">
-          <Card className="border-primary/20 bg-gradient-to-b from-primary/5 to-background">
+          <Card className="border-border/50 bg-transparent">
             <CardContent className="p-8 md:p-12 text-center space-y-6">
               <h2 className="text-3xl md:text-4xl font-bold">{a.ctaTitle}</h2>
               <p className="text-muted-foreground text-lg max-w-xl mx-auto leading-relaxed">
