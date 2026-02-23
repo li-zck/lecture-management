@@ -24,6 +24,7 @@ export interface Post {
     id: string;
     name: string;
   } | null;
+  isPublic: boolean;
   thumbnail: string | null;
   createdAt: string;
   updatedAt: string;
@@ -38,6 +39,7 @@ export interface CreatePostRequest {
   type?: PostType;
   departmentId?: string;
   thumbnail?: string;
+  isPublic?: boolean;
 }
 
 /**
@@ -49,6 +51,7 @@ export interface UpdatePostRequest {
   type?: PostType;
   departmentId?: string | null;
   thumbnail?: string | null;
+  isPublic?: boolean | null;
 }
 
 /**
