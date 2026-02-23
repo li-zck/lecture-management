@@ -3,10 +3,7 @@
 import { Badge } from "@/components/ui/shadcn/badge";
 import { Button } from "@/components/ui/shadcn/button";
 import { Card, CardContent } from "@/components/ui/shadcn/card";
-import {
-  getClientDictionary,
-  isLocale,
-} from "@/lib/i18n";
+import { getClientDictionary, isLocale } from "@/lib/i18n";
 import {
   ArrowRight,
   Award,
@@ -53,7 +50,12 @@ const benefitIcons = [Clock, LayoutGrid, BarChart3, Calendar, FileText, Bell];
 
 const statIcons = [Users, BookOpen, LayoutGrid, Zap];
 const statValues = ["500+", "50+", "10+", "99.9%"] as const;
-const statKeys = ["activeStudents", "courses", "departments", "uptime"] as const;
+const statKeys = [
+  "activeStudents",
+  "courses",
+  "departments",
+  "uptime",
+] as const;
 
 const studentFeatureIcons = [BookOpen, Award, Calendar, Download];
 const lecturerFeatureIcons = [Users, TrendingUp, Calendar, FileText];
@@ -170,9 +172,7 @@ export default function Homepage() {
               transition={{ duration: 0.5, delay: 0.1 }}
             >
               {h.titleLine1}
-              <span className="mt-1 block text-primary">
-                {h.titleLine2}
-              </span>
+              <span className="mt-1 block text-primary">{h.titleLine2}</span>
             </motion.h1>
 
             <motion.p
@@ -421,7 +421,7 @@ export default function Homepage() {
       <section className="py-16 sm:py-20 px-6">
         <div className="container mx-auto max-w-4xl">
           <AnimatedSection>
-            <Card className="relative isolate overflow-hidden border-border/50">
+            <Card className="relative isolate overflow-hidden border-border/50 bg-transparent">
               <CardContent className="p-8 text-center space-y-6">
                 <h2 className="text-3xl sm:text-4xl font-bold">
                   {h.cta.title}
