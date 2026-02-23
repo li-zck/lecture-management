@@ -1,4 +1,5 @@
 import { apiClient } from "./client";
+import { documentApi } from "./document";
 
 export interface StudentProfile {
   id: string;
@@ -91,12 +92,18 @@ export const studentApi = {
   /**
    * Update own profile (authenticated student)
    * Uses @GetUser() decorator on backend - no ID needed
+   * Matches backend StudentUpdateAccountDto
    */
   updateProfile: async (data: {
+    username?: string;
     fullName?: string;
+    gender?: boolean;
+    birthDate?: string;
+    citizenId?: string;
     phone?: string;
     address?: string;
-    avatar?: string;
+    oldPassword?: string;
+    password?: string;
   }): Promise<StudentProfile> => {
     const response = await apiClient.patch<StudentProfile, typeof data>(
       "/student/update",
@@ -181,6 +188,73 @@ export const studentApi = {
   },
 
   /**
+   * Get a single enrollment by ID (student only)
+   * Uses GET /enrollment/my-enrollments/:id
+   */
+  getMyEnrollmentById: async (id: string): Promise<EnrolledCourse> => {
+    interface BackendEnrollment {
+      id: string;
+      gradeType1: number | null;
+      gradeType2: number | null;
+      gradeType3: number | null;
+      finalGrade: number | null;
+      courseOnSemester: {
+        id: string;
+        location: string | null;
+        dayOfWeek: number | null;
+        startTime: number | null;
+        endTime: number | null;
+        course: {
+          id: string;
+          name: string;
+          credits: number;
+          departmentId: string | null;
+          department?: { name: string } | null;
+        };
+        semester: { id: string; name: string };
+        lecturer: {
+          id: string;
+          fullName: string | null;
+          email: string;
+          lecturerId: string;
+        } | null;
+      };
+    }
+
+    const response = await apiClient.get<BackendEnrollment>(
+      `/enrollment/my-enrollments/${id}`,
+    );
+    const e = response.data;
+    return {
+      enrollmentId: e.id,
+      courseOnSemesterId: e.courseOnSemester.id,
+      course: {
+        id: e.courseOnSemester.course.id,
+        name: e.courseOnSemester.course.name,
+        credits: e.courseOnSemester.course.credits,
+        department: e.courseOnSemester.course.department?.name ?? null,
+      },
+      semester: {
+        id: e.courseOnSemester.semester.id,
+        name: e.courseOnSemester.semester.name,
+      },
+      lecturer: e.courseOnSemester.lecturer,
+      schedule: {
+        dayOfWeek: e.courseOnSemester.dayOfWeek,
+        startTime: e.courseOnSemester.startTime,
+        endTime: e.courseOnSemester.endTime,
+        location: e.courseOnSemester.location,
+      },
+      grades: {
+        gradeType1: e.gradeType1,
+        gradeType2: e.gradeType2,
+        gradeType3: e.gradeType3,
+        finalGrade: e.finalGrade,
+      },
+    };
+  },
+
+  /**
    * @deprecated - Endpoint doesn't exist in backend
    * Grades should be accessed through enrollment data
    */
@@ -237,16 +311,23 @@ export const studentApi = {
   },
 
   /**
-   * @deprecated - Endpoint doesn't exist in backend
-   * Documents should be fetched from document controller
+   * Get documents for a course (by courseOnSemesterId)
+   * Uses documentApi.getAll() and filters by courseOnSemesterId
    */
   getCourseDocuments: async (
-    _enrollmentId: string,
+    courseOnSemesterId: string,
   ): Promise<CourseDocument[]> => {
-    console.warn(
-      "[studentApi.getCourseDocuments] This endpoint is not implemented in the backend",
+    const all = await documentApi.getAll();
+    const filtered = all.filter(
+      (d) => d.courseOnSemesterId === courseOnSemesterId,
     );
-    return [];
+    return filtered.map((d) => ({
+      id: d.id,
+      title: d.title,
+      path: d.path,
+      url: d.url ?? "",
+      createdAt: d.createdAt,
+    }));
   },
 };
 

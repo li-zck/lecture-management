@@ -1,5 +1,8 @@
 "use client";
 
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/shadcn/sheet";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale, useLocalePath } from "@/lib/i18n/use-locale";
 import { cn } from "@/lib/utils";
 import {
   BookOpen,
@@ -21,71 +24,46 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { NavUser } from "./nav-user";
 
-const managementItems = [
-  {
-    title: "Students",
-    url: "/admin/management/student",
-    icon: GraduationCap,
-  },
-  {
-    title: "Lecturers",
-    url: "/admin/management/lecturer",
-    icon: Users,
-  },
-  {
-    title: "Departments",
-    url: "/admin/management/department",
-    icon: Building2,
-  },
-  {
-    title: "Courses",
-    url: "/admin/management/course",
-    icon: BookOpen,
-  },
-  {
-    title: "Semesters",
-    url: "/admin/management/semester",
-    icon: Calendar,
-  },
-  {
-    title: "Course-Semesters",
-    url: "/admin/management/course-semester",
-    icon: CalendarDays,
-  },
-  {
-    title: "Enrollment Sessions",
-    url: "/admin/management/enrollment-session",
-    icon: ClipboardList,
-  },
-  {
-    title: "Enrollments",
-    url: "/admin/management/enrollment",
-    icon: ListChecks,
-  },
-  {
-    title: "Requests",
-    url: "/admin/management/requests",
-    icon: Send,
-  },
-];
-
-export function AdminSidebar() {
+export function AdminSidebar({
+  variant = "fixed",
+  open,
+  onOpenChange,
+}: {
+  variant?: "fixed" | "sheet";
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+} = {}) {
   const pathname = usePathname();
-  const isManagementActive = pathname.startsWith("/admin/management");
+  const locale = useLocale();
+  const localePath = useLocalePath();
+  const dict = getClientDictionary(locale);
+  const isManagementActive = pathname.includes("/admin/management");
   const [managementOpen, setManagementOpen] = useState(isManagementActive);
 
-  return (
-    <aside className="fixed inset-y-0 left-0 z-10 flex h-screen w-64 flex-col border-r bg-sidebar text-sidebar-foreground">
+  const managementItems = [
+    { title: dict.admin.sidebar.students, url: localePath("admin/management/student"), icon: GraduationCap },
+    { title: dict.admin.sidebar.lecturers, url: localePath("admin/management/lecturer"), icon: Users },
+    { title: dict.admin.sidebar.departments, url: localePath("admin/management/department"), icon: Building2 },
+    { title: dict.admin.sidebar.courses, url: localePath("admin/management/course"), icon: BookOpen },
+    { title: dict.admin.sidebar.semesters, url: localePath("admin/management/semester"), icon: Calendar },
+    { title: dict.admin.sidebar.courseSemesters, url: localePath("admin/management/course-semester"), icon: CalendarDays },
+    { title: dict.admin.sidebar.enrollmentSessions, url: localePath("admin/management/enrollment-session"), icon: ClipboardList },
+    { title: dict.admin.sidebar.enrollments, url: localePath("admin/management/enrollment"), icon: ListChecks },
+    { title: dict.admin.sidebar.requests, url: localePath("admin/management/requests"), icon: Send },
+  ];
+
+  const sidebarContent = (
+    <>
       {/* Header */}
       <div className="flex h-16 items-center gap-2 border-b px-4">
-        <Link href="/admin" className="flex items-center gap-2">
+        <Link href={localePath("admin")} className="flex items-center gap-2">
           <div className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
             <Shield className="size-4" />
           </div>
           <div className="flex flex-col">
-            <span className="text-sm font-semibold">Admin Panel</span>
+            <span className="text-sm font-semibold">{dict.admin.sidebar.adminPanel}</span>
             <span className="text-xs text-muted-foreground">
-              Management System
+              {dict.admin.sidebar.managementSystem}
             </span>
           </div>
         </Link>
@@ -96,26 +74,26 @@ export function AdminSidebar() {
         {/* Main Navigation */}
         <div className="mb-4">
           <p className="mb-2 px-2 text-xs font-medium text-muted-foreground">
-            Navigation
+            {dict.admin.sidebar.navigation}
           </p>
           <Link
-            href="/admin"
+            href={localePath("admin")}
             className={cn(
               "flex items-center gap-2 rounded-md px-2 py-2 text-sm transition-colors",
-              pathname === "/admin"
+              pathname.endsWith("/admin") || pathname === `${localePath("admin")}`
                 ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
                 : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
             )}
           >
             <LayoutDashboard className="size-4" />
-            <span>Dashboard</span>
+            <span>{dict.admin.sidebar.dashboard}</span>
           </Link>
         </div>
 
         {/* Management Section */}
         <div className="mb-4">
           <p className="mb-2 px-2 text-xs font-medium text-muted-foreground">
-            Management
+            {dict.admin.sidebar.management}
           </p>
           <button
             type="button"
@@ -128,7 +106,7 @@ export function AdminSidebar() {
             )}
           >
             <Settings className="size-4" />
-            <span>All Entities</span>
+            <span>{dict.admin.sidebar.allEntities}</span>
             <ChevronRight
               className={cn(
                 "ml-auto size-4 transition-transform",
@@ -144,7 +122,7 @@ export function AdminSidebar() {
                   href={item.url}
                   className={cn(
                     "flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors",
-                    pathname.startsWith(item.url)
+                    pathname.includes(item.url)
                       ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
                       : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                   )}
@@ -160,7 +138,7 @@ export function AdminSidebar() {
         {/* Quick Access */}
         <div>
           <p className="mb-2 px-2 text-xs font-medium text-muted-foreground">
-            Quick Access
+            {dict.admin.sidebar.quickAccess}
           </p>
           <div className="space-y-1">
             {managementItems.slice(0, 4).map((item) => (
@@ -186,6 +164,29 @@ export function AdminSidebar() {
       <div className="border-t p-4">
         <NavUser />
       </div>
+    </>
+  );
+
+  if (variant === "sheet" && open !== undefined && onOpenChange) {
+    return (
+      <Sheet open={open} onOpenChange={onOpenChange}>
+        <SheetContent
+          side="left"
+          className="w-[16rem] max-w-[85vw] p-0"
+          aria-describedby={undefined}
+        >
+          <SheetTitle className="sr-only">Admin navigation</SheetTitle>
+          <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground">
+            {sidebarContent}
+          </div>
+        </SheetContent>
+      </Sheet>
+    );
+  }
+
+  return (
+    <aside className="fixed inset-y-0 left-0 z-10 flex h-screen w-64 flex-col border-r bg-sidebar text-sidebar-foreground">
+      {sidebarContent}
     </aside>
   );
 }

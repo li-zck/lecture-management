@@ -20,7 +20,7 @@ const roleBasedRoutes: Record<string, string[]> = {
 function getPathWithoutLocale(pathname: string): string {
   const segments = pathname.slice(1).split("/");
   const first = segments[0];
-  if (first && isLocale(first)) return "/" + segments.slice(1).join("/") || "/";
+  if (first && isLocale(first)) return `/${segments.slice(1).join("/")}` || "/";
   return pathname;
 }
 

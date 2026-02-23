@@ -117,11 +117,9 @@ export interface LecturerTeachingRequestItem {
 }
 
 export interface UpdateGradeData {
-  studentId: string;
   gradeType1?: number | null;
   gradeType2?: number | null;
   gradeType3?: number | null;
-  finalGrade?: number | null;
 }
 
 export type LecturerSchedule = Record<
@@ -152,9 +150,13 @@ export const lecturerApi = {
   /**
    * Update own profile (authenticated lecturer)
    * Uses @GetUser() decorator on backend - no ID needed
+   * Matches backend LecturerUpdateAccountDto
    */
   updateProfile: async (data: {
+    username?: string;
     fullName?: string;
+    oldPassword?: string;
+    password?: string;
   }): Promise<LecturerProfile> => {
     const response = await apiClient.patch<LecturerProfile, typeof data>(
       "/lecturer/update",
@@ -215,17 +217,27 @@ export const lecturerApi = {
   },
 
   /**
-   * @deprecated - Endpoint doesn't exist in backend
-   * Grade updates should use enrollment/admin endpoints
+   * Update student grade (lecturer only)
+   * Uses PATCH /enrollment/grade/:enrollmentId
+   * Backend calculates finalGrade from gradeType1, gradeType2, gradeType3
    */
   updateGrade: async (
-    _courseOnSemesterId: string,
-    _data: UpdateGradeData,
-  ): Promise<{ message: string }> => {
-    console.warn(
-      "[lecturerApi.updateGrade] This endpoint is not implemented in the backend",
+    enrollmentId: string,
+    data: UpdateGradeData,
+  ): Promise<CourseStudent> => {
+    const payload: Record<string, number | undefined> = {};
+    if (data.gradeType1 !== undefined && data.gradeType1 !== null)
+      payload.gradeType1 = data.gradeType1;
+    if (data.gradeType2 !== undefined && data.gradeType2 !== null)
+      payload.gradeType2 = data.gradeType2;
+    if (data.gradeType3 !== undefined && data.gradeType3 !== null)
+      payload.gradeType3 = data.gradeType3;
+
+    const response = await apiClient.patch<CourseStudent, typeof payload>(
+      `/enrollment/grade/${enrollmentId}`,
+      payload,
     );
-    return { message: "Not implemented" };
+    return response.data;
   },
 
   /**

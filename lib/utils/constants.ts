@@ -16,6 +16,12 @@ function getRuntimeEnv(key: string): string | undefined {
 export const BACKEND_URL =
   getRuntimeEnv("NEXT_PUBLIC_BACKEND_URL") || "http://localhost:8080/api";
 
+/** Base URL for WebSocket/Socket.IO. Uses NEXT_PUBLIC_WEBSOCKET_URL if set, else NEXT_PUBLIC_BACKEND_URL. */
+export const WEBSOCKET_URL =
+  process.env.NEXT_PUBLIC_WEBSOCKET_URL ??
+  process.env.NEXT_PUBLIC_BACKEND_URL ??
+  "http://localhost:8080";
+
 export const ROUTES = {
   mainSite: {
     signup: "/sign-up",

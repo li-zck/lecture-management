@@ -1,17 +1,23 @@
 "use client";
 
 import { useSession } from "@/components/provider/SessionProvider";
+import {
+  AITimetableGenerator,
+  TimetableDownload,
+  TimetableGrid,
+} from "@/components/timetable";
 import { Badge } from "@/components/ui/shadcn/badge";
 import { Button } from "@/components/ui/shadcn/button";
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/shadcn/card";
 import { Input } from "@/components/ui/shadcn/input";
-import { Separator } from "@/components/ui/shadcn/separator";
+import { getErrorInfo } from "@/lib/api/error";
 import {
   type AssignedCourse,
   type CourseStudent,
@@ -20,7 +26,9 @@ import {
   lecturerApi,
 } from "@/lib/api/lecturer";
 import { GRADE_TYPE_OPTIONS } from "@/lib/utils/grade-labels";
+import { coursesToLecturerSchedule } from "@/lib/utils/schedule";
 import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const DAY_NAMES: Record<number, string> = {
   0: "Sunday",
@@ -32,11 +40,12 @@ const DAY_NAMES: Record<number, string> = {
   6: "Saturday",
 };
 
-function formatTime(time: number | null): string {
-  if (time === null) return "-";
-  const hours = Math.floor(time / 100);
-  const minutes = time % 100;
-  return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
+/** Backend stores time as minutes since midnight (e.g. 8:00 = 480) */
+function formatTime(minutes: number | null): string {
+  if (minutes === null) return "-";
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  return `${hours.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}`;
 }
 
 export function LecturerDashboard() {
@@ -61,14 +70,13 @@ export function LecturerDashboard() {
 
     try {
       setLoading(true);
-      const [profileData, coursesData, scheduleData] = await Promise.all([
+      const [profileData, coursesData] = await Promise.all([
         lecturerApi.getById(user.id),
         lecturerApi.getCourses(),
-        lecturerApi.getSchedule(),
       ]);
       setProfile(profileData);
       setCourses(coursesData);
-      setSchedule(scheduleData);
+      setSchedule(coursesToLecturerSchedule(coursesData));
     } catch (err) {
       setError("Failed to load data. Please try again.");
       console.error(err);
@@ -120,22 +128,24 @@ export function LecturerDashboard() {
   };
 
   const saveGrade = async (studentId: string) => {
-    if (!selectedCourse) return;
+    const student = students.find((s) => s.student.id === studentId);
+    if (!student?.enrollmentId) return;
     try {
-      await lecturerApi.updateGrade(selectedCourse.courseOnSemesterId, {
-        studentId,
-        ...editingGrades[studentId],
+      const updated = await lecturerApi.updateGrade(student.enrollmentId, {
+        gradeType1: editingGrades[studentId]?.gradeType1 ?? undefined,
+        gradeType2: editingGrades[studentId]?.gradeType2 ?? undefined,
+        gradeType3: editingGrades[studentId]?.gradeType3 ?? undefined,
       });
-      // Update local state
+      // Update local state with backend response (includes calculated finalGrade)
       setStudents((prev) =>
         prev.map((s) =>
-          s.student.id === studentId
-            ? { ...s, grades: editingGrades[studentId] }
-            : s,
+          s.student.id === studentId ? { ...s, grades: updated.grades } : s,
         ),
       );
+      toast.success("Grade saved successfully");
     } catch (err) {
       console.error(err);
+      toast.error(getErrorInfo(err).message);
     }
   };
 
@@ -161,15 +171,13 @@ export function LecturerDashboard() {
   }
 
   return (
-    <div className="container mx-auto p-6 max-w-6xl">
+    <div className="container mx-auto max-w-6xl px-4 py-6 sm:px-6">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-3xl font-bold">Lecturer Dashboard</h1>
-          <p className="text-muted-foreground">
-            Welcome back, {profile?.fullName || profile?.username}
-          </p>
-        </div>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold sm:text-3xl">Lecturer Dashboard</h1>
+        <p className="mt-1 text-sm text-muted-foreground sm:text-base">
+          Welcome back, {profile?.fullName || profile?.username}
+        </p>
       </div>
 
       {/* Profile Card */}
@@ -202,14 +210,14 @@ export function LecturerDashboard() {
       </Card>
 
       {/* Tab Navigation */}
-      <div className="flex gap-2 mb-4">
+      <div className="mb-4 flex flex-wrap gap-2">
         <button
           type="button"
           onClick={() => {
             setActiveTab("courses");
             setSelectedCourse(null);
           }}
-          className={`px-4 py-2 rounded-md font-medium transition ${
+          className={`rounded-md px-3 py-2 text-sm font-medium transition sm:px-4 ${
             activeTab === "courses"
               ? "bg-primary text-primary-foreground"
               : "bg-muted hover:bg-muted/80"
@@ -220,7 +228,7 @@ export function LecturerDashboard() {
         <button
           type="button"
           onClick={() => setActiveTab("schedule")}
-          className={`px-4 py-2 rounded-md font-medium transition ${
+          className={`rounded-md px-3 py-2 text-sm font-medium transition sm:px-4 ${
             activeTab === "schedule"
               ? "bg-primary text-primary-foreground"
               : "bg-muted hover:bg-muted/80"
@@ -324,11 +332,16 @@ export function LecturerDashboard() {
                         <th className="text-left py-3 px-2">Student ID</th>
                         <th className="text-left py-3 px-2">Name</th>
                         {GRADE_TYPE_OPTIONS.map((opt) => (
-                          <th key={opt.key} className="text-center py-3 px-2">
+                          <th
+                            key={opt.key}
+                            className="text-center py-3 px-2 w-[100px]"
+                          >
                             {opt.label}
                           </th>
                         ))}
-                        <th className="text-center py-3 px-2">Final</th>
+                        <th className="text-center py-3 px-2 w-[100px]">
+                          Final
+                        </th>
                         <th className="text-center py-3 px-2">Action</th>
                       </tr>
                     </thead>
@@ -345,84 +358,92 @@ export function LecturerDashboard() {
                             {student.student.fullName || student.student.email}
                           </td>
                           <td className="py-3 px-2">
-                            <Input
-                              type="number"
-                              step="0.1"
-                              min="0"
-                              max="10"
-                              className="w-16 text-center"
-                              value={
-                                editingGrades[student.student.id]?.gradeType1 ??
-                                ""
-                              }
-                              onChange={(e) =>
-                                handleGradeChange(
-                                  student.student.id,
-                                  "gradeType1",
-                                  e.target.value,
-                                )
-                              }
-                            />
+                            <div className="flex justify-center">
+                              <Input
+                                type="number"
+                                step="0.1"
+                                min="0"
+                                max="10"
+                                className="w-16 text-center"
+                                value={
+                                  editingGrades[student.student.id]
+                                    ?.gradeType1 ?? ""
+                                }
+                                onChange={(e) =>
+                                  handleGradeChange(
+                                    student.student.id,
+                                    "gradeType1",
+                                    e.target.value,
+                                  )
+                                }
+                              />
+                            </div>
                           </td>
                           <td className="py-3 px-2">
-                            <Input
-                              type="number"
-                              step="0.1"
-                              min="0"
-                              max="10"
-                              className="w-16 text-center"
-                              value={
-                                editingGrades[student.student.id]?.gradeType2 ??
-                                ""
-                              }
-                              onChange={(e) =>
-                                handleGradeChange(
-                                  student.student.id,
-                                  "gradeType2",
-                                  e.target.value,
-                                )
-                              }
-                            />
+                            <div className="flex justify-center">
+                              <Input
+                                type="number"
+                                step="0.1"
+                                min="0"
+                                max="10"
+                                className="w-16 text-center"
+                                value={
+                                  editingGrades[student.student.id]
+                                    ?.gradeType2 ?? ""
+                                }
+                                onChange={(e) =>
+                                  handleGradeChange(
+                                    student.student.id,
+                                    "gradeType2",
+                                    e.target.value,
+                                  )
+                                }
+                              />
+                            </div>
                           </td>
                           <td className="py-3 px-2">
-                            <Input
-                              type="number"
-                              step="0.1"
-                              min="0"
-                              max="10"
-                              className="w-16 text-center"
-                              value={
-                                editingGrades[student.student.id]?.gradeType3 ??
-                                ""
-                              }
-                              onChange={(e) =>
-                                handleGradeChange(
-                                  student.student.id,
-                                  "gradeType3",
-                                  e.target.value,
-                                )
-                              }
-                            />
+                            <div className="flex justify-center">
+                              <Input
+                                type="number"
+                                step="0.1"
+                                min="0"
+                                max="10"
+                                className="w-16 text-center"
+                                value={
+                                  editingGrades[student.student.id]
+                                    ?.gradeType3 ?? ""
+                                }
+                                onChange={(e) =>
+                                  handleGradeChange(
+                                    student.student.id,
+                                    "gradeType3",
+                                    e.target.value,
+                                  )
+                                }
+                              />
+                            </div>
                           </td>
                           <td className="py-3 px-2">
-                            <Input
-                              type="number"
-                              step="0.1"
-                              min="0"
-                              max="10"
-                              className="w-16 text-center"
-                              value={
-                                editingGrades[student.student.id]?.finalGrade ??
-                                ""
-                              }
-                              onChange={(e) =>
-                                handleGradeChange(
-                                  student.student.id,
-                                  "finalGrade",
-                                  e.target.value,
-                                )
-                              }
-                            />
+                            <div className="flex justify-center">
+                              <Input
+                                type="number"
+                                step="0.1"
+                                min="0"
+                                max="10"
+                                className="w-16 text-center"
+                                value={
+                                  editingGrades[student.student.id]
+                                    ?.finalGrade ?? ""
+                                }
+                                onChange={(e) =>
+                                  handleGradeChange(
+                                    student.student.id,
+                                    "finalGrade",
+                                    e.target.value,
+                                  )
+                                }
+                              />
+                            </div>
                           </td>
                           <td className="py-3 px-2 text-center">
                             <Button
@@ -445,53 +466,43 @@ export function LecturerDashboard() {
 
       {/* Schedule Tab */}
       {activeTab === "schedule" && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Weekly Schedule</CardTitle>
-            <CardDescription>Current semester timetable</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {Object.keys(schedule).length === 0 ? (
-              <p className="text-center text-muted-foreground py-4">
-                No schedule for current semester.
-              </p>
-            ) : (
-              <div className="space-y-4">
-                {Object.entries(schedule)
-                  .sort(([a], [b]) => Number(a) - Number(b))
-                  .map(([day, classes]) => (
-                    <div key={day}>
-                      <h3 className="font-semibold text-lg mb-2">
-                        {DAY_NAMES[Number(day)]}
-                      </h3>
-                      <div className="space-y-2">
-                        {classes.map((classInfo, idx: number) => (
-                          <div
-                            key={`${classInfo.courseName}-${idx}`}
-                            className="flex justify-between items-center p-3 bg-muted rounded-md"
-                          >
-                            <p className="font-medium">
-                              {classInfo.courseName}
-                            </p>
-                            <div className="text-right">
-                              <p className="font-medium">
-                                {formatTime(classInfo.startTime)} -{" "}
-                                {formatTime(classInfo.endTime)}
-                              </p>
-                              <p className="text-sm text-muted-foreground">
-                                {classInfo.location || "-"}
-                              </p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                      <Separator className="mt-4" />
-                    </div>
-                  ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Weekly Schedule</CardTitle>
+              <CardDescription>Current semester timetable</CardDescription>
+              <CardAction>
+                <TimetableDownload
+                  schedule={schedule}
+                  title={
+                    courses[0]?.semester?.name
+                      ? `Timetable - ${courses[0].semester.name}`
+                      : "Timetable"
+                  }
+                  includeLecturer={false}
+                />
+              </CardAction>
+            </CardHeader>
+            <CardContent>
+              {Object.keys(schedule).length === 0 ? (
+                <p className="text-center text-muted-foreground py-4">
+                  No schedule for current semester.
+                </p>
+              ) : (
+                <TimetableGrid schedule={schedule} />
+              )}
+            </CardContent>
+          </Card>
+          <AITimetableGenerator
+            schedule={schedule}
+            userRole="lecturer"
+            context={
+              courses[0]?.semester?.name
+                ? `Semester: ${courses[0].semester.name}`
+                : undefined
+            }
+          />
+        </div>
       )}
     </div>
   );

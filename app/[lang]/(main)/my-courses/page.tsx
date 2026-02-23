@@ -4,9 +4,14 @@ import { useSession } from "@/components/provider/SessionProvider";
 import { LecturerCourses } from "@/components/ui/LecturerCourses";
 import { Button } from "@/components/ui/shadcn/button";
 import { StudentCourses } from "@/components/ui/StudentCourses";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale, useLocalePath } from "@/lib/i18n/use-locale";
 import Link from "next/link";
 
 export default function MyCoursesPage() {
+  const locale = useLocale();
+  const localePath = useLocalePath();
+  const dict = getClientDictionary(locale);
   const { role, isAuthenticated, isLoading } = useSession();
 
   if (isLoading) {
@@ -20,10 +25,10 @@ export default function MyCoursesPage() {
   if (!isAuthenticated || !role) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen gap-4">
-        <h1 className="text-2xl font-bold">Unauthorized</h1>
-        <p className="text-muted-foreground">Please sign in to view your courses.</p>
-        <Link href="/sign-in">
-          <Button>Sign In</Button>
+        <h1 className="text-2xl font-bold">{dict.myCourses.unauthorized}</h1>
+        <p className="text-muted-foreground">{dict.myCourses.signInToView}</p>
+        <Link href={localePath("sign-in")}>
+          <Button>{dict.myCourses.signIn}</Button>
         </Link>
       </div>
     );
@@ -34,12 +39,12 @@ export default function MyCoursesPage() {
   if (normalizedRole === "admin") {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen gap-4">
-        <h1 className="text-2xl font-bold">Admin Access</h1>
+        <h1 className="text-2xl font-bold">{dict.myCourses.adminAccess}</h1>
         <p className="text-muted-foreground">
-          Please use the admin dashboard to manage courses.
+          {dict.myCourses.useAdminDashboard}
         </p>
-        <Link href="/admin">
-          <Button>Go to Admin Dashboard</Button>
+        <Link href={localePath("admin")}>
+          <Button>{dict.myCourses.goToAdmin}</Button>
         </Link>
       </div>
     );
@@ -55,9 +60,9 @@ export default function MyCoursesPage() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
-      <h1 className="text-2xl font-bold mb-4">Unknown Role</h1>
+      <h1 className="text-2xl font-bold mb-4">{dict.myCourses.unknownRole}</h1>
       <p className="text-muted-foreground">
-        Your role ({role}) does not have a courses view.
+        {dict.myCourses.roleNoView.replace("{role}", role || "")}
       </p>
     </div>
   );

@@ -14,7 +14,7 @@ import {
   User,
 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { Badge } from "./shadcn/badge";
 import { Button } from "./shadcn/button";
 import { Card, CardContent } from "./shadcn/card";
@@ -106,6 +106,42 @@ function getLetterGradeColor(grade: number | null): string {
   return "text-destructive font-semibold";
 }
 
+/**
+ * Convert 10-point scale grade to 4-point GPA scale.
+ * Aligns with letter grade thresholds used in getLetterGrade.
+ */
+function grade10To4(grade: number | null): number | null {
+  if (grade === null) return null;
+  if (grade >= 8.5) return 4.0;
+  if (grade >= 7.8) return 3.5;
+  if (grade >= 7.0) return 3.0;
+  if (grade >= 6.3) return 2.5;
+  if (grade >= 5.5) return 2.0;
+  if (grade >= 4.8) return 1.5;
+  if (grade >= 4.0) return 1.0;
+  return 0;
+}
+
+/**
+ * Compute overall GPA (4.0 scale) from graded courses only.
+ * GPA = sum(gradePoint * credits) / sum(credits)
+ */
+function computeGPA(
+  courses: EnrolledCourse[],
+): { gpa: number; totalCredits: number } | null {
+  let sum = 0;
+  let totalCredits = 0;
+  for (const c of courses) {
+    const point = grade10To4(c.grades.finalGrade);
+    if (point === null) continue;
+    const credits = c.course?.credits ?? 0;
+    sum += point * credits;
+    totalCredits += credits;
+  }
+  if (totalCredits === 0) return null;
+  return { gpa: sum / totalCredits, totalCredits };
+}
+
 export function StudentCourses() {
   const [courses, setCourses] = useState<EnrolledCourse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -130,9 +166,29 @@ export function StudentCourses() {
     fetchEnrollments();
   }, []);
 
+  const { coursesBySemester, gpaResult } = useMemo(() => {
+    const bySemester = courses.reduce(
+      (acc, c) => {
+        const key = c.semester?.id ?? c.semester?.name ?? "unknown";
+        const name = c.semester?.name ?? "Unknown Semester";
+        if (!acc[key]) acc[key] = { name, courses: [] };
+        acc[key].courses.push(c);
+        return acc;
+      },
+      {} as Record<string, { name: string; courses: EnrolledCourse[] }>,
+    );
+    const sorted = Object.entries(bySemester).sort(([, a], [, b]) =>
+      b.name.localeCompare(a.name),
+    );
+    return {
+      coursesBySemester: sorted,
+      gpaResult: computeGPA(courses),
+    };
+  }, [courses]);
+
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background py-12 px-6">
+      <div className="min-h-screen bg-background px-4 py-8 sm:px-6 sm:py-12">
         <div className="container mx-auto max-w-5xl">
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
@@ -144,7 +200,7 @@ export function StudentCourses() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-background py-12 px-6">
+      <div className="min-h-screen bg-background px-4 py-8 sm:px-6 sm:py-12">
         <div className="container mx-auto max-w-5xl text-center">
           <h1 className="text-2xl font-bold mb-4">Error</h1>
           <p className="text-muted-foreground">{error}</p>
@@ -154,7 +210,7 @@ export function StudentCourses() {
   }
 
   return (
-    <div className="min-h-screen bg-background py-12 px-6">
+    <div className="min-h-screen bg-background px-4 py-8 sm:px-6 sm:py-12">
       <div className="container mx-auto max-w-5xl">
         {/* Header */}
         <div className="text-center mb-8">
@@ -186,7 +242,7 @@ export function StudentCourses() {
         ) : (
           <div className="space-y-6">
             {/* Stats Summary */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               <Card className="border-border/50">
                 <CardContent className="p-4 text-center">
                   <p className="text-3xl font-bold text-primary">
@@ -204,6 +260,14 @@ export function StudentCourses() {
                     )}
                   </p>
                   <p className="text-sm text-muted-foreground">Total Credits</p>
+                </CardContent>
+              </Card>
+              <Card className="border-border/50">
+                <CardContent className="p-4 text-center">
+                  <p className="text-3xl font-bold text-primary">
+                    {gpaResult ? gpaResult.gpa.toFixed(2) : "-"}
+                  </p>
+                  <p className="text-sm text-muted-foreground">GPA (4.0)</p>
                 </CardContent>
               </Card>
               <Card className="border-border/50">
@@ -230,7 +294,7 @@ export function StudentCourses() {
               </Card>
             </div>
 
-            {/* Courses Table */}
+            {/* Courses Table (grouped by semester) */}
             <Card className="border-border/50 shadow-md">
               <Table>
                 <TableHeader>
@@ -244,48 +308,67 @@ export function StudentCourses() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {courses.map((course) => {
-                    const status = getGradeStatus(course.grades.finalGrade);
-                    const letterGrade = getLetterGrade(
-                      course.grades.finalGrade,
-                    );
-                    const gradeColor = getLetterGradeColor(
-                      course.grades.finalGrade,
-                    );
+                  {coursesBySemester.map(
+                    ([
+                      semesterKey,
+                      { name: semesterName, courses: semesterCourses },
+                    ]) => (
+                      <Fragment key={semesterKey}>
+                        <TableRow className="bg-muted/50 hover:bg-muted/50">
+                          <TableCell
+                            colSpan={4}
+                            className="pl-4 py-3 font-semibold text-foreground"
+                          >
+                            {semesterName}
+                          </TableCell>
+                        </TableRow>
+                        {semesterCourses.map((course) => {
+                          const status = getGradeStatus(
+                            course.grades.finalGrade,
+                          );
+                          const letterGrade = getLetterGrade(
+                            course.grades.finalGrade,
+                          );
+                          const gradeColor = getLetterGradeColor(
+                            course.grades.finalGrade,
+                          );
+                          const grade4 = grade10To4(course.grades.finalGrade);
 
-                    return (
-                      <TableRow
-                        key={course.enrollmentId}
-                        className="cursor-pointer hover:bg-muted/50"
-                        onClick={() => setSelectedCourse(course)}
-                      >
-                        <TableCell className="pl-4">
-                          <div>
-                            <p className="font-medium">
-                              {course.course?.name ?? "Unknown Course"}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              {course.semester?.name ?? "Unknown Semester"}
-                            </p>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          {course.course?.credits ?? 0}
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <span className={gradeColor}>{letterGrade}</span>
-                          {course.grades.finalGrade !== null && (
-                            <span className="text-xs text-muted-foreground ml-1">
-                              ({course.grades.finalGrade.toFixed(1)})
-                            </span>
-                          )}
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <Badge variant={status.variant}>{status.label}</Badge>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
+                          return (
+                            <TableRow
+                              key={course.enrollmentId}
+                              className="cursor-pointer hover:bg-muted/50"
+                              onClick={() => setSelectedCourse(course)}
+                            >
+                              <TableCell className="pl-4">
+                                <p className="font-medium">
+                                  {course.course?.name ?? "Unknown Course"}
+                                </p>
+                              </TableCell>
+                              <TableCell className="text-center">
+                                {course.course?.credits ?? 0}
+                              </TableCell>
+                              <TableCell className="text-center">
+                                <span className={gradeColor}>
+                                  {letterGrade}
+                                </span>
+                                {grade4 !== null && (
+                                  <span className="text-xs text-muted-foreground ml-1">
+                                    ({grade4.toFixed(1)})
+                                  </span>
+                                )}
+                              </TableCell>
+                              <TableCell className="text-center">
+                                <Badge variant={status.variant}>
+                                  {status.label}
+                                </Badge>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </Fragment>
+                    ),
+                  )}
                 </TableBody>
               </Table>
             </Card>

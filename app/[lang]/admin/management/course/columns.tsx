@@ -10,6 +10,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/shadcn/alert-dialog";
+import { queryKeys } from "@/lib/query";
+import { useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal, Pencil, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -29,14 +31,15 @@ import { adminCourseApi, type Course } from "@/lib/api/admin-course";
 
 const ActionCell = ({ course }: { course: Course }) => {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [openDelete, setOpenDelete] = useState(false);
 
   const handleDelete = async () => {
     try {
       await adminCourseApi.delete(course.id);
+      await queryClient.invalidateQueries({ queryKey: queryKeys.courses.all });
       toast.success("Course deleted successfully");
       router.refresh();
-      window.location.reload();
     } catch {
       toast.error("Failed to delete course");
     }

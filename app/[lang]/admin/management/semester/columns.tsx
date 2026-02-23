@@ -10,6 +10,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/shadcn/alert-dialog";
+import { queryKeys } from "@/lib/query";
+import { useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { MoreHorizontal, Pencil, Trash } from "lucide-react";
@@ -30,14 +32,17 @@ import { adminSemesterApi, type Semester } from "@/lib/api/admin-semester";
 
 const ActionCell = ({ semester }: { semester: Semester }) => {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [openDelete, setOpenDelete] = useState(false);
 
   const handleDelete = async () => {
     try {
       await adminSemesterApi.delete(semester.id);
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.semesters.all,
+      });
       toast.success("Semester deleted successfully");
       router.refresh();
-      window.location.reload();
     } catch {
       toast.error("Failed to delete semester");
     }

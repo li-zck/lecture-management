@@ -14,6 +14,7 @@ import {
   Globe,
   GraduationCap,
   LogOut,
+  Menu,
   Settings,
   User,
 } from "lucide-react";
@@ -23,6 +24,7 @@ import { useParams, usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useSession } from "../provider/SessionProvider";
 import { useUserProfile } from "./hooks/use-user-profile";
+import { ModeToggle } from "./ModeToggle";
 import { NotificationBell } from "./NotificationBell";
 import { Button } from "./shadcn/button";
 import {
@@ -33,6 +35,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./shadcn/dropdown-menu";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "./shadcn/sheet";
 import { Wordmark } from "./Wordmark";
 
 const LOCALE_COOKIE = "NEXT_LOCALE";
@@ -62,15 +65,17 @@ export function Navbar() {
   const navRef = useRef<HTMLDivElement>(null);
   const isAdmin = user?.role?.toLowerCase() === "admin";
 
-  // Unauthorized: Home, About only. Authorized (student/lecturer): Courses (browse), My Courses. Admin: no main nav.
+  // Unauthorized: Home, About, Site Policy. Authorized (student/lecturer): Dashboard, Courses, My Courses. Admin: no main nav.
   const navItems = !isAuthenticated
     ? [
         { href: "/", labelKey: "home" as const },
         { href: "/about", labelKey: "about" as const },
+        { href: "/site-policy", labelKey: "sitePolicy" as const },
       ]
     : isAdmin
       ? []
       : [
+          { href: "/dashboard", labelKey: "dashboard" as const },
           { href: "/courses", labelKey: "courses" as const },
           { href: "/my-courses", labelKey: "myCourses" as const },
         ];
@@ -114,14 +119,51 @@ export function Navbar() {
       animate={{ y: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <div className="w-full flex h-14 items-center px-6 lg:px-8">
-        <div className="mr-4 hidden md:flex items-center">
-          <Wordmark className="mr-8" />
+      <div className="flex h-14 w-full items-center px-4 sm:px-6 lg:px-8">
+        <div className="mr-4 flex items-center">
+          {/* Mobile menu for nav items */}
+          {navItems.length > 0 && (
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="md:hidden shrink-0"
+                  aria-label="Open menu"
+                >
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-64 sm:max-w-xs">
+                <SheetTitle className="sr-only">Navigation</SheetTitle>
+                <nav className="mt-6 flex flex-col gap-2">
+                  {navItems.map((item) => {
+                    const href = localePath(locale, item.href);
+                    return (
+                      <Link
+                        key={item.href}
+                        href={href}
+                        className={cn(
+                          "rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                          pathname === href
+                            ? "bg-primary text-primary-foreground"
+                            : "text-foreground/80 hover:bg-accent hover:text-foreground",
+                        )}
+                      >
+                        {dict.nav[item.labelKey]}
+                      </Link>
+                    );
+                  })}
+                </nav>
+              </SheetContent>
+            </Sheet>
+          )}
+          <Wordmark className="mr-4 md:mr-8" />
 
           {navItems.length > 0 && (
             <nav
               ref={navRef}
-              className="flex items-center space-x-6 text-sm font-medium relative"
+              className="relative hidden items-center space-x-6 text-sm font-medium md:flex"
             >
               {navItems.map((item) => {
                 const href = localePath(locale, item.href);
@@ -164,6 +206,7 @@ export function Navbar() {
             {/* Mobile menu button could go here */}
           </div>
           <nav className="flex items-center space-x-2">
+            <ModeToggle />
             {/* Locale switcher: globe icon */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -198,7 +241,7 @@ export function Navbar() {
             {isAuthenticated ? (
               isAdmin ? (
                 // Admin: Show dashboard link and sign out
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 sm:gap-4">
                   <Link href={localePath(locale, "/admin")}>
                     <Button
                       variant="ghost"

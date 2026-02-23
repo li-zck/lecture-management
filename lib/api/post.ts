@@ -75,13 +75,13 @@ export const postApi = {
   },
 
   /**
-   * GET /post/:id - Get post by ID
+   * GET /post/find/:id - Get post by ID
    */
   getById: async (
     id: string,
     params?: PostQueryParams,
   ): Promise<PublicPost> => {
-    const response = await apiClient.get<PublicPost>(`/post/${id}`, {
+    const response = await apiClient.get<PublicPost>(`/post/find/${id}`, {
       params: {
         includeAdmin: params?.includeAdmin ? "true" : undefined,
         includeDepartment: params?.includeDepartment ? "true" : undefined,

@@ -143,8 +143,8 @@ export function DataTable<TData extends { id: string }, TValue>({
 
   return (
     <div>
-      <div className="flex justify-between mb-3">
-        <div>
+      <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="w-full sm:max-w-sm">
           <Input
             placeholder={filterPlaceholder}
             value={
@@ -157,15 +157,15 @@ export function DataTable<TData extends { id: string }, TValue>({
                 .getColumn(actualFilterColumn)
                 ?.setFilterValue(event.target.value)
             }
-            className="max-w-sm"
+            className="w-full"
           />
         </div>
 
         <DataTableViewOptions table={table} />
       </div>
 
-      <div className="rounded-md border mb-5">
-        <Table>
+      <div className="mb-5 overflow-x-auto rounded-md border">
+        <Table className="min-w-[640px]">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>

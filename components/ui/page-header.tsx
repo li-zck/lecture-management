@@ -16,28 +16,33 @@ export function PageHeader({
   backUrl,
 }: PageHeaderProps) {
   return (
-    <div className="flex items-center justify-between mb-6">
-      <div>
+    <div className="mb-4 flex flex-col gap-4 sm:mb-6 sm:flex-row sm:items-center sm:justify-between">
+      <div className="min-w-0">
         <div className="flex items-center gap-2">
           {backUrl && (
             <Button
               variant="ghost"
               size="icon"
               asChild
-              className="mr-2 h-8 w-8"
+              className="h-8 w-8 shrink-0 sm:mr-2"
+              aria-label="Go back"
             >
               <Link href={backUrl}>
                 <ArrowLeft className="h-4 w-4" />
               </Link>
             </Button>
           )}
-          <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
+          <h1 className="truncate text-xl font-semibold tracking-tight sm:text-2xl">
+            {title}
+          </h1>
         </div>
         {description && (
-          <p className="text-muted-foreground mt-1">{description}</p>
+          <p className="mt-1 text-sm text-muted-foreground sm:text-base">
+            {description}
+          </p>
         )}
       </div>
-      {action && <div>{action}</div>}
+      {action && <div className="flex flex-wrap gap-2 shrink-0">{action}</div>}
     </div>
   );
 }

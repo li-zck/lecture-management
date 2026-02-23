@@ -1,6 +1,8 @@
 "use client";
 
 import { useSession } from "@/components/provider/SessionProvider";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale, useLocalePath } from "@/lib/i18n/use-locale";
 import {
 	useNotifications,
 	useDeleteNotification,
@@ -69,12 +71,14 @@ interface NotificationCardProps {
 	notification: UserNotification;
 	onDelete: (id: string) => void;
 	isDeleting: boolean;
+	deleteSrOnly: string;
 }
 
 function NotificationCard({
 	notification,
 	onDelete,
 	isDeleting,
+	deleteSrOnly,
 }: NotificationCardProps) {
 	const timeAgo = formatDistanceToNow(new Date(notification.createdAt), {
 		addSuffix: true,
@@ -119,7 +123,7 @@ function NotificationCard({
 						disabled={isDeleting}
 					>
 						<X className="h-4 w-4" />
-						<span className="sr-only">Delete notification</span>
+						<span className="sr-only">{deleteSrOnly}</span>
 					</Button>
 				</div>
 			</CardHeader>
@@ -166,6 +170,9 @@ function NotificationsSkeleton() {
 
 export default function NotificationsPage() {
 	const router = useRouter();
+	const locale = useLocale();
+	const localePath = useLocalePath();
+	const dict = getClientDictionary(locale);
 	const { isAuthenticated, user } = useSession();
 	const { notifications, unreadCount, isLoading } = useNotifications();
 	const deleteNotification = useDeleteNotification();
@@ -182,10 +189,10 @@ export default function NotificationsPage() {
 					<CardContent className="flex flex-col items-center justify-center py-12">
 						<Bell className="h-12 w-12 text-muted-foreground/50 mb-4" />
 						<p className="text-muted-foreground text-center">
-							Please sign in as a student or lecturer to view notifications.
+							{dict.notifications.signInRequired}
 						</p>
-						<Button className="mt-4" onClick={() => router.push("/sign-in")}>
-							Sign In
+						<Button className="mt-4" onClick={() => router.push(localePath("sign-in"))}>
+							{dict.nav.signIn}
 						</Button>
 					</CardContent>
 				</Card>
@@ -196,18 +203,18 @@ export default function NotificationsPage() {
 	const handleDelete = async (id: string) => {
 		try {
 			await deleteNotification.mutateAsync(id);
-			toast.success("Notification deleted");
+			toast.success(dict.notifications.deleted);
 		} catch {
-			toast.error("Failed to delete notification");
+			toast.error(dict.notifications.failedDelete);
 		}
 	};
 
 	const handleDeleteAll = async () => {
 		try {
 			await deleteAllNotifications.mutateAsync();
-			toast.success("All notifications deleted");
+			toast.success(dict.notifications.deletedAll);
 		} catch {
-			toast.error("Failed to delete notifications");
+			toast.error(dict.notifications.failedDeleteAll);
 		}
 	};
 
@@ -215,11 +222,13 @@ export default function NotificationsPage() {
 		<div className="container mx-auto px-4 py-8 max-w-3xl">
 			<div className="flex items-center justify-between mb-6">
 				<div>
-					<h1 className="text-2xl font-bold">Notifications</h1>
+					<h1 className="text-2xl font-bold">{dict.notifications.title}</h1>
 					<p className="text-muted-foreground text-sm">
 						{unreadCount > 0
-							? `You have ${unreadCount} unread notification${unreadCount > 1 ? "s" : ""}`
-							: "All caught up!"}
+							? (unreadCount === 1
+								? dict.notifications.subtitleUnread.replace("{count}", String(unreadCount))
+								: dict.notifications.subtitleUnreadPlural.replace("{count}", String(unreadCount)))
+							: dict.notifications.allCaughtUp}
 					</p>
 				</div>
 				{notifications.length > 0 && (
@@ -231,7 +240,7 @@ export default function NotificationsPage() {
 						disabled={deleteAllNotifications.isPending}
 					>
 						<Trash2 className="h-4 w-4" />
-						Clear all
+						{dict.notifications.deleteAll}
 					</Button>
 				)}
 			</div>
@@ -242,9 +251,9 @@ export default function NotificationsPage() {
 				<Card>
 					<CardContent className="flex flex-col items-center justify-center py-12">
 						<Bell className="h-12 w-12 text-muted-foreground/50 mb-4" />
-						<p className="text-lg font-medium mb-1">No notifications</p>
+						<p className="text-lg font-medium mb-1">{dict.notifications.noNotifications}</p>
 						<p className="text-muted-foreground text-sm text-center">
-							You&apos;re all caught up! Check back later for updates.
+							{dict.notifications.noNotificationsDesc}
 						</p>
 					</CardContent>
 				</Card>
@@ -256,6 +265,7 @@ export default function NotificationsPage() {
 							notification={notification}
 							onDelete={handleDelete}
 							isDeleting={deleteNotification.isPending}
+							deleteSrOnly={dict.notifications.deleteSrOnly}
 						/>
 					))}
 				</div>

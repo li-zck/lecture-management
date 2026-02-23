@@ -14,6 +14,7 @@ export interface Notification {
   message: string;
   url: string | null;
   type: NotificationType;
+  isAdminBroadcast?: boolean;
   studentId: string | null;
   student?: {
     id: string;
@@ -79,6 +80,36 @@ export const adminNotificationApi = {
   },
 
   /**
+   * GET /admin/notification/admin-broadcast - Get admin broadcast notifications (for bell)
+   */
+  getAdminBroadcast: async (): Promise<Notification[]> => {
+    const response = await apiClient.get<Notification[]>(
+      "/admin/notification/admin-broadcast",
+    );
+    return response.data;
+  },
+
+  /**
+   * PATCH /admin/notification/admin-broadcast/read - Mark all admin broadcast as read
+   */
+  markAllAdminBroadcastAsRead: async (): Promise<{ count: number }> => {
+    const response = await apiClient.patch<{ count: number }>(
+      "/admin/notification/admin-broadcast/read",
+    );
+    return response.data;
+  },
+
+  /**
+   * PATCH /admin/notification/admin-broadcast/:id/read - Mark one admin broadcast as read
+   */
+  markAdminBroadcastAsRead: async (id: string): Promise<Notification> => {
+    const response = await apiClient.patch<Notification>(
+      `/admin/notification/admin-broadcast/${id}/read`,
+    );
+    return response.data;
+  },
+
+  /**
    * GET /admin/notification/user - Get notifications by user (lecturerId or studentId)
    */
   getByUser: async (params: NotificationUserQuery): Promise<Notification[]> => {
@@ -125,11 +156,11 @@ export const adminNotificationApi = {
   },
 
   /**
-   * DELETE /admin/notification/:id - Delete notification
+   * DELETE /admin/notification/delete/:id - Delete notification
    */
   delete: async (id: string): Promise<{ message: string }> => {
     const response = await apiClient.delete<{ message: string }>(
-      `/admin/notification/${id}`,
+      `/admin/notification/delete/${id}`,
     );
     return response.data;
   },

@@ -2,6 +2,8 @@
   "nav": {
     "home": "Home",
     "about": "About",
+    "sitePolicy": "Site Policy",
+    "support": "Support",
     "courses": "Courses",
     "signIn": "Sign in",
     "signOut": "Sign out",
@@ -200,5 +202,535 @@
     ],
     "ctaTitle": "Ready to Get Started?",
     "ctaSubtitle": "Join educational institutions already using our platform to transform their academic management."
+  },
+  "sitePolicy": {
+    "title": "Site Policy",
+    "subtitle": "Terms of use, privacy, and policies for the Lecture Management System (LMS) platform.",
+    "lastUpdated": "Last updated: February 2026",
+    "termsOfUse": {
+      "title": "Terms of Use",
+      "paragraphs": [
+        "By accessing and using this Learning Management System (LMS), you agree to comply with these Terms of Use. This platform is intended for educational purposes and is provided to students, lecturers, and administrators of participating institutions.",
+        "You must use your assigned credentials to access the system. Do not share your login information with others. You are responsible for all activity that occurs under your account. Unauthorized access, misuse, or distribution of course materials outside the platform may result in disciplinary action by your institution.",
+        "Course content, including lectures, assignments, and materials, is the property of the institution and/or the respective lecturers. You may not reproduce, distribute, or commercialize this content without explicit permission."
+      ]
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "paragraphs": [
+        "We are committed to protecting your privacy. This LMS collects and processes personal data necessary for academic administration, including your name, student or lecturer ID, email, enrollment records, grades, and usage logs.",
+        "Your data is used to: manage course enrollments, record grades and attendance, send notifications, generate academic reports, and improve platform functionality. Data is stored securely and retained according to institutional and regulatory requirements.",
+        "We do not sell or share your personal information with third parties for marketing purposes. Data may be shared with authorized institutional staff, auditors, or as required by law. We use encryption and access controls to safeguard your information.",
+        "You may request access to or correction of your personal data through your institution's data protection officer or administrative office."
+      ]
+    },
+    "acceptableUse": {
+      "title": "Acceptable Use Policy",
+      "intro": "Users must use the LMS in a manner consistent with academic integrity and institutional policies. Prohibited activities include:",
+      "items": [
+        "Sharing account credentials or impersonating others",
+        "Attempting to access data or systems without authorization",
+        "Submitting plagiarized work or engaging in academic dishonesty",
+        "Uploading malicious software or harmful content",
+        "Harassing, bullying, or discriminating against other users",
+        "Using the platform for non-academic commercial purposes"
+      ],
+      "outro": "Violations may result in account suspension, grade penalties, or institutional disciplinary proceedings."
+    },
+    "lmsSpecific": {
+      "title": "LMS-Specific Policies",
+      "sections": [
+        {
+          "title": "Academic Integrity",
+          "body": "All work submitted through this platform must be your own. Proper citation and attribution are required when referencing external sources. Plagiarism, cheating, and collusion are strictly prohibited and will be reported to your institution."
+        },
+        {
+          "title": "Enrollment & Withdrawal",
+          "body": "Course enrollment is subject to availability, prerequisites, and institutional enrollment periods. Students must adhere to add/drop deadlines. Late withdrawals require approval from your department or academic advisor."
+        },
+        {
+          "title": "Grade Disputes",
+          "body": "If you believe a grade has been recorded incorrectly, contact the course lecturer first. Unresolved disputes may be escalated to your department head or the institution's academic affairs office according to institutional policy."
+        },
+        {
+          "title": "System Availability",
+          "body": "We strive for high availability but cannot guarantee uninterrupted access. Scheduled maintenance will be announced in advance when possible. Plan ahead for deadlines during peak periods."
+        }
+      ]
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "items": [
+        {
+          "question": "How do I enroll in a course?",
+          "answer": "Navigate to the Courses page, browse available courses for the current semester, and click 'Enroll' on the course you wish to take. Enrollment is subject to availability and any prerequisites set by your department."
+        },
+        {
+          "question": "How can I view my grades?",
+          "answer": "Log in to your dashboard and go to My Courses. Select a course to view your grades for assignments, quizzes, and final assessments. Grades are typically updated by lecturers within two weeks of submission."
+        },
+        {
+          "question": "What should I do if I forgot my password?",
+          "answer": "Contact your institution's IT support or administrator. Account credentials are managed by your institution, and password resets must be processed through the administrative portal."
+        },
+        {
+          "question": "Can I drop a course after enrolling?",
+          "answer": "Yes, during the enrollment period you can drop courses from your My Courses page. After the enrollment window closes, you must contact your department or academic advisor to request a course withdrawal."
+        },
+        {
+          "question": "How do lecturers upload course materials?",
+          "answer": "Lecturers can upload documents, slides, and resources through the course management interface. Materials are then visible to enrolled students in the course view."
+        },
+        {
+          "question": "Is my academic data secure?",
+          "answer": "Yes. We use industry-standard encryption for data in transit and at rest. Access is role-based, and all actions are logged for audit purposes. See our Privacy section for full details."
+        }
+      ]
+    },
+    "cta": {
+      "text": "Questions about these policies? Contact your institution's support team or visit the",
+      "supportLink": "Support"
+    }
+  },
+  "common": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "error": "Error",
+    "submit": "Submit",
+    "back": "Back",
+    "refresh": "Refresh",
+    "other": "Other",
+    "tba": "TBA",
+    "students": "students",
+    "credits": "Credits",
+    "location": "Location",
+    "schedule": "Schedule",
+    "lecturer": "Lecturer",
+    "enrollment": "Enrollment",
+    "recommendedFor": "Recommended for",
+    "unknownCourse": "Unknown Course"
+  },
+  "footer": {
+    "copyright": "© 2026 Lecture Management System"
+  },
+  "dashboard": {
+    "unauthorized": "Unauthorized",
+    "signInToView": "Please sign in to view this page.",
+    "unknownRole": "Unknown Role",
+    "roleNoDashboard": "Your role ({role}) does not have a dashboard."
+  },
+  "courses": {
+    "title": "Course Catalog",
+    "subtitle": "Browse available course offerings and enroll in courses",
+    "signInRequired": "Sign In Required",
+    "signInToBrowse": "Please sign in to browse courses.",
+    "searchPlaceholder": "Search for courses...",
+    "allSemesters": "All Semesters",
+    "offerings": "Offerings",
+    "departments": "Departments",
+    "refreshTitle": "Refresh course list",
+    "hintStudent": "Click on a course to view details and enroll",
+    "hintLecturer": "Click on a course to view details and request to teach",
+    "hintOther": "Looking for your enrolled/assigned courses?",
+    "noCoursesFound": "No Courses Found",
+    "noMatchCriteria": "No courses match your search criteria. Try adjusting your search or filter.",
+    "noOfferingsAvailable": "There are no course offerings available at the moment.",
+    "enrolled": "Enrolled",
+    "teaching": "Teaching",
+    "full": "Full",
+    "enrollInCourse": "Enroll in Course",
+    "enrolling": "Enrolling...",
+    "requestToTeach": "Request to teach",
+    "submitting": "Submitting...",
+    "requestSent": "Request sent. An admin will review it.",
+    "enrollSuccess": "Successfully enrolled in the course!",
+    "enrollFailed": "Failed to enroll in course",
+    "requestFailed": "Failed to submit request",
+    "capacityFullWarning": "This course is currently full. You may still attempt to enroll and be placed on a waitlist.",
+    "tableCourse": "Course",
+    "tableSemester": "Semester",
+    "tableDepartment": "Department",
+    "viewCards": "Cards",
+    "viewTable": "Table",
+    "filterMyCoursesOnly": "My courses only"
+  },
+  "signIn": {
+    "welcomeTitle": "Welcome to Your Academic Portal",
+    "welcomeSubtitle": "Access your courses, track progress, and connect with your academic community.",
+    "courseManagement": "Course Management",
+    "courseManagementDesc": "Enroll, track, and manage all your courses in one place",
+    "collaboration": "Collaboration",
+    "collaborationDesc": "Connect with lecturers and fellow students",
+    "welcomeBack": "Welcome Back",
+    "signInStudent": "Sign in to access your student dashboard",
+    "signInLecturer": "Sign in to access your lecturer dashboard",
+    "studentId": "Student ID",
+    "lecturerId": "Lecturer ID",
+    "username": "Username",
+    "password": "Password",
+    "enterStudentId": "Enter your student ID",
+    "enterLecturerId": "Enter your lecturer ID",
+    "enterUsername": "Enter your username",
+    "signInWithUsername": "Sign in with username instead",
+    "signInWithStudentId": "Sign in with Student ID instead",
+    "signInWithLecturerId": "Sign in with Lecturer ID instead",
+    "needHelp": "Need help?",
+    "contactSupport": "Contact support"
+  },
+  "roleSelector": {
+    "selectRole": "Select your role",
+    "student": "Student",
+    "lecturer": "Lecturer"
+  },
+  "support": {
+    "title": "How can we help you?",
+    "subtitle": "Fill out the form below and our support team will get back to you as soon as possible.",
+    "formTitle": "Support Request",
+    "formDescription": "Please provide as much detail as possible to help us assist you better.",
+    "fullName": "Full Name",
+    "email": "Email Address",
+    "yourRole": "Your Role",
+    "selectRole": "Select your role",
+    "issueCategory": "Issue Category",
+    "selectCategory": "Select a category",
+    "subject": "Subject",
+    "subjectPlaceholder": "Brief description of your issue",
+    "message": "Message",
+    "messagePlaceholder": "Please provide detailed information about your issue...",
+    "messageHint": "Include any error messages, screenshots, or relevant details.",
+    "submitRequest": "Submit Request",
+    "submitting": "Submitting...",
+    "successTitle": "Support request submitted!",
+    "successDescription": "We'll get back to you within 24 hours.",
+    "needImmediate": "Need immediate assistance?",
+    "roles": {
+      "student": "Student",
+      "lecturer": "Lecturer",
+      "admin": "Administrator",
+      "other": "Other"
+    },
+    "categories": {
+      "login": "Login Issues",
+      "enrollment": "Course Enrollment",
+      "grades": "Grades & Assessment",
+      "schedule": "Schedule & Timetable",
+      "technical": "Technical Issues",
+      "account": "Account Management",
+      "other": "Other"
+    }
+  },
+  "settings": {
+    "title": "Account Settings",
+    "subtitle": "Manage your account. Some changes apply immediately; others require approval.",
+    "warning": "Important: Student and Lecturer information (name, gender, address, citizen ID, etc.) affects official records and cannot be changed freely. Only username and password update immediately. Changes to other details require administrator approval.",
+    "unauthorized": "Unauthorized",
+    "signInRequired": "Please sign in to access settings.",
+    "currentInfo": "Current Information",
+    "currentInfoDesc": "Your current account details as stored in the system",
+    "updateImmediate": "Username & Password",
+    "updateImmediateDesc": "These update immediately. Leave password fields blank to keep your current password.",
+    "requestUpdate": "Request Profile Changes",
+    "requestUpdateDesc": "Changes to full name, gender, address, citizen ID, etc. require administrator approval. Your request will be reviewed.",
+    "updateProfile": "Update Profile",
+    "updateProfileDesc": "Edit your profile information below. Changes are applied immediately.",
+    "fullName": "Full Name",
+    "username": "Username",
+    "email": "Email",
+    "emailReadOnly": "Email (contact support to change)",
+    "phone": "Phone",
+    "address": "Address",
+    "department": "Department",
+    "headOfDepartment": "Head of Department",
+    "gender": "Gender",
+    "genderMale": "Male",
+    "genderFemale": "Female",
+    "birthDate": "Birth Date",
+    "citizenId": "Citizen ID",
+    "passwordChange": "Change Password",
+    "passwordChangeDesc": "Leave blank to keep your current password.",
+    "oldPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm New Password",
+    "saveChanges": "Save Changes",
+    "saving": "Saving...",
+    "successTitle": "Profile updated!",
+    "successDescription": "Your changes have been saved successfully.",
+    "requestUpdateTitle": "Request Profile Update",
+    "requestUpdateConfirm": "You are requesting to change important profile information (full name, gender, address, citizen ID, etc.). An administrator will review your request. Submit?",
+    "submitRequest": "Submit Request",
+    "requestSuccessTitle": "Update requested!",
+    "requestSuccessDescription": "Your profile update request has been submitted. An administrator will review it.",
+    "notSet": "Not set",
+    "notAssigned": "Not assigned",
+    "needHelpElse": "Need help with something else?",
+    "contactSupport": "Contact Support",
+    "webhooks": "Webhooks",
+    "webhooksDesc": "Manage webhooks to receive notifications for events.",
+    "webhookUrl": "Webhook URL",
+    "addWebhook": "Add Webhook",
+    "active": "Active",
+    "inactive": "Inactive",
+    "noWebhooks": "No webhooks yet. Add one to get started."
+  },
+  "daysOfWeek": [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday"
+  ],
+  "admin": {
+    "dashboard": {
+      "title": "Dashboard",
+      "subtitle": "Overview of the Lecture Management System",
+      "viewAllManagement": "View All Management",
+      "totalStudents": "Total Students",
+      "totalLecturers": "Total Lecturers",
+      "departments": "Departments",
+      "activeStudentsEnrolled": "Active students enrolled",
+      "facultyMembers": "Faculty members",
+      "academicDepartments": "Academic departments",
+      "availableCourses": "Available courses",
+      "academicTerms": "Academic terms",
+      "quickActions": "Quick Actions",
+      "quickActionsDesc": "Commonly used management tasks",
+      "addStudent": "Add Student",
+      "addLecturer": "Add Lecturer",
+      "addDepartment": "Add Department",
+      "manageCourses": "Manage Courses",
+      "manageSemesters": "Manage Semesters",
+      "manageSchedule": "Manage Schedule",
+      "go": "Go",
+      "welcomeTitle": "Welcome to Admin Panel",
+      "welcomeDesc": "You have full access to manage the system.",
+      "sidebarHint": "Use the sidebar to navigate to specific management sections. Here you can manage:",
+      "manageStudents": "Manage Student accounts and enrollments",
+      "manageLecturers": "Manage Lecturer profiles and assignments",
+      "configureDepartments": "Configure Departments and structure",
+      "organizeCourses": "Organize Courses and curriculum",
+      "scheduleSemesters": "Schedule Semesters and classes"
+    },
+    "signIn": {
+      "title": "Admin Access",
+      "subtitle": "Sign in to manage the system",
+      "username": "Username",
+      "password": "Password",
+      "signIn": "Sign In as Admin",
+      "signUp": "Sign Up",
+      "noAccount": "Don't have an account?",
+      "success": "Admin signed in successfully",
+      "invalidCredentials": "Invalid username or password.",
+      "accountDisabled": "Your account has been disabled. Contact support.",
+      "tooManyAttempts": "Too many login attempts. Please wait and try again.",
+      "checkCredentials": "Please check your credentials and try again.",
+      "failed": "Failed to sign in."
+    },
+    "signUp": {
+      "title": "Create Admin Account",
+      "subtitle": "Register as an administrator",
+      "createAccount": "Create Account",
+      "alreadyHave": "Already have an account?",
+      "signIn": "Sign In",
+      "confirmPassword": "Confirm Password",
+      "usernameMin": "Username must be at least 3 characters",
+      "passwordMin": "Password must be at least 6 characters",
+      "confirmRequired": "Please confirm your password",
+      "passwordsDontMatch": "Passwords don't match",
+      "success": "Admin account created successfully!",
+      "checkInfo": "Please check your information and try again.",
+      "usernameExists": "An admin with this username already exists.",
+      "invalidRegistration": "Invalid registration information. Please review the form.",
+      "failed": "Failed to create admin account."
+    },
+    "sidebar": {
+      "adminPanel": "Admin Panel",
+      "managementSystem": "Management System",
+      "navigation": "Navigation",
+      "dashboard": "Dashboard",
+      "management": "Management",
+      "allEntities": "All Entities",
+      "quickAccess": "Quick Access",
+      "students": "Students",
+      "lecturers": "Lecturers",
+      "departments": "Departments",
+      "courses": "Courses",
+      "semesters": "Semesters",
+      "courseSemesters": "Course-Semesters",
+      "enrollmentSessions": "Enrollment Sessions",
+      "enrollments": "Enrollments",
+      "requests": "Requests"
+    },
+    "management": {
+      "overview": "Overview",
+      "editStudents": "Edit students",
+      "editLecturers": "Edit lecturers",
+      "editDepartments": "Edit departments",
+      "editCourses": "Edit courses",
+      "editSemesters": "Edit semesters",
+      "editSchedules": "Edit schedules",
+      "editSessions": "Edit sessions",
+      "allEnrollments": "All enrollments",
+      "bulkCreate": "Bulk Create",
+      "createNew": "Create New Student"
+    }
+  },
+  "myCourses": {
+    "unauthorized": "Unauthorized",
+    "signInToView": "Please sign in to view your courses.",
+    "signIn": "Sign In",
+    "adminAccess": "Admin Access",
+    "useAdminDashboard": "Please use the admin dashboard to manage courses.",
+    "goToAdmin": "Go to Admin Dashboard",
+    "unknownRole": "Unknown Role",
+    "roleNoView": "Your role ({role}) does not have a courses view."
+  },
+  "studentDashboard": {
+    "title": "Student Dashboard",
+    "welcomeBack": "Welcome back, {name}",
+    "profileInfo": "Profile Information",
+    "studentId": "Student ID",
+    "fullName": "Full Name",
+    "email": "Email",
+    "department": "Department",
+    "phone": "Phone",
+    "address": "Address",
+    "myCourses": "My Courses",
+    "enrollment": "Enrollment",
+    "grades": "Grades",
+    "schedule": "Schedule",
+    "noEnrolledCourses": "No enrolled courses found.",
+    "lecturer": "Lecturer",
+    "notAssigned": "Not assigned",
+    "location": "Location",
+    "grade": "Grade",
+    "notGraded": "Not graded",
+    "viewDocuments": "View Documents",
+    "withdraw": "Withdraw",
+    "documents": "Documents",
+    "noDocuments": "No documents available.",
+    "noGrades": "No grades yet.",
+    "generateAI": "Generate AI Insights",
+    "exportTimetable": "Export Timetable"
+  },
+  "lecturerDashboard": {
+    "title": "Lecturer Dashboard",
+    "welcomeBack": "Welcome back, {name}",
+    "profileInfo": "Profile Information",
+    "lecturerId": "Lecturer ID",
+    "departmentHead": "Department Head",
+    "notDeptHead": "Not a department head",
+    "myCourses": "My Courses",
+    "schedule": "Schedule",
+    "noAssignedCourses": "No assigned courses found.",
+    "enrolled": "Enrolled",
+    "students": "Students",
+    "inputGrades": "Input Grades",
+    "saveGrades": "Save Grades",
+    "gradesSaved": "Grades saved successfully",
+    "generateAI": "Generate AI Insights",
+    "exportTimetable": "Export Timetable"
+  },
+  "myCoursesList": {
+    "title": "My Courses",
+    "subtitle": "Courses you are currently teaching",
+    "totalCourses": "Total Courses",
+    "totalStudents": "Total Students",
+    "semesters": "Semesters",
+    "totalCredits": "Total Credits",
+    "noAssignedCourses": "No Assigned Courses",
+    "noAssignedDesc": "You are not currently assigned to teach any courses. Contact the administration if you believe this is an error.",
+    "viewDetails": "View Details",
+    "students": "students",
+    "credits": "credits",
+    "schedule": "Schedule",
+    "status": "Status",
+    "active": "Active",
+    "upcoming": "Upcoming",
+    "completed": "Completed"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "subtitle": "Your recent notifications",
+    "subtitleUnread": "You have {count} unread notification",
+    "subtitleUnreadPlural": "You have {count} unread notifications",
+    "allCaughtUp": "All caught up!",
+    "noNotifications": "No notifications",
+    "noNotificationsDesc": "You're all caught up! Check back later for updates.",
+    "markAllRead": "Mark all as read",
+    "deleteAll": "Clear all",
+    "delete": "Delete",
+    "deleted": "Notification deleted",
+    "deletedAll": "All notifications deleted",
+    "failedDelete": "Failed to delete notification",
+    "failedDeleteAll": "Failed to delete notifications",
+    "signInRequired": "Please sign in as a student or lecturer to view notifications.",
+    "deleteSrOnly": "Delete notification"
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "subtitle": "Your privacy is important to us. This policy explains how we collect, use, and protect your personal information in the Lecture Management System.",
+    "lastUpdated": "Last updated: January 2025",
+    "intro": "The Lecture Management System (LMS) is committed to protecting the privacy of students, lecturers, and administrators. This Privacy Policy describes our practices regarding the collection, use, and disclosure of information through our platform. By using our services, you agree to the collection and use of information in accordance with this policy.",
+    "sections": {
+      "collect": "Information We Collect",
+      "use": "How We Use Your Information",
+      "sharing": "Information Sharing",
+      "security": "Data Security",
+      "rights": "Your Rights & Choices",
+      "retention": "Data Retention"
+    },
+    "collectContent": [
+      "**Account Information**: When you register, we collect your name, email address, student/lecturer ID, and department affiliation.",
+      "**Academic Data**: Course enrollments, grades, attendance records, and academic schedules.",
+      "**Usage Data**: Login times, pages visited, and features used to improve our services.",
+      "**Uploaded Content**: Documents, course materials, and profile images you choose to upload."
+    ],
+    "useContent": [
+      "**Academic Services**: To provide course enrollment, grade tracking, scheduling, and other educational features.",
+      "**Communication**: To send notifications about courses, grades, announcements, and system updates.",
+      "**System Improvement**: To analyze usage patterns and improve the platform's functionality and user experience.",
+      "**Administrative Purposes**: To manage user accounts, verify identities, and maintain system security."
+    ],
+    "sharingContent": [
+      "**Within the Institution**: Your academic information is shared with relevant faculty, administrators, and departments as necessary for educational purposes.",
+      "**Lecturers**: Can view enrolled students' names, IDs, and academic performance in their courses.",
+      "**Students**: Cannot access other students' personal information or grades.",
+      "**Third Parties**: We do not sell or share your personal information with external parties for marketing purposes."
+    ],
+    "securityContent": [
+      "**Encryption**: All data is encrypted in transit using TLS/SSL and at rest using industry-standard encryption.",
+      "**Access Control**: Role-based access ensures users only see information relevant to their role (student, lecturer, or admin).",
+      "**Authentication**: Secure login with hashed passwords and session management.",
+      "**Regular Audits**: We conduct security reviews to identify and address potential vulnerabilities."
+    ],
+    "rightsContent": [
+      "**Access**: You can view and download your personal data through your account settings.",
+      "**Correction**: Request corrections to inaccurate personal information by contacting support.",
+      "**Notifications**: Manage your notification preferences in account settings.",
+      "**Account Deletion**: Contact your institution's administrator to request account deletion (subject to academic record retention policies)."
+    ],
+    "retentionContent": [
+      "**Active Accounts**: Your data is retained while your account is active.",
+      "**Academic Records**: Grades and enrollment history may be retained according to institutional policies and legal requirements.",
+      "**Inactive Accounts**: Accounts inactive for extended periods may be archived or deleted per institutional policy.",
+      "**Backups**: Secure backups are maintained for disaster recovery purposes."
+    ],
+    "contactTitle": "Questions or Concerns?",
+    "contactDesc": "If you have any questions about this Privacy Policy or our data practices, please contact us through our support page.",
+    "contactSupport": "Contact Support",
+    "footerNote": "This privacy policy is subject to change. We will notify users of any significant changes through the platform."
+  },
+  "success": {
+    "settingsTitle": "Profile updated!",
+    "settingsDesc": "Your changes have been saved successfully.",
+    "supportTitle": "Support request submitted!",
+    "supportDesc": "We'll get back to you within 24 hours.",
+    "supportTicketNumber": "Support Ticket Number",
+    "saveForRecords": "Please save this number for your records",
+    "whatHappensNext": "What happens next?",
+    "returnHome": "Return to Home",
+    "submitAnother": "Submit Another Request"
   }
 }

@@ -2,11 +2,16 @@
 
 import { Button } from "@/components/ui/shadcn/button";
 import { Card, CardContent } from "@/components/ui/shadcn/card";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale, useLocalePath } from "@/lib/i18n/use-locale";
 import { CheckCircle2, Home, Mail, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { motion } from "motion/react";
 
 export function SupportSuccess() {
+  const locale = useLocale();
+  const localePath = useLocalePath();
+  const dict = getClientDictionary(locale);
   return (
     <div className="min-h-screen bg-background flex items-center justify-center py-12 px-6">
       <div className="container mx-auto max-w-2xl">
@@ -35,24 +40,23 @@ export function SupportSuccess() {
               {/* Success Message */}
               <div className="space-y-3">
                 <h1 className="text-3xl md:text-4xl font-bold">
-                  Request Submitted Successfully!
+                  {dict.success.supportTitle}
                 </h1>
                 <p className="text-muted-foreground text-lg leading-relaxed">
-                  Thank you for reaching out. Your support request has been
-                  received and assigned a ticket number.
+                  {dict.success.supportDesc}
                 </p>
               </div>
 
               {/* Ticket Info */}
               <div className="bg-muted/50 rounded-lg p-6 space-y-2">
                 <p className="text-sm font-medium text-muted-foreground">
-                  Support Ticket Number
+                  {dict.success.supportTicketNumber}
                 </p>
                 <p className="text-2xl font-bold font-mono text-primary">
                   #{Math.floor(Math.random() * 900000 + 100000)}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Please save this number for your records
+                  {dict.success.saveForRecords}
                 </p>
               </div>
 
@@ -60,7 +64,7 @@ export function SupportSuccess() {
               <div className="text-left bg-muted/30 rounded-lg p-6 space-y-3">
                 <h3 className="font-semibold text-lg flex items-center gap-2">
                   <Mail className="w-5 h-5 text-primary" />
-                  What happens next?
+                  {dict.success.whatHappensNext}
                 </h3>
                 <ul className="space-y-2 text-sm text-muted-foreground">
                   <li className="flex items-start gap-2">
@@ -94,22 +98,22 @@ export function SupportSuccess() {
 
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-3 pt-4">
-                <Link href="/" className="flex-1">
+                <Link href={localePath("")} className="flex-1">
                   <Button
                     variant="default"
                     className="w-full h-11 shadow-md hover:shadow-lg transition-all duration-200 group"
                   >
                     <Home className="mr-2 h-4 w-4" />
-                    Return to Home
+                    {dict.success.returnHome}
                   </Button>
                 </Link>
-                <Link href="/support" className="flex-1">
+                <Link href={localePath("support")} className="flex-1">
                   <Button
                     variant="outline"
                     className="w-full h-11 transition-all duration-200 group"
                   >
                     <ArrowLeft className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1" />
-                    Submit Another Request
+                    {dict.success.submitAnother}
                   </Button>
                 </Link>
               </div>

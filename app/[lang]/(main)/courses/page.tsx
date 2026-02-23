@@ -7,8 +7,6 @@ import {
   Button,
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
   Dialog,
   DialogContent,
   DialogDescription,
@@ -22,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/shadcn";
+import { Checkbox } from "@/components/ui/shadcn/checkbox";
 import type { CourseSemester } from "@/lib/api/course-semester";
 import {
   lecturerApi,
@@ -29,40 +28,44 @@ import {
   type LecturerTeachingRequestItem,
 } from "@/lib/api/lecturer";
 import { studentApi } from "@/lib/api/student";
+import { getClientDictionary, isLocale, useLocalePath } from "@/lib/i18n";
 import {
   BookOpen,
   Building2,
   Calendar,
   Clock,
   GraduationCap,
+  LayoutGrid,
   MapPin,
   RefreshCw,
   Search,
+  Table2,
   User,
   Users,
 } from "lucide-react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+
 import { toast } from "sonner";
+import { CoursesTable } from "./_components/CoursesTable";
 
-const DAYS_OF_WEEK = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-];
-
-function formatTime(minutes: number | null): string {
-  if (minutes === null) return "TBA";
+function formatTime(minutes: number | null, tba = "TBA"): string {
+  if (minutes === null) return tba;
   const hours = Math.floor(minutes / 60);
   const mins = minutes % 60;
   return `${hours.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}`;
 }
 
 export default function CoursesPage() {
+  const params = useParams();
+  const lang = (params?.lang as string) || "en";
+  const locale = isLocale(lang) ? lang : "en";
+  const dict = getClientDictionary(locale);
+  const localePath = useLocalePath();
+  const c = dict.courses;
+  const common = dict.common;
+  const DAYS_OF_WEEK = dict.daysOfWeek;
   const { isAuthenticated, role } = useSession();
   const {
     data: courseOfferings,
@@ -89,6 +92,8 @@ export default function CoursesPage() {
   >([]);
   const [enrolledCourseOnSemesterIds, setEnrolledCourseOnSemesterIds] =
     useState<Set<string>>(new Set());
+  const [viewMode, setViewMode] = useState<"cards" | "table">("table");
+  const [myCoursesOnly, setMyCoursesOnly] = useState(false);
 
   // Extract unique semesters for filter dropdown
   const availableSemesters = useMemo(() => {
@@ -134,10 +139,45 @@ export default function CoursesPage() {
     });
   }, [searchQuery, semesterFilter, courseOfferings]);
 
-  // Group courses by department
   const isLecturer = role === "lecturer";
-
   const isStudent = role === "student";
+
+  const myAssignedIds = useMemo(
+    () => new Set(myCourses.map((c) => c.courseOnSemesterId)),
+    [myCourses],
+  );
+
+  // Apply "my courses only" filter for students (enrolled) and lecturers (teaching)
+  const displayCourses = useMemo(() => {
+    if (!myCoursesOnly || (!isStudent && !isLecturer)) return filteredCourses;
+    if (isStudent) {
+      return filteredCourses.filter((o) =>
+        enrolledCourseOnSemesterIds.has(o.id),
+      );
+    }
+    return filteredCourses.filter((o) => myAssignedIds.has(o.id));
+  }, [
+    filteredCourses,
+    myCoursesOnly,
+    isStudent,
+    isLecturer,
+    enrolledCourseOnSemesterIds,
+    myAssignedIds,
+  ]);
+
+  const coursesByDepartment = useMemo(() => {
+    return displayCourses.reduce(
+      (acc, offering) => {
+        const deptName = offering.course?.department?.name || common.other;
+        if (!acc[deptName]) {
+          acc[deptName] = [];
+        }
+        acc[deptName].push(offering);
+        return acc;
+      },
+      {} as Record<string, CourseSemester[]>,
+    );
+  }, [displayCourses, common.other]);
 
   useEffect(() => {
     if (isLecturer) {
@@ -164,25 +204,6 @@ export default function CoursesPage() {
         .catch(() => setEnrolledCourseOnSemesterIds(new Set()));
     }
   }, [isStudent]);
-
-  const coursesByDepartment = useMemo(() => {
-    return filteredCourses.reduce(
-      (acc, offering) => {
-        const deptName = offering.course?.department?.name || "Other";
-        if (!acc[deptName]) {
-          acc[deptName] = [];
-        }
-        acc[deptName].push(offering);
-        return acc;
-      },
-      {} as Record<string, CourseSemester[]>,
-    );
-  }, [filteredCourses]);
-
-  const myAssignedIds = useMemo(
-    () => new Set(myCourses.map((c) => c.courseOnSemesterId)),
-    [myCourses],
-  );
 
   function semesterHasStarted(startDate: string | undefined): boolean {
     if (!startDate) return false;
@@ -228,7 +249,7 @@ export default function CoursesPage() {
     setIsRequesting(true);
     try {
       await lecturerApi.requestToTeach(selectedCourse.id);
-      toast.success("Request sent. An admin will review it.");
+      toast.success(c.requestSent);
       setSelectedCourse(null);
       lecturerApi.getMyTeachingRequests().then(setMyTeachingRequests);
       refetch();
@@ -237,9 +258,7 @@ export default function CoursesPage() {
         response?: { data?: { message?: string } };
         message?: string;
       };
-      toast.error(
-        e?.response?.data?.message ?? e?.message ?? "Failed to submit request",
-      );
+      toast.error(e?.response?.data?.message ?? e?.message ?? c.requestFailed);
     } finally {
       setIsRequesting(false);
     }
@@ -251,7 +270,7 @@ export default function CoursesPage() {
     setIsEnrolling(true);
     try {
       await studentApi.enrollCourse(selectedCourse.id);
-      toast.success("Successfully enrolled in the course!");
+      toast.success(c.enrollSuccess);
       setSelectedCourse(null);
       refetch(); // Refresh to update enrollment counts
       studentApi
@@ -267,9 +286,7 @@ export default function CoursesPage() {
         message?: string;
       };
       toast.error(
-        error.response?.data?.message ||
-          error.message ||
-          "Failed to enroll in course",
+        error.response?.data?.message || error.message || c.enrollFailed,
       );
     } finally {
       setIsEnrolling(false);
@@ -287,12 +304,10 @@ export default function CoursesPage() {
   if (!isAuthenticated) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen gap-4">
-        <h1 className="text-2xl font-bold">Sign In Required</h1>
-        <p className="text-muted-foreground">
-          Please sign in to browse courses.
-        </p>
-        <Link href="/sign-in">
-          <Button>Sign In</Button>
+        <h1 className="text-2xl font-bold">{c.signInRequired}</h1>
+        <p className="text-muted-foreground">{c.signInToBrowse}</p>
+        <Link href={localePath("/sign-in")}>
+          <Button>{dict.nav.signIn}</Button>
         </Link>
       </div>
     );
@@ -302,7 +317,7 @@ export default function CoursesPage() {
     return (
       <div className="min-h-screen bg-background py-12 px-6">
         <div className="container mx-auto max-w-5xl text-center">
-          <h1 className="text-2xl font-bold mb-4">Error</h1>
+          <h1 className="text-2xl font-bold mb-4">{common.error}</h1>
           <p className="text-muted-foreground">{error.message}</p>
         </div>
       </div>
@@ -310,18 +325,16 @@ export default function CoursesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background py-12 px-6">
+    <div className="min-h-screen bg-background px-4 py-8 sm:px-6 sm:py-12">
       <div className="container mx-auto max-w-6xl">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
             <GraduationCap className="w-8 h-8 text-primary" />
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold mb-3">
-            Course Catalog
-          </h1>
+          <h1 className="text-3xl md:text-4xl font-bold mb-3">{c.title}</h1>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Browse available course offerings and enroll in courses
+            {c.subtitle}
           </p>
         </div>
 
@@ -330,7 +343,7 @@ export default function CoursesPage() {
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search for courses..."
+              placeholder={c.searchPlaceholder}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -339,10 +352,10 @@ export default function CoursesPage() {
           <Select value={semesterFilter} onValueChange={setSemesterFilter}>
             <SelectTrigger className="w-full md:w-[200px]">
               <Calendar className="w-4 h-4 mr-2 text-muted-foreground" />
-              <SelectValue placeholder="All Semesters" />
+              <SelectValue placeholder={c.allSemesters} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Semesters</SelectItem>
+              <SelectItem value="all">{c.allSemesters}</SelectItem>
               {availableSemesters.map((semester) => (
                 <SelectItem key={semester.id} value={semester.id}>
                   {semester.name}
@@ -351,11 +364,58 @@ export default function CoursesPage() {
             </SelectContent>
           </Select>
           <div className="flex flex-wrap items-center gap-2">
+            <div className="flex rounded-lg border p-1">
+              <Button
+                type="button"
+                variant={viewMode === "cards" ? "secondary" : "ghost"}
+                size="sm"
+                onClick={() => setViewMode("cards")}
+                className="gap-1.5"
+                title={c.viewCards}
+                aria-label={c.viewCards}
+              >
+                <LayoutGrid className="h-4 w-4" />
+                <span className="hidden sm:inline">{c.viewCards}</span>
+              </Button>
+              <Button
+                type="button"
+                variant={viewMode === "table" ? "secondary" : "ghost"}
+                size="sm"
+                onClick={() => setViewMode("table")}
+                className="gap-1.5"
+                title={c.viewTable}
+                aria-label={c.viewTable}
+              >
+                <Table2 className="h-4 w-4" />
+                <span className="hidden sm:inline">{c.viewTable}</span>
+              </Button>
+            </div>
+            {(isStudent || isLecturer) && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Checkbox
+                  checked={myCoursesOnly}
+                  onCheckedChange={(checked) =>
+                    setMyCoursesOnly(checked === true)
+                  }
+                  aria-label={c.filterMyCoursesOnly}
+                />
+                <button
+                  type="button"
+                  className="cursor-pointer hover:text-foreground bg-transparent border-none p-0 font-inherit"
+                  onClick={() => setMyCoursesOnly((v) => !v)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      setMyCoursesOnly((v) => !v);
+                    }
+                  }}
+                >
+                  {c.filterMyCoursesOnly}
+                </button>
+              </div>
+            )}
             <Badge variant="secondary" className="px-4 py-2">
-              {filteredCourses.length} Offerings
-            </Badge>
-            <Badge variant="outline" className="px-4 py-2">
-              {Object.keys(coursesByDepartment).length} Departments
+              {displayCourses.length} {c.offerings}
             </Badge>
             <Button
               type="button"
@@ -363,8 +423,8 @@ export default function CoursesPage() {
               size="icon"
               onClick={() => refetch()}
               disabled={isRefetching}
-              title="Refresh course list"
-              aria-label="Refresh course list"
+              title={c.refreshTitle}
+              aria-label={c.refreshTitle}
             >
               <RefreshCw
                 className={`h-4 w-4 ${isRefetching ? "animate-spin" : ""}`}
@@ -377,33 +437,58 @@ export default function CoursesPage() {
         <div className="mb-6 p-4 bg-muted/50 rounded-lg flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
             {isStudent
-              ? "Click on a course to view details and enroll"
+              ? c.hintStudent
               : isLecturer
-                ? "Click on a course to view details and request to teach"
-                : "Looking for your enrolled/assigned courses?"}
+                ? c.hintLecturer
+                : c.hintOther}
           </p>
-          <Link href="/my-courses">
+          <Link href={localePath("/my-courses")}>
             <Button variant="outline" size="sm">
               <BookOpen className="w-4 h-4 mr-2" />
-              My Courses
+              {dict.nav.myCourses}
             </Button>
           </Link>
         </div>
 
-        {filteredCourses.length === 0 ? (
+        {displayCourses.length === 0 ? (
           <Card className="border-border/50 shadow-lg">
             <CardContent className="p-12 text-center">
               <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-muted mb-6">
                 <BookOpen className="w-10 h-10 text-muted-foreground" />
               </div>
-              <h2 className="text-2xl font-bold mb-3">No Courses Found</h2>
+              <h2 className="text-2xl font-bold mb-3">{c.noCoursesFound}</h2>
               <p className="text-muted-foreground max-w-md mx-auto">
-                {searchQuery || semesterFilter !== "all"
-                  ? "No courses match your search criteria. Try adjusting your search or filter."
-                  : "There are no course offerings available at the moment."}
+                {searchQuery || semesterFilter !== "all" || myCoursesOnly
+                  ? c.noMatchCriteria
+                  : c.noOfferingsAvailable}
               </p>
             </CardContent>
           </Card>
+        ) : viewMode === "table" ? (
+          <CoursesTable
+            data={displayCourses}
+            daysOfWeek={DAYS_OF_WEEK}
+            labels={{
+              course: c.tableCourse,
+              semester: c.tableSemester,
+              department: c.tableDepartment,
+              credits: common.credits,
+              schedule: common.schedule,
+              location: common.location,
+              lecturer: common.lecturer,
+              enrollment: common.enrollment,
+              enrolled: c.enrolled,
+              teaching: c.teaching,
+              full: c.full,
+              tba: common.tba,
+              unknownCourse: common.unknownCourse,
+            }}
+            enrolledIds={enrolledCourseOnSemesterIds}
+            myAssignedIds={myAssignedIds}
+            isStudent={isStudent}
+            isLecturer={isLecturer}
+            onRowClick={setSelectedCourse}
+          />
         ) : (
           <div className="space-y-8">
             {Object.entries(coursesByDepartment)
@@ -436,11 +521,11 @@ export default function CoursesPage() {
                             setSelectedCourse(offering)
                           }
                         >
-                          <CardHeader className="pb-2">
+                          <CardContent className="p-4 space-y-3">
                             <div className="flex items-start justify-between gap-2">
-                              <CardTitle className="text-lg line-clamp-2">
-                                {offering.course?.name ?? "Unknown Course"}
-                              </CardTitle>
+                              <h3 className="text-lg font-semibold line-clamp-2">
+                                {offering.course?.name ?? common.unknownCourse}
+                              </h3>
                               <div className="flex shrink-0 flex-wrap items-center gap-1.5 justify-end">
                                 {isStudent &&
                                   enrolledCourseOnSemesterIds.has(
@@ -450,7 +535,7 @@ export default function CoursesPage() {
                                       variant="secondary"
                                       className="bg-primary/15 text-primary"
                                     >
-                                      Enrolled
+                                      {c.enrolled}
                                     </Badge>
                                   )}
                                 {isLecturer &&
@@ -459,11 +544,11 @@ export default function CoursesPage() {
                                       variant="secondary"
                                       className="bg-primary/15 text-primary"
                                     >
-                                      Teaching
+                                      {c.teaching}
                                     </Badge>
                                   )}
                                 {isFull && (
-                                  <Badge variant="destructive">Full</Badge>
+                                  <Badge variant="destructive">{c.full}</Badge>
                                 )}
                               </div>
                             </div>
@@ -472,15 +557,13 @@ export default function CoursesPage() {
                             </p>
                             {offering.course?.recommendedSemester && (
                               <p className="text-xs text-muted-foreground">
-                                Recommended for:{" "}
+                                {common.recommendedFor}{" "}
                                 {offering.course.recommendedSemester}
                               </p>
                             )}
-                          </CardHeader>
-                          <CardContent className="space-y-3">
                             <div className="flex items-center justify-between">
                               <Badge variant="outline">
-                                {offering.course?.credits ?? 0} Credits
+                                {offering.course?.credits ?? 0} {common.credits}
                               </Badge>
                               <div className="flex items-center gap-1 text-xs text-muted-foreground">
                                 <Users className="w-3 h-3" />
@@ -490,28 +573,22 @@ export default function CoursesPage() {
                                 </span>
                               </div>
                             </div>
-
-                            {/* Schedule info */}
                             {offering.dayOfWeek !== null && (
                               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                 <Clock className="w-4 h-4" />
                                 <span>
                                   {DAYS_OF_WEEK[offering.dayOfWeek]},{" "}
-                                  {formatTime(offering.startTime)} -{" "}
-                                  {formatTime(offering.endTime)}
+                                  {formatTime(offering.startTime, common.tba)} -{" "}
+                                  {formatTime(offering.endTime, common.tba)}
                                 </span>
                               </div>
                             )}
-
-                            {/* Location */}
                             {offering.location && (
                               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                 <MapPin className="w-4 h-4" />
                                 <span>{offering.location}</span>
                               </div>
                             )}
-
-                            {/* Lecturer */}
                             {offering.lecturer && (
                               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                 <User className="w-4 h-4" />
@@ -551,7 +628,9 @@ export default function CoursesPage() {
               <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
                 <GraduationCap className="w-5 h-5 text-muted-foreground" />
                 <div>
-                  <p className="text-xs text-muted-foreground">Credits</p>
+                  <p className="text-xs text-muted-foreground">
+                    {common.credits}
+                  </p>
                   <p className="font-medium">
                     {selectedCourse?.course?.credits ?? 0}
                   </p>
@@ -563,7 +642,7 @@ export default function CoursesPage() {
                   <BookOpen className="w-5 h-5 text-muted-foreground" />
                   <div>
                     <p className="text-xs text-muted-foreground">
-                      Recommended for
+                      {common.recommendedFor}
                     </p>
                     <p className="font-medium">
                       {selectedCourse.course.recommendedSemester}
@@ -575,12 +654,14 @@ export default function CoursesPage() {
               <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
                 <Calendar className="w-5 h-5 text-muted-foreground" />
                 <div>
-                  <p className="text-xs text-muted-foreground">Schedule</p>
+                  <p className="text-xs text-muted-foreground">
+                    {common.schedule}
+                  </p>
                   <p className="font-medium">
                     {selectedCourse?.dayOfWeek !== null &&
                     selectedCourse?.dayOfWeek !== undefined
-                      ? `${DAYS_OF_WEEK[selectedCourse.dayOfWeek]}, ${formatTime(selectedCourse.startTime)} - ${formatTime(selectedCourse.endTime)}`
-                      : "TBA"}
+                      ? `${DAYS_OF_WEEK[selectedCourse.dayOfWeek]}, ${formatTime(selectedCourse.startTime, common.tba)} - ${formatTime(selectedCourse.endTime, common.tba)}`
+                      : common.tba}
                   </p>
                 </div>
               </div>
@@ -588,9 +669,11 @@ export default function CoursesPage() {
               <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
                 <MapPin className="w-5 h-5 text-muted-foreground" />
                 <div>
-                  <p className="text-xs text-muted-foreground">Location</p>
+                  <p className="text-xs text-muted-foreground">
+                    {common.location}
+                  </p>
                   <p className="font-medium">
-                    {selectedCourse?.location || "TBA"}
+                    {selectedCourse?.location || common.tba}
                   </p>
                 </div>
               </div>
@@ -598,9 +681,11 @@ export default function CoursesPage() {
               <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
                 <User className="w-5 h-5 text-muted-foreground" />
                 <div>
-                  <p className="text-xs text-muted-foreground">Lecturer</p>
+                  <p className="text-xs text-muted-foreground">
+                    {common.lecturer}
+                  </p>
                   <p className="font-medium">
-                    {selectedCourse?.lecturer?.fullName ?? "TBA"}
+                    {selectedCourse?.lecturer?.fullName ?? common.tba}
                   </p>
                 </div>
               </div>
@@ -608,13 +693,15 @@ export default function CoursesPage() {
               <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
                 <Users className="w-5 h-5 text-muted-foreground" />
                 <div>
-                  <p className="text-xs text-muted-foreground">Enrollment</p>
+                  <p className="text-xs text-muted-foreground">
+                    {common.enrollment}
+                  </p>
                   <p className="font-medium">
                     {selectedCourse?._count?.enrollments ?? 0}
                     {selectedCourse?.capacity !== null &&
                       selectedCourse?.capacity !== undefined &&
                       ` / ${selectedCourse.capacity}`}{" "}
-                    students
+                    {common.students}
                   </p>
                 </div>
               </div>
@@ -626,21 +713,20 @@ export default function CoursesPage() {
               (selectedCourse?._count?.enrollments ?? 0) >=
                 selectedCourse.capacity && (
                 <div className="p-3 bg-destructive/10 text-destructive rounded-lg text-sm">
-                  This course is currently full. You may still attempt to enroll
-                  and be placed on a waitlist.
+                  {c.capacityFullWarning}
                 </div>
               )}
           </div>
 
           <DialogFooter className="flex gap-2 sm:gap-2">
             <Button variant="outline" onClick={() => setSelectedCourse(null)}>
-              Cancel
+              {common.cancel}
             </Button>
             {isStudent &&
               selectedCourse &&
               !enrolledCourseOnSemesterIds.has(selectedCourse.id) && (
                 <Button onClick={handleEnroll} disabled={isEnrolling}>
-                  {isEnrolling ? "Enrolling..." : "Enroll in Course"}
+                  {isEnrolling ? c.enrolling : c.enrollInCourse}
                 </Button>
               )}
             {isLecturer &&
@@ -648,7 +734,7 @@ export default function CoursesPage() {
               !myAssignedIds.has(selectedCourse.id) &&
               canRequestTeaching(selectedCourse) && (
                 <Button onClick={handleRequestToTeach} disabled={isRequesting}>
-                  {isRequesting ? "Submitting..." : "Request to teach"}
+                  {isRequesting ? c.submitting : c.requestToTeach}
                 </Button>
               )}
           </DialogFooter>

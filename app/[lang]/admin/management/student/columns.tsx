@@ -20,6 +20,8 @@ import {
 } from "@/components/ui/shadcn/dropdown-menu";
 import { DataTableColumnHeader } from "@/components/ui/table/DataTableColumnHeader";
 import { adminStudentApi, type StudentAdmin } from "@/lib/api/admin-student";
+import { queryKeys } from "@/lib/query";
+import { useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal, Pencil, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -28,18 +30,15 @@ import { toast } from "sonner";
 
 const ActionCell = ({ student }: { student: StudentAdmin }) => {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [openDelete, setOpenDelete] = useState(false);
 
   const handleDelete = async () => {
     try {
       await adminStudentApi.delete(student.id);
+      await queryClient.invalidateQueries({ queryKey: queryKeys.students.all });
       toast.success("Student deleted successfully");
-      router.refresh(); // Refresh data
-      // Note: In a real app with SWR/React Query, we'd invalidate the query.
-      // Since we use basic fetch, router.refresh() re-runs server components,
-      // but for client components fetching data, we might need a context refresh.
-      // For now, simple reload or parent refresh key is needed.
-      window.location.reload();
+      router.refresh();
     } catch {
       toast.error("Failed to delete student");
     }

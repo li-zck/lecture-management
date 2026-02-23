@@ -1,16 +1,21 @@
 "use client";
 
 import { useSession } from "@/components/provider/SessionProvider";
+import {
+  AITimetableGenerator,
+  TimetableDownload,
+  TimetableGrid,
+} from "@/components/timetable";
 import { Badge } from "@/components/ui/shadcn/badge";
 import { Button } from "@/components/ui/shadcn/button";
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/shadcn/card";
-import { Separator } from "@/components/ui/shadcn/separator";
 import {
   studentApi,
   type AvailableCourse,
@@ -21,6 +26,7 @@ import {
   type WeeklySchedule,
 } from "@/lib/api/student";
 import { GRADE_TYPE_OPTIONS } from "@/lib/utils/grade-labels";
+import { enrollmentsToWeeklySchedule } from "@/lib/utils/schedule";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -34,11 +40,12 @@ const DAY_NAMES: Record<number, string> = {
   6: "Saturday",
 };
 
-function formatTime(time: number | null): string {
-  if (time === null) return "-";
-  const hours = Math.floor(time / 100);
-  const minutes = time % 100;
-  return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
+/** Backend stores time as minutes since midnight (e.g. 8:00 = 480) */
+function formatTime(minutes: number | null): string {
+  if (minutes === null) return "-";
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  return `${hours.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}`;
 }
 
 export function StudentDashboard() {
@@ -66,17 +73,15 @@ export function StudentDashboard() {
 
     try {
       setLoading(true);
-      const [profileData, enrollmentsData, gradesData, scheduleData] =
-        await Promise.all([
-          studentApi.getById(user.id),
-          studentApi.getEnrollments(),
-          studentApi.getGrades(),
-          studentApi.getSchedule(),
-        ]);
+      const [profileData, enrollmentsData, gradesData] = await Promise.all([
+        studentApi.getById(user.id),
+        studentApi.getEnrollments(),
+        studentApi.getGrades(),
+      ]);
       setProfile(profileData);
       setCourses(enrollmentsData);
       setGrades(gradesData);
-      setSchedule(scheduleData);
+      setSchedule(enrollmentsToWeeklySchedule(enrollmentsData));
     } catch (err) {
       setError("Failed to load data. Please try again.");
       console.error(err);
@@ -150,11 +155,14 @@ export function StudentDashboard() {
     }
   };
 
-  const handleViewDocuments = async (enrollmentId: string) => {
+  const handleViewDocuments = async (
+    courseOnSemesterId: string,
+    enrollmentId: string,
+  ) => {
     setViewingDocuments(enrollmentId);
     setLoadingDocs(true);
     try {
-      const docs = await studentApi.getCourseDocuments(enrollmentId);
+      const docs = await studentApi.getCourseDocuments(courseOnSemesterId);
       setDocuments(docs);
     } catch (err) {
       console.error("Failed to fetch documents", err);
@@ -186,15 +194,13 @@ export function StudentDashboard() {
   }
 
   return (
-    <div className="container mx-auto p-6 max-w-6xl">
+    <div className="container mx-auto max-w-6xl px-4 py-6 sm:px-6">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-3xl font-bold">Student Dashboard</h1>
-          <p className="text-muted-foreground">
-            Welcome back, {profile?.fullName || profile?.username}
-          </p>
-        </div>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold sm:text-3xl">Student Dashboard</h1>
+        <p className="mt-1 text-sm text-muted-foreground sm:text-base">
+          Welcome back, {profile?.fullName || profile?.username}
+        </p>
       </div>
 
       {/* Profile Card */}
@@ -233,11 +239,11 @@ export function StudentDashboard() {
       </Card>
 
       {/* Tab Navigation */}
-      <div className="flex flex-wrap gap-2 mb-4">
+      <div className="mb-4 flex flex-wrap gap-2">
         <button
           type="button"
           onClick={() => setActiveTab("courses")}
-          className={`px-4 py-2 rounded-md font-medium transition ${
+          className={`rounded-md px-3 py-2 text-sm font-medium transition sm:px-4 ${
             activeTab === "courses"
               ? "bg-primary text-primary-foreground"
               : "bg-muted hover:bg-muted/80"
@@ -248,7 +254,7 @@ export function StudentDashboard() {
         <button
           type="button"
           onClick={() => setActiveTab("enroll")}
-          className={`px-4 py-2 rounded-md font-medium transition ${
+          className={`rounded-md px-3 py-2 text-sm font-medium transition sm:px-4 ${
             activeTab === "enroll"
               ? "bg-primary text-primary-foreground"
               : "bg-muted hover:bg-muted/80"
@@ -259,7 +265,7 @@ export function StudentDashboard() {
         <button
           type="button"
           onClick={() => setActiveTab("grades")}
-          className={`px-4 py-2 rounded-md font-medium transition ${
+          className={`rounded-md px-3 py-2 text-sm font-medium transition sm:px-4 ${
             activeTab === "grades"
               ? "bg-primary text-primary-foreground"
               : "bg-muted hover:bg-muted/80"
@@ -270,7 +276,7 @@ export function StudentDashboard() {
         <button
           type="button"
           onClick={() => setActiveTab("schedule")}
-          className={`px-4 py-2 rounded-md font-medium transition ${
+          className={`rounded-md px-3 py-2 text-sm font-medium transition sm:px-4 ${
             activeTab === "schedule"
               ? "bg-primary text-primary-foreground"
               : "bg-muted hover:bg-muted/80"
@@ -343,7 +349,10 @@ export function StudentDashboard() {
                       variant="outline"
                       size="sm"
                       onClick={() =>
-                        handleViewDocuments(enrollment.enrollmentId)
+                        handleViewDocuments(
+                          enrollment.courseOnSemesterId,
+                          enrollment.enrollmentId,
+                        )
                       }
                     >
                       View Documents
@@ -539,58 +548,43 @@ export function StudentDashboard() {
 
       {/* Schedule Tab */}
       {activeTab === "schedule" && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Weekly Schedule</CardTitle>
-            <CardDescription>Current semester timetable</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {Object.keys(schedule).length === 0 ? (
-              <p className="text-center text-muted-foreground py-4">
-                No schedule for current semester.
-              </p>
-            ) : (
-              <div className="space-y-4">
-                {Object.entries(schedule)
-                  .sort(([a], [b]) => Number(a) - Number(b))
-                  .map(([day, classes]) => (
-                    <div key={day}>
-                      <h3 className="font-semibold text-lg mb-2">
-                        {DAY_NAMES[Number(day)]}
-                      </h3>
-                      <div className="space-y-2">
-                        {classes.map((classInfo, idx: number) => (
-                          <div
-                            key={`${classInfo.courseName}-${idx}`}
-                            className="flex justify-between items-center p-3 bg-muted rounded-md"
-                          >
-                            <div>
-                              <p className="font-medium">
-                                {classInfo.courseName}
-                              </p>
-                              <p className="text-sm text-muted-foreground">
-                                {classInfo.lecturer || "No lecturer"}
-                              </p>
-                            </div>
-                            <div className="text-right">
-                              <p className="font-medium">
-                                {formatTime(classInfo.startTime)} -{" "}
-                                {formatTime(classInfo.endTime)}
-                              </p>
-                              <p className="text-sm text-muted-foreground">
-                                {classInfo.location || "-"}
-                              </p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                      <Separator className="mt-4" />
-                    </div>
-                  ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Weekly Schedule</CardTitle>
+              <CardDescription>Current semester timetable</CardDescription>
+              <CardAction>
+                <TimetableDownload
+                  schedule={schedule}
+                  title={
+                    courses[0]?.semester?.name
+                      ? `Timetable - ${courses[0].semester.name}`
+                      : "Timetable"
+                  }
+                  includeLecturer
+                />
+              </CardAction>
+            </CardHeader>
+            <CardContent>
+              {Object.keys(schedule).length === 0 ? (
+                <p className="text-center text-muted-foreground py-4">
+                  No schedule for current semester.
+                </p>
+              ) : (
+                <TimetableGrid schedule={schedule} />
+              )}
+            </CardContent>
+          </Card>
+          <AITimetableGenerator
+            schedule={schedule}
+            userRole="student"
+            context={
+              courses[0]?.semester?.name
+                ? `Semester: ${courses[0].semester.name}`
+                : undefined
+            }
+          />
+        </div>
       )}
     </div>
   );

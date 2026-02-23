@@ -4,9 +4,16 @@ import { AdminDashboard } from "@/components/dashboard/AdminDashboard";
 import { LecturerDashboard } from "@/components/dashboard/LecturerDashboard";
 import { StudentDashboard } from "@/components/dashboard/StudentDashboard";
 import { useSession } from "@/components/provider/SessionProvider";
+import { getClientDictionary, isLocale } from "@/lib/i18n";
+import { useParams } from "next/navigation";
 
 export default function DashboardPage() {
+  const params = useParams();
+  const lang = (params?.lang as string) || "en";
+  const locale = isLocale(lang) ? lang : "en";
+  const dict = getClientDictionary(locale);
   const { role, isAuthenticated, isLoading } = useSession();
+  const d = dict.dashboard;
 
   if (isLoading) {
     return (
@@ -19,8 +26,8 @@ export default function DashboardPage() {
   if (!isAuthenticated || !role) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
-        <h1 className="text-2xl font-bold mb-4">Unauthorized</h1>
-        <p>Please sign in to view this page.</p>
+        <h1 className="text-2xl font-bold mb-4">{d.unauthorized}</h1>
+        <p>{d.signInToView}</p>
       </div>
     );
   }
@@ -35,8 +42,8 @@ export default function DashboardPage() {
     default:
       return (
         <div className="container mx-auto p-6">
-          <h1 className="text-2xl font-bold">Unknown Role</h1>
-          <p>Your role ({role}) does not have a dashboard.</p>
+          <h1 className="text-2xl font-bold">{d.unknownRole}</h1>
+          <p>{d.roleNoDashboard.replace("{role}", role)}</p>
         </div>
       );
   }

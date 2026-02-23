@@ -3,6 +3,7 @@
 import type { GradeDistributionSegment } from "@/components/charts";
 import { GradeDistributionDonut } from "@/components/charts";
 import { useSession } from "@/components/provider/SessionProvider";
+import { useDocuments } from "@/components/ui/hooks/use-documents";
 import {
   Badge,
   Button,
@@ -20,6 +21,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/shadcn/table";
+import type { CourseDocument } from "@/lib/api/document";
+import { documentApi } from "@/lib/api/document";
 import type { PublicExamSchedule } from "@/lib/api/exam-schedule";
 import { lecturerExamScheduleApi } from "@/lib/api/exam-schedule";
 import {
@@ -27,20 +30,25 @@ import {
   type AssignedCourse,
   type CourseStudent,
 } from "@/lib/api/lecturer";
+import { useCreateDocument, useDeleteDocument } from "@/lib/query/mutations";
 import { GRADE_TYPE_OPTIONS } from "@/lib/utils/grade-labels";
 import {
   ArrowLeft,
   BookOpen,
   Calendar,
   Clock,
+  Download,
   FileQuestion,
+  FileUp,
   GraduationCap,
   MapPin,
+  Trash2,
+  Upload,
   Users,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { use, useEffect, useMemo, useState } from "react";
+import { use, useEffect, useMemo, useRef, useState } from "react";
 
 const DAYS_OF_WEEK = [
   "Sunday",
@@ -217,10 +225,10 @@ export default function LecturerCourseDetailPage({
 
         {/* Stats cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card className="border-border/50">
-            <CardContent className="p-4 flex items-center gap-3">
-              <Users className="h-8 w-8 text-primary" />
-              <div>
+          <Card className="border-border/50 min-h-[88px] flex">
+            <CardContent className="p-4 flex items-center gap-3 flex-1">
+              <Users className="h-8 w-8 text-primary shrink-0" />
+              <div className="min-w-0">
                 <p className="text-2xl font-bold">{students.length}</p>
                 <p className="text-xs text-muted-foreground">
                   Enrolled students
@@ -228,10 +236,10 @@ export default function LecturerCourseDetailPage({
               </div>
             </CardContent>
           </Card>
-          <Card className="border-border/50">
-            <CardContent className="p-4 flex items-center gap-3">
-              <GraduationCap className="h-8 w-8 text-primary" />
-              <div>
+          <Card className="border-border/50 min-h-[88px] flex">
+            <CardContent className="p-4 flex items-center gap-3 flex-1">
+              <GraduationCap className="h-8 w-8 text-primary shrink-0" />
+              <div className="min-w-0">
                 <p className="text-2xl font-bold">
                   {course.capacity != null
                     ? `${course.enrolledCount} / ${course.capacity}`
@@ -241,10 +249,10 @@ export default function LecturerCourseDetailPage({
               </div>
             </CardContent>
           </Card>
-          <Card className="border-border/50">
-            <CardContent className="p-4 flex items-center gap-3">
-              <Clock className="h-8 w-8 text-primary" />
-              <div>
+          <Card className="border-border/50 min-h-[88px] flex">
+            <CardContent className="p-4 flex items-center gap-3 flex-1">
+              <Clock className="h-8 w-8 text-primary shrink-0" />
+              <div className="min-w-0">
                 <p className="text-sm font-bold">
                   {course.schedule.dayOfWeek != null
                     ? DAYS_OF_WEEK[course.schedule.dayOfWeek]
@@ -258,10 +266,10 @@ export default function LecturerCourseDetailPage({
               </div>
             </CardContent>
           </Card>
-          <Card className="border-border/50">
-            <CardContent className="p-4 flex items-center gap-3">
-              <MapPin className="h-8 w-8 text-primary" />
-              <div>
+          <Card className="border-border/50 min-h-[88px] flex">
+            <CardContent className="p-4 flex items-center gap-3 flex-1">
+              <MapPin className="h-8 w-8 text-primary shrink-0" />
+              <div className="min-w-0">
                 <p className="text-sm font-bold line-clamp-1">
                   {course.schedule.location || "TBA"}
                 </p>
@@ -410,7 +418,163 @@ export default function LecturerCourseDetailPage({
             )}
           </CardContent>
         </Card>
+
+        {/* Documents */}
+        <LecturerCourseDocuments courseOnSemesterId={courseOnSemesterId} />
       </div>
     </div>
+  );
+}
+
+function LecturerCourseDocuments({
+  courseOnSemesterId,
+}: {
+  courseOnSemesterId: string;
+}) {
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
+
+  const { documents, loading } = useDocuments();
+  const createDoc = useCreateDocument();
+  const deleteDoc = useDeleteDocument();
+
+  const courseDocuments = useMemo(
+    () =>
+      (documents ?? []).filter(
+        (d) => d.courseOnSemesterId === courseOnSemesterId,
+      ),
+    [documents, courseOnSemesterId],
+  );
+
+  const handleFileSelect = (file: File | null) => {
+    if (!file) return;
+    createDoc.mutate(
+      {
+        data: {
+          title: file.name.replace(/\.[^/.]+$/, "") || file.name,
+          courseOnSemesterId,
+        },
+        file,
+      },
+      {
+        onSettled: () => {
+          if (fileInputRef.current) fileInputRef.current.value = "";
+        },
+      },
+    );
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files[0];
+    if (file) handleFileSelect(file);
+  };
+
+  const handleDownload = async (doc: CourseDocument) => {
+    setDownloadingId(doc.id);
+    try {
+      await documentApi.download(doc.id, doc.title);
+    } finally {
+      setDownloadingId(null);
+    }
+  };
+
+  return (
+    <Card className="border-border/50">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <FileUp className="h-5 w-5" />
+          Documents
+        </CardTitle>
+        <CardDescription>
+          Upload and manage course materials for students
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {/* Upload zone: browse + drag-drop */}
+        <section
+          aria-label="File upload drop zone"
+          className={`relative rounded-lg border-2 border-dashed p-8 text-center transition-colors ${
+            isDragging
+              ? "border-primary bg-primary/5"
+              : "border-muted-foreground/25 hover:border-muted-foreground/50"
+          }`}
+          onDragOver={(e) => {
+            e.preventDefault();
+            setIsDragging(true);
+          }}
+          onDragLeave={() => setIsDragging(false)}
+          onDrop={handleDrop}
+        >
+          <input
+            ref={fileInputRef}
+            type="file"
+            className="hidden"
+            accept=".pdf,.doc,.docx,.txt,.xls,.xlsx,.ppt,.pptx"
+            onChange={(e) => handleFileSelect(e.target.files?.[0] ?? null)}
+          />
+          <FileUp className="mx-auto h-12 w-12 text-muted-foreground" />
+          <p className="mt-2 text-sm text-muted-foreground">
+            Drag and drop a file here, or
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="mt-2"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={createDoc.isPending}
+          >
+            <Upload className="mr-2 h-4 w-4" />
+            Browse file
+          </Button>
+        </section>
+
+        {/* Document list */}
+        {loading ? (
+          <p className="text-sm text-muted-foreground text-center py-4">
+            Loading documents…
+          </p>
+        ) : courseDocuments.length === 0 ? (
+          <p className="text-sm text-muted-foreground text-center py-4">
+            No documents uploaded yet.
+          </p>
+        ) : (
+          <ul className="space-y-2">
+            {courseDocuments.map((doc) => (
+              <li
+                key={doc.id}
+                className="flex items-center justify-between gap-4 rounded-lg border p-3"
+              >
+                <span className="truncate text-sm font-medium">
+                  {doc.title}
+                </span>
+                <div className="flex shrink-0 items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => handleDownload(doc)}
+                    disabled={downloadingId === doc.id}
+                  >
+                    <Download className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-destructive hover:text-destructive"
+                    onClick={() => deleteDoc.mutate(doc.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </CardContent>
+    </Card>
   );
 }

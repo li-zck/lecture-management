@@ -3,6 +3,8 @@
 import { useManagementTab } from "@/app/[lang]/admin/management/_hooks/use-management-tab";
 import { useStudents } from "@/components/ui/hooks/use-students";
 import { PageHeader } from "@/components/ui/page-header";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale, useLocalePath } from "@/lib/i18n/use-locale";
 import { Button } from "@/components/ui/shadcn/button";
 import { DataTable } from "@/components/ui/table/DataTable";
 import { adminStudentApi, type StudentAdmin } from "@/lib/api/admin-student";
@@ -19,6 +21,9 @@ import { columns } from "./columns";
 type TabId = "chart" | "table";
 
 export default function StudentManagementPage() {
+  const locale = useLocale();
+  const localePath = useLocalePath();
+  const dict = getClientDictionary(locale);
   const [activeTab, setActiveTab] = useManagementTab("edit-student");
   const { students, loading, refetch } = useStudents();
   const router = useRouter();
@@ -45,34 +50,34 @@ export default function StudentManagementPage() {
   };
 
   const tabs: { id: TabId; label: string; icon: typeof BarChart3 }[] = [
-    { id: "chart", label: "Overview", icon: BarChart3 },
-    { id: "table", label: "Edit students", icon: GraduationCap },
+    { id: "chart", label: dict.admin.management.overview, icon: BarChart3 },
+    { id: "table", label: dict.admin.management.editStudents, icon: GraduationCap },
   ];
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Students"
+        title={dict.admin.sidebar.students}
         description="Manage student accounts, view details, and enrollments."
         action={
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button variant="outline" asChild>
-              <Link href="/admin/management/student/bulk-create">
+              <Link href={localePath("admin/management/student/bulk-create")}>
                 <Upload className="mr-2 h-4 w-4" />
-                Bulk Create
+                {dict.admin.management.bulkCreate}
               </Link>
             </Button>
             <Button asChild>
-              <Link href="/admin/management/student/create">
+              <Link href={localePath("admin/management/student/create")}>
                 <Plus className="mr-2 h-4 w-4" />
-                Create New Student
+                {dict.admin.management.createNew}
               </Link>
             </Button>
           </div>
         }
       />
 
-      <div className="flex gap-1 rounded-lg border bg-muted/30 p-1 w-fit">
+      <div className="flex flex-wrap gap-1 rounded-lg border bg-muted/30 p-1">
         {tabs.map((tab) => (
           <Button
             key={tab.id}

@@ -2,6 +2,8 @@
   "nav": {
     "home": "Trang chủ",
     "about": "Giới thiệu",
+    "sitePolicy": "Chính sách trang",
+    "support": "Hỗ trợ",
     "courses": "Khóa học",
     "signIn": "Đăng nhập",
     "signOut": "Đăng xuất",
@@ -196,5 +198,535 @@
     ],
     "ctaTitle": "Sẵn sàng bắt đầu?",
     "ctaSubtitle": "Tham gia cùng các cơ sở giáo dục đang dùng nền tảng của chúng tôi để chuyển đổi quản lý học thuật."
+  },
+  "sitePolicy": {
+    "title": "Chính sách trang",
+    "subtitle": "Điều khoản sử dụng, quyền riêng tư và chính sách cho nền tảng Hệ thống quản lý giảng dạy (LMS).",
+    "lastUpdated": "Cập nhật lần cuối: Tháng 2 năm 2026",
+    "termsOfUse": {
+      "title": "Điều khoản sử dụng",
+      "paragraphs": [
+        "Khi truy cập và sử dụng Hệ thống quản lý học tập (LMS) này, bạn đồng ý tuân thủ các Điều khoản sử dụng. Nền tảng này dành cho mục đích giáo dục và được cung cấp cho sinh viên, giảng viên và quản trị viên của các cơ sở tham gia.",
+        "Bạn phải sử dụng thông tin đăng nhập được cấp để truy cập hệ thống. Không chia sẻ thông tin đăng nhập với người khác. Bạn chịu trách nhiệm về mọi hoạt động diễn ra dưới tài khoản của bạn. Truy cập trái phép, sử dụng sai mục đích hoặc phân phối tài liệu môn học bên ngoài nền tảng có thể dẫn đến hành động kỷ luật từ cơ sở của bạn.",
+        "Nội dung môn học, bao gồm bài giảng, bài tập và tài liệu, là tài sản của cơ sở và/hoặc giảng viên tương ứng. Bạn không được sao chép, phân phối hoặc thương mại hóa nội dung này mà không có sự cho phép rõ ràng."
+      ]
+    },
+    "privacy": {
+      "title": "Chính sách bảo mật",
+      "paragraphs": [
+        "Chúng tôi cam kết bảo vệ quyền riêng tư của bạn. LMS này thu thập và xử lý dữ liệu cá nhân cần thiết cho quản trị học thuật, bao gồm tên, mã sinh viên hoặc giảng viên, email, hồ sơ đăng ký, điểm số và nhật ký sử dụng.",
+        "Dữ liệu của bạn được sử dụng để: quản lý đăng ký môn học, ghi nhận điểm và điểm danh, gửi thông báo, tạo báo cáo học thuật và cải thiện chức năng nền tảng. Dữ liệu được lưu trữ an toàn và giữ theo yêu cầu của cơ sở và quy định.",
+        "Chúng tôi không bán hoặc chia sẻ thông tin cá nhân của bạn với bên thứ ba cho mục đích tiếp thị. Dữ liệu có thể được chia sẻ với nhân viên cơ sở được ủy quyền, kiểm toán viên hoặc theo yêu cầu pháp luật. Chúng tôi sử dụng mã hóa và kiểm soát truy cập để bảo vệ thông tin của bạn.",
+        "Bạn có thể yêu cầu truy cập hoặc sửa đổi dữ liệu cá nhân của mình thông qua nhân viên bảo vệ dữ liệu hoặc văn phòng hành chính của cơ sở."
+      ]
+    },
+    "acceptableUse": {
+      "title": "Chính sách sử dụng chấp nhận được",
+      "intro": "Người dùng phải sử dụng LMS phù hợp với tính trung thực học thuật và chính sách của cơ sở. Các hoạt động bị cấm bao gồm:",
+      "items": [
+        "Chia sẻ thông tin đăng nhập hoặc mạo danh người khác",
+        "Cố gắng truy cập dữ liệu hoặc hệ thống mà không được ủy quyền",
+        "Nộp bài đạo văn hoặc tham gia vào hành vi gian lận học thuật",
+        "Tải lên phần mềm độc hại hoặc nội dung có hại",
+        "Quấy rối, bắt nạt hoặc phân biệt đối xử với người dùng khác",
+        "Sử dụng nền tảng cho mục đích thương mại phi học thuật"
+      ],
+      "outro": "Vi phạm có thể dẫn đến đình chỉ tài khoản, hình phạt điểm số hoặc thủ tục kỷ luật của cơ sở."
+    },
+    "lmsSpecific": {
+      "title": "Chính sách riêng của LMS",
+      "sections": [
+        {
+          "title": "Tính trung thực học thuật",
+          "body": "Mọi bài làm nộp qua nền tảng này phải là của bạn. Bắt buộc trích dẫn và ghi chú nguồn khi tham chiếu tài liệu bên ngoài. Đạo văn, gian lận và thông đồng bị nghiêm cấm và sẽ được báo cáo cho cơ sở của bạn."
+        },
+        {
+          "title": "Đăng ký & Rút môn",
+          "body": "Đăng ký môn học phụ thuộc vào tính sẵn có, điều kiện tiên quyết và thời gian đăng ký của cơ sở. Sinh viên phải tuân thủ các hạn chót thêm/bỏ môn. Rút môn muộn cần sự chấp thuận từ khoa hoặc cố vấn học thuật của bạn."
+        },
+        {
+          "title": "Khiếu nại điểm",
+          "body": "Nếu bạn tin rằng điểm đã được ghi nhận không chính xác, hãy liên hệ giảng viên môn học trước. Các tranh chấp chưa giải quyết có thể được chuyển lên trưởng khoa hoặc văn phòng học vụ của cơ sở theo chính sách của cơ sở."
+        },
+        {
+          "title": "Tính sẵn sàng của hệ thống",
+          "body": "Chúng tôi cố gắng đảm bảo tính sẵn sàng cao nhưng không thể đảm bảo truy cập không gián đoạn. Bảo trì theo lịch sẽ được thông báo trước khi có thể. Hãy lên kế hoạch cho các hạn chót trong thời gian cao điểm."
+        }
+      ]
+    },
+    "faq": {
+      "title": "Câu hỏi thường gặp",
+      "items": [
+        {
+          "question": "Làm thế nào để đăng ký môn học?",
+          "answer": "Điều hướng đến trang Khóa học, duyệt các môn học có sẵn cho học kỳ hiện tại và nhấp 'Đăng ký' vào môn bạn muốn học. Đăng ký phụ thuộc vào tính sẵn có và điều kiện tiên quyết do khoa của bạn đặt ra."
+        },
+        {
+          "question": "Làm thế nào để xem điểm của tôi?",
+          "answer": "Đăng nhập vào bảng điều khiển và vào Khóa học của tôi. Chọn một môn để xem điểm cho bài tập, bài kiểm tra và đánh giá cuối kỳ. Điểm thường được giảng viên cập nhật trong vòng hai tuần sau khi nộp."
+        },
+        {
+          "question": "Tôi nên làm gì nếu quên mật khẩu?",
+          "answer": "Liên hệ bộ phận hỗ trợ CNTT hoặc quản trị viên của cơ sở. Thông tin đăng nhập được quản lý bởi cơ sở của bạn, và việc đặt lại mật khẩu phải được xử lý qua cổng quản trị."
+        },
+        {
+          "question": "Tôi có thể rút môn sau khi đăng ký không?",
+          "answer": "Có, trong thời gian đăng ký bạn có thể rút môn từ trang Khóa học của tôi. Sau khi cửa sổ đăng ký đóng, bạn phải liên hệ khoa hoặc cố vấn học thuật để yêu cầu rút môn."
+        },
+        {
+          "question": "Giảng viên tải tài liệu môn học như thế nào?",
+          "answer": "Giảng viên có thể tải lên tài liệu, slide và tài nguyên qua giao diện quản lý môn học. Tài liệu sau đó hiển thị cho sinh viên đã đăng ký trong chế độ xem môn học."
+        },
+        {
+          "question": "Dữ liệu học thuật của tôi có an toàn không?",
+          "answer": "Có. Chúng tôi sử dụng mã hóa chuẩn công nghiệp cho dữ liệu khi truyền và khi lưu trữ. Truy cập dựa trên vai trò và mọi hành động đều được ghi nhật ký để kiểm toán. Xem phần Quyền riêng tư để biết chi tiết đầy đủ."
+        }
+      ]
+    },
+    "cta": {
+      "text": "Có câu hỏi về các chính sách này? Liên hệ đội hỗ trợ của cơ sở hoặc truy cập trang",
+      "supportLink": "Hỗ trợ"
+    }
+  },
+  "common": {
+    "cancel": "Hủy",
+    "save": "Lưu",
+    "error": "Lỗi",
+    "submit": "Gửi",
+    "back": "Quay lại",
+    "refresh": "Làm mới",
+    "other": "Khác",
+    "tba": "Chưa xác định",
+    "students": "sinh viên",
+    "credits": "Tín chỉ",
+    "location": "Địa điểm",
+    "schedule": "Lịch học",
+    "lecturer": "Giảng viên",
+    "enrollment": "Đăng ký",
+    "recommendedFor": "Khuyến nghị cho",
+    "unknownCourse": "Môn học không xác định"
+  },
+  "footer": {
+    "copyright": "© 2026 Hệ thống quản lý giảng dạy"
+  },
+  "dashboard": {
+    "unauthorized": "Không được phép",
+    "signInToView": "Vui lòng đăng nhập để xem trang này.",
+    "unknownRole": "Vai trò không xác định",
+    "roleNoDashboard": "Vai trò của bạn ({role}) không có bảng điều khiển."
+  },
+  "courses": {
+    "title": "Danh mục khóa học",
+    "subtitle": "Duyệt các môn học có sẵn và đăng ký",
+    "signInRequired": "Yêu cầu đăng nhập",
+    "signInToBrowse": "Vui lòng đăng nhập để duyệt khóa học.",
+    "searchPlaceholder": "Tìm kiếm khóa học...",
+    "allSemesters": "Tất cả học kỳ",
+    "offerings": "Môn học",
+    "departments": "Khoa",
+    "refreshTitle": "Làm mới danh sách khóa học",
+    "hintStudent": "Nhấp vào môn học để xem chi tiết và đăng ký",
+    "hintLecturer": "Nhấp vào môn học để xem chi tiết và yêu cầu giảng dạy",
+    "hintOther": "Đang tìm môn đã đăng ký/được phân công?",
+    "noCoursesFound": "Không tìm thấy khóa học",
+    "noMatchCriteria": "Không có khóa học phù hợp với tiêu chí tìm kiếm. Thử điều chỉnh tìm kiếm hoặc bộ lọc.",
+    "noOfferingsAvailable": "Hiện không có môn học nào.",
+    "enrolled": "Đã đăng ký",
+    "teaching": "Đang dạy",
+    "full": "Đã đủ",
+    "enrollInCourse": "Đăng ký môn học",
+    "enrolling": "Đang đăng ký...",
+    "requestToTeach": "Yêu cầu giảng dạy",
+    "submitting": "Đang gửi...",
+    "requestSent": "Đã gửi yêu cầu. Quản trị viên sẽ xem xét.",
+    "enrollSuccess": "Đăng ký môn học thành công!",
+    "enrollFailed": "Đăng ký môn học thất bại",
+    "requestFailed": "Gửi yêu cầu thất bại",
+    "capacityFullWarning": "Môn học này đã đủ. Bạn vẫn có thể thử đăng ký và được đưa vào danh sách chờ.",
+    "tableCourse": "Môn học",
+    "tableSemester": "Học kỳ",
+    "tableDepartment": "Khoa",
+    "viewCards": "Thẻ",
+    "viewTable": "Bảng",
+    "filterMyCoursesOnly": "Chỉ môn của tôi"
+  },
+  "signIn": {
+    "welcomeTitle": "Chào mừng đến Cổng học thuật",
+    "welcomeSubtitle": "Truy cập khóa học, theo dõi tiến độ và kết nối với cộng đồng học thuật.",
+    "courseManagement": "Quản lý môn học",
+    "courseManagementDesc": "Đăng ký, theo dõi và quản lý tất cả môn học tại một nơi",
+    "collaboration": "Hợp tác",
+    "collaborationDesc": "Kết nối với giảng viên và sinh viên",
+    "welcomeBack": "Chào mừng trở lại",
+    "signInStudent": "Đăng nhập để truy cập bảng điều khiển sinh viên",
+    "signInLecturer": "Đăng nhập để truy cập bảng điều khiển giảng viên",
+    "studentId": "Mã sinh viên",
+    "lecturerId": "Mã giảng viên",
+    "username": "Tên đăng nhập",
+    "password": "Mật khẩu",
+    "enterStudentId": "Nhập mã sinh viên",
+    "enterLecturerId": "Nhập mã giảng viên",
+    "enterUsername": "Nhập tên đăng nhập",
+    "signInWithUsername": "Đăng nhập bằng tên đăng nhập",
+    "signInWithStudentId": "Đăng nhập bằng mã sinh viên",
+    "signInWithLecturerId": "Đăng nhập bằng mã giảng viên",
+    "needHelp": "Cần trợ giúp?",
+    "contactSupport": "Liên hệ hỗ trợ"
+  },
+  "roleSelector": {
+    "selectRole": "Chọn vai trò của bạn",
+    "student": "Sinh viên",
+    "lecturer": "Giảng viên"
+  },
+  "support": {
+    "title": "Chúng tôi có thể giúp gì cho bạn?",
+    "subtitle": "Điền vào biểu mẫu bên dưới và đội hỗ trợ sẽ phản hồi sớm nhất có thể.",
+    "formTitle": "Yêu cầu hỗ trợ",
+    "formDescription": "Vui lòng cung cấp càng nhiều chi tiết càng tốt để chúng tôi hỗ trợ bạn tốt hơn.",
+    "fullName": "Họ và tên",
+    "email": "Địa chỉ email",
+    "yourRole": "Vai trò của bạn",
+    "selectRole": "Chọn vai trò",
+    "issueCategory": "Loại vấn đề",
+    "selectCategory": "Chọn loại",
+    "subject": "Tiêu đề",
+    "subjectPlaceholder": "Mô tả ngắn gọn vấn đề của bạn",
+    "message": "Nội dung",
+    "messagePlaceholder": "Vui lòng cung cấp thông tin chi tiết về vấn đề của bạn...",
+    "messageHint": "Bao gồm thông báo lỗi, ảnh chụp màn hình hoặc chi tiết liên quan.",
+    "submitRequest": "Gửi yêu cầu",
+    "submitting": "Đang gửi...",
+    "successTitle": "Đã gửi yêu cầu hỗ trợ!",
+    "successDescription": "Chúng tôi sẽ phản hồi trong vòng 24 giờ.",
+    "needImmediate": "Cần hỗ trợ ngay?",
+    "roles": {
+      "student": "Sinh viên",
+      "lecturer": "Giảng viên",
+      "admin": "Quản trị viên",
+      "other": "Khác"
+    },
+    "categories": {
+      "login": "Vấn đề đăng nhập",
+      "enrollment": "Đăng ký môn học",
+      "grades": "Điểm & Đánh giá",
+      "schedule": "Lịch & Thời khóa biểu",
+      "technical": "Vấn đề kỹ thuật",
+      "account": "Quản lý tài khoản",
+      "other": "Khác"
+    }
+  },
+  "settings": {
+    "title": "Cài đặt tài khoản",
+    "subtitle": "Quản lý tài khoản của bạn. Một số thay đổi áp dụng ngay; các thay đổi khác cần phê duyệt.",
+    "warning": "Quan trọng: Thông tin sinh viên và giảng viên (họ tên, giới tính, địa chỉ, CMND/CCCD, v.v.) ảnh hưởng đến hồ sơ chính thức và không thể thay đổi tùy ý. Chỉ tên đăng nhập và mật khẩu được cập nhật ngay. Thay đổi các thông tin khác cần phê duyệt của quản trị viên.",
+    "unauthorized": "Không được phép",
+    "signInRequired": "Vui lòng đăng nhập để truy cập cài đặt.",
+    "currentInfo": "Thông tin hiện tại",
+    "currentInfoDesc": "Chi tiết tài khoản hiện tại trong hệ thống",
+    "updateImmediate": "Tên đăng nhập & Mật khẩu",
+    "updateImmediateDesc": "Các mục này cập nhật ngay. Để trống mật khẩu nếu không muốn đổi.",
+    "requestUpdate": "Yêu cầu thay đổi hồ sơ",
+    "requestUpdateDesc": "Thay đổi họ tên, giới tính, địa chỉ, CMND/CCCD, v.v. cần phê duyệt của quản trị viên. Yêu cầu của bạn sẽ được xem xét.",
+    "updateProfile": "Cập nhật hồ sơ",
+    "updateProfileDesc": "Chỉnh sửa thông tin hồ sơ bên dưới. Thay đổi được áp dụng ngay lập tức.",
+    "fullName": "Họ và tên",
+    "username": "Tên đăng nhập",
+    "email": "Email",
+    "emailReadOnly": "Email (liên hệ hỗ trợ để thay đổi)",
+    "phone": "Số điện thoại",
+    "address": "Địa chỉ",
+    "department": "Khoa",
+    "headOfDepartment": "Trưởng khoa",
+    "gender": "Giới tính",
+    "genderMale": "Nam",
+    "genderFemale": "Nữ",
+    "birthDate": "Ngày sinh",
+    "citizenId": "Số CMND/CCCD",
+    "passwordChange": "Đổi mật khẩu",
+    "passwordChangeDesc": "Để trống nếu không muốn thay đổi mật khẩu.",
+    "oldPassword": "Mật khẩu hiện tại",
+    "newPassword": "Mật khẩu mới",
+    "confirmPassword": "Xác nhận mật khẩu mới",
+    "saveChanges": "Lưu thay đổi",
+    "saving": "Đang lưu...",
+    "successTitle": "Đã cập nhật hồ sơ!",
+    "successDescription": "Thay đổi của bạn đã được lưu thành công.",
+    "requestUpdateTitle": "Yêu cầu cập nhật hồ sơ",
+    "requestUpdateConfirm": "Bạn đang yêu cầu thay đổi thông tin quan trọng (họ tên, giới tính, địa chỉ, CMND/CCCD, v.v.). Quản trị viên sẽ xem xét yêu cầu của bạn. Gửi?",
+    "submitRequest": "Gửi yêu cầu",
+    "requestSuccessTitle": "Đã gửi yêu cầu!",
+    "requestSuccessDescription": "Yêu cầu cập nhật hồ sơ của bạn đã được gửi. Quản trị viên sẽ xem xét.",
+    "notSet": "Chưa xác định",
+    "notAssigned": "Chưa phân công",
+    "needHelpElse": "Cần trợ giúp về vấn đề khác?",
+    "contactSupport": "Liên hệ hỗ trợ",
+    "webhooks": "Webhooks",
+    "webhooksDesc": "Quản lý webhooks để nhận thông báo sự kiện.",
+    "webhookUrl": "URL Webhook",
+    "addWebhook": "Thêm Webhook",
+    "active": "Hoạt động",
+    "inactive": "Tắt",
+    "noWebhooks": "Chưa có webhook. Thêm một cái để bắt đầu."
+  },
+  "daysOfWeek": [
+    "Chủ nhật",
+    "Thứ hai",
+    "Thứ ba",
+    "Thứ tư",
+    "Thứ năm",
+    "Thứ sáu",
+    "Thứ bảy"
+  ],
+  "admin": {
+    "dashboard": {
+      "title": "Bảng điều khiển",
+      "subtitle": "Tổng quan Hệ thống quản lý giảng dạy",
+      "viewAllManagement": "Xem tất cả quản lý",
+      "totalStudents": "Tổng sinh viên",
+      "totalLecturers": "Tổng giảng viên",
+      "departments": "Khoa/Bộ môn",
+      "activeStudentsEnrolled": "Sinh viên đang theo học",
+      "facultyMembers": "Thành viên giảng viên",
+      "academicDepartments": "Khoa/Bộ môn học thuật",
+      "availableCourses": "Các khóa học có sẵn",
+      "academicTerms": "Các học kỳ học thuật",
+      "quickActions": "Thao tác nhanh",
+      "quickActionsDesc": "Các tác vụ quản lý thường dùng",
+      "addStudent": "Thêm sinh viên",
+      "addLecturer": "Thêm giảng viên",
+      "addDepartment": "Thêm khoa",
+      "manageCourses": "Quản lý môn học",
+      "manageSemesters": "Quản lý học kỳ",
+      "manageSchedule": "Quản lý lịch",
+      "go": "Đi",
+      "welcomeTitle": "Chào mừng đến Bảng quản trị",
+      "welcomeDesc": "Bạn có quyền truy cập đầy đủ để quản lý hệ thống.",
+      "sidebarHint": "Sử dụng thanh bên để điều hướng đến các mục quản lý. Tại đây bạn có thể:",
+      "manageStudents": "Quản lý tài khoản sinh viên và đăng ký",
+      "manageLecturers": "Quản lý hồ sơ giảng viên và phân công",
+      "configureDepartments": "Cấu hình Khoa và cơ cấu",
+      "organizeCourses": "Tổ chức Môn học và chương trình",
+      "scheduleSemesters": "Lên lịch Học kỳ và lớp học"
+    },
+    "signIn": {
+      "title": "Truy cập quản trị",
+      "subtitle": "Đăng nhập để quản lý hệ thống",
+      "username": "Tên đăng nhập",
+      "password": "Mật khẩu",
+      "signIn": "Đăng nhập quản trị",
+      "signUp": "Đăng ký",
+      "noAccount": "Chưa có tài khoản?",
+      "success": "Đăng nhập quản trị thành công",
+      "invalidCredentials": "Tên đăng nhập hoặc mật khẩu không đúng.",
+      "accountDisabled": "Tài khoản của bạn đã bị vô hiệu hóa. Liên hệ hỗ trợ.",
+      "tooManyAttempts": "Quá nhiều lần đăng nhập. Vui lòng đợi và thử lại.",
+      "checkCredentials": "Vui lòng kiểm tra thông tin đăng nhập và thử lại.",
+      "failed": "Đăng nhập thất bại."
+    },
+    "signUp": {
+      "title": "Tạo tài khoản quản trị",
+      "subtitle": "Đăng ký với tư cách quản trị viên",
+      "createAccount": "Tạo tài khoản",
+      "alreadyHave": "Đã có tài khoản?",
+      "signIn": "Đăng nhập",
+      "confirmPassword": "Xác nhận mật khẩu",
+      "usernameMin": "Tên đăng nhập phải có ít nhất 3 ký tự",
+      "passwordMin": "Mật khẩu phải có ít nhất 6 ký tự",
+      "confirmRequired": "Vui lòng xác nhận mật khẩu",
+      "passwordsDontMatch": "Mật khẩu không khớp",
+      "success": "Đã tạo tài khoản quản trị thành công!",
+      "checkInfo": "Vui lòng kiểm tra thông tin và thử lại.",
+      "usernameExists": "Đã có quản trị viên với tên đăng nhập này.",
+      "invalidRegistration": "Thông tin đăng ký không hợp lệ. Vui lòng kiểm tra biểu mẫu.",
+      "failed": "Không thể tạo tài khoản quản trị."
+    },
+    "sidebar": {
+      "adminPanel": "Bảng quản trị",
+      "managementSystem": "Hệ thống quản lý",
+      "navigation": "Điều hướng",
+      "dashboard": "Bảng điều khiển",
+      "management": "Quản lý",
+      "allEntities": "Tất cả thực thể",
+      "quickAccess": "Truy cập nhanh",
+      "students": "Sinh viên",
+      "lecturers": "Giảng viên",
+      "departments": "Khoa",
+      "courses": "Môn học",
+      "semesters": "Học kỳ",
+      "courseSemesters": "Môn học-Học kỳ",
+      "enrollmentSessions": "Phiên đăng ký",
+      "enrollments": "Đăng ký",
+      "requests": "Yêu cầu"
+    },
+    "management": {
+      "overview": "Tổng quan",
+      "editStudents": "Chỉnh sửa sinh viên",
+      "editLecturers": "Chỉnh sửa giảng viên",
+      "editDepartments": "Chỉnh sửa khoa",
+      "editCourses": "Chỉnh sửa môn học",
+      "editSemesters": "Chỉnh sửa học kỳ",
+      "editSchedules": "Chỉnh sửa lịch",
+      "editSessions": "Chỉnh sửa phiên",
+      "allEnrollments": "Tất cả đăng ký",
+      "bulkCreate": "Tạo hàng loạt",
+      "createNew": "Tạo sinh viên mới"
+    }
+  },
+  "myCourses": {
+    "unauthorized": "Không được phép",
+    "signInToView": "Vui lòng đăng nhập để xem khóa học của bạn.",
+    "signIn": "Đăng nhập",
+    "adminAccess": "Truy cập quản trị",
+    "useAdminDashboard": "Vui lòng sử dụng bảng quản trị để quản lý môn học.",
+    "goToAdmin": "Đi đến Bảng quản trị",
+    "unknownRole": "Vai trò không xác định",
+    "roleNoView": "Vai trò của bạn ({role}) không có chế độ xem khóa học."
+  },
+  "studentDashboard": {
+    "title": "Bảng điều khiển sinh viên",
+    "welcomeBack": "Chào mừng trở lại, {name}",
+    "profileInfo": "Thông tin hồ sơ",
+    "studentId": "Mã sinh viên",
+    "fullName": "Họ và tên",
+    "email": "Email",
+    "department": "Khoa",
+    "phone": "Số điện thoại",
+    "address": "Địa chỉ",
+    "myCourses": "Môn học của tôi",
+    "enrollment": "Đăng ký",
+    "grades": "Điểm",
+    "schedule": "Lịch học",
+    "noEnrolledCourses": "Chưa có môn học nào.",
+    "lecturer": "Giảng viên",
+    "notAssigned": "Chưa phân công",
+    "location": "Địa điểm",
+    "grade": "Điểm",
+    "notGraded": "Chưa chấm điểm",
+    "viewDocuments": "Xem tài liệu",
+    "withdraw": "Rút môn",
+    "documents": "Tài liệu",
+    "noDocuments": "Chưa có tài liệu.",
+    "noGrades": "Chưa có điểm.",
+    "generateAI": "Tạo gợi ý AI",
+    "exportTimetable": "Xuất thời khóa biểu"
+  },
+  "lecturerDashboard": {
+    "title": "Bảng điều khiển giảng viên",
+    "welcomeBack": "Chào mừng trở lại, {name}",
+    "profileInfo": "Thông tin hồ sơ",
+    "lecturerId": "Mã giảng viên",
+    "departmentHead": "Trưởng khoa",
+    "notDeptHead": "Không phải trưởng khoa",
+    "myCourses": "Môn học của tôi",
+    "schedule": "Lịch học",
+    "noAssignedCourses": "Chưa có môn học được phân công.",
+    "enrolled": "Đã đăng ký",
+    "students": "Sinh viên",
+    "inputGrades": "Nhập điểm",
+    "saveGrades": "Lưu điểm",
+    "gradesSaved": "Đã lưu điểm thành công",
+    "generateAI": "Tạo gợi ý AI",
+    "exportTimetable": "Xuất thời khóa biểu"
+  },
+  "myCoursesList": {
+    "title": "Môn học của tôi",
+    "subtitle": "Các môn bạn đang giảng dạy",
+    "totalCourses": "Tổng môn học",
+    "totalStudents": "Tổng sinh viên",
+    "semesters": "Học kỳ",
+    "totalCredits": "Tổng tín chỉ",
+    "noAssignedCourses": "Chưa có môn được phân công",
+    "noAssignedDesc": "Bạn hiện chưa được phân công giảng dạy môn nào. Liên hệ hành chính nếu bạn cho rằng đây là sai sót.",
+    "viewDetails": "Xem chi tiết",
+    "students": "sinh viên",
+    "credits": "tín chỉ",
+    "schedule": "Lịch học",
+    "status": "Trạng thái",
+    "active": "Đang diễn ra",
+    "upcoming": "Sắp tới",
+    "completed": "Hoàn thành"
+  },
+  "notifications": {
+    "title": "Thông báo",
+    "subtitle": "Thông báo gần đây của bạn",
+    "subtitleUnread": "Bạn có {count} thông báo chưa đọc",
+    "subtitleUnreadPlural": "Bạn có {count} thông báo chưa đọc",
+    "allCaughtUp": "Đã cập nhật hết!",
+    "noNotifications": "Không có thông báo",
+    "noNotificationsDesc": "Bạn đã cập nhật hết! Quay lại sau để xem thêm.",
+    "markAllRead": "Đánh dấu tất cả đã đọc",
+    "deleteAll": "Xóa tất cả",
+    "delete": "Xóa",
+    "deleted": "Đã xóa thông báo",
+    "deletedAll": "Đã xóa tất cả thông báo",
+    "failedDelete": "Không thể xóa thông báo",
+    "failedDeleteAll": "Không thể xóa thông báo",
+    "signInRequired": "Vui lòng đăng nhập với tư cách sinh viên hoặc giảng viên để xem thông báo.",
+    "deleteSrOnly": "Xóa thông báo"
+  },
+  "privacy": {
+    "title": "Chính sách bảo mật",
+    "subtitle": "Quyền riêng tư của bạn quan trọng với chúng tôi. Chính sách này giải thích cách chúng tôi thu thập, sử dụng và bảo vệ thông tin cá nhân của bạn trong Hệ thống quản lý giảng dạy.",
+    "lastUpdated": "Cập nhật lần cuối: Tháng 1 năm 2025",
+    "intro": "Hệ thống quản lý giảng dạy (LMS) cam kết bảo vệ quyền riêng tư của sinh viên, giảng viên và quản trị viên. Chính sách bảo mật này mô tả cách chúng tôi thu thập, sử dụng và tiết lộ thông tin qua nền tảng. Bằng việc sử dụng dịch vụ, bạn đồng ý với việc thu thập và sử dụng thông tin theo chính sách này.",
+    "sections": {
+      "collect": "Thông tin chúng tôi thu thập",
+      "use": "Cách chúng tôi sử dụng thông tin",
+      "sharing": "Chia sẻ thông tin",
+      "security": "Bảo mật dữ liệu",
+      "rights": "Quyền và lựa chọn của bạn",
+      "retention": "Lưu trữ dữ liệu"
+    },
+    "collectContent": [
+      "**Thông tin tài khoản**: Khi đăng ký, chúng tôi thu thập tên, email, mã sinh viên/giảng viên và khoa.",
+      "**Dữ liệu học thuật**: Đăng ký môn học, điểm số, điểm danh và lịch học.",
+      "**Dữ liệu sử dụng**: Thời gian đăng nhập, trang đã xem và tính năng đã dùng để cải thiện dịch vụ.",
+      "**Nội dung tải lên**: Tài liệu, tài liệu môn học và ảnh bạn đăng tải."
+    ],
+    "useContent": [
+      "**Dịch vụ học thuật**: Cung cấp đăng ký môn học, theo dõi điểm, lịch học và chức năng giáo dục khác.",
+      "**Giao tiếp**: Gửi thông báo về môn học, điểm, thông báo và cập nhật hệ thống.",
+      "**Cải thiện hệ thống**: Phân tích mẫu sử dụng và cải thiện chức năng nền tảng.",
+      "**Mục đích hành chính**: Quản lý tài khoản, xác minh danh tính và quản lý bảo mật hệ thống."
+    ],
+    "sharingContent": [
+      "**Trong cơ sở**: Thông tin học thuật được chia sẻ với giảng viên, quản trị viên và khoa liên quan.",
+      "**Giảng viên**: Có thể xem tên, mã và kết quả học tập của sinh viên trong môn của họ.",
+      "**Sinh viên**: Không thể truy cập thông tin cá nhân hoặc điểm của sinh viên khác.",
+      "**Bên thứ ba**: Chúng tôi không bán hoặc chia sẻ thông tin cá nhân của bạn với bên ngoài cho mục đích tiếp thị."
+    ],
+    "securityContent": [
+      "**Mã hóa**: Tất cả dữ liệu được mã hóa khi truyền (TLS/SSL) và khi lưu trữ.",
+      "**Kiểm soát truy cập**: Truy cập theo vai trò đảm bảo người dùng chỉ thấy thông tin phù hợp.",
+      "**Xác thực**: Đăng nhập an toàn với mật khẩu băm và quản lý phiên.",
+      "**Kiểm toán định kỳ**: Chúng tôi thực hiện rà soát bảo mật để xác định và khắc phục lỗ hổng."
+    ],
+    "rightsContent": [
+      "**Truy cập**: Bạn có thể xem và tải dữ liệu cá nhân qua cài đặt tài khoản.",
+      "**Sửa đổi**: Yêu cầu sửa thông tin không chính xác bằng cách liên hệ hỗ trợ.",
+      "**Thông báo**: Quản lý tùy chọn thông báo trong cài đặt tài khoản.",
+      "**Xóa tài khoản**: Liên hệ quản trị viên cơ sở để yêu cầu xóa tài khoản (theo chính sách lưu trữ hồ sơ học thuật)."
+    ],
+    "retentionContent": [
+      "**Tài khoản hoạt động**: Dữ liệu của bạn được giữ khi tài khoản còn hoạt động.",
+      "**Hồ sơ học thuật**: Điểm và lịch sử đăng ký có thể được giữ theo chính sách cơ sở và quy định pháp luật.",
+      "**Tài khoản không hoạt động**: Tài khoản không hoạt động lâu có thể bị lưu trữ hoặc xóa theo chính sách cơ sở.",
+      "**Sao lưu**: Sao lưu an toàn được duy trì cho mục đích khôi phục thảm họa."
+    ],
+    "contactTitle": "Có câu hỏi hoặc thắc mắc?",
+    "contactDesc": "Nếu bạn có câu hỏi về Chính sách bảo mật này hoặc cách chúng tôi xử lý dữ liệu, vui lòng liên hệ qua trang hỗ trợ.",
+    "contactSupport": "Liên hệ hỗ trợ",
+    "footerNote": "Chính sách bảo mật có thể thay đổi. Chúng tôi sẽ thông báo cho người dùng về mọi thay đổi quan trọng qua nền tảng."
+  },
+  "success": {
+    "settingsTitle": "Đã cập nhật hồ sơ!",
+    "settingsDesc": "Thay đổi của bạn đã được lưu thành công.",
+    "supportTitle": "Đã gửi yêu cầu hỗ trợ!",
+    "supportDesc": "Chúng tôi sẽ phản hồi trong vòng 24 giờ.",
+    "supportTicketNumber": "Số phiếu hỗ trợ",
+    "saveForRecords": "Vui lòng lưu số này để tham khảo",
+    "whatHappensNext": "Điều gì xảy ra tiếp theo?",
+    "returnHome": "Về trang chủ",
+    "submitAnother": "Gửi yêu cầu khác"
   }
 }

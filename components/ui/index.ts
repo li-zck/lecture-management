@@ -9,6 +9,7 @@ export * from "./Navbar";
 export * from "./RenderEntityDetails";
 export * from "./RoleSelector";
 export * from "./SignOutButton";
+export * from "./SitePolicy";
 export * from "./StudentCourses";
 export * from "./SupportForm";
 export * from "./SupportSuccess";

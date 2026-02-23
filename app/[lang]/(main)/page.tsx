@@ -98,7 +98,7 @@ export default function Homepage() {
       {/* Hero Section */}
       <section className="relative isolate overflow-hidden">
         <div className="absolute inset-0 -z-10">
-          <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-background to-background" />
+          <div className="absolute inset-0 bg-background" />
           <motion.div
             className="absolute top-20 left-10 w-72 h-72 bg-primary/10 rounded-full mix-blend-multiply dark:mix-blend-soft-light filter blur-3xl"
             animate={{
@@ -170,7 +170,7 @@ export default function Homepage() {
               transition={{ duration: 0.5, delay: 0.1 }}
             >
               {h.titleLine1}
-              <span className="block h-16 mt-1 bg-gradient-to-r from-primary via-violet-600 to-emerald-600 bg-clip-text text-transparent">
+              <span className="mt-1 block text-primary">
                 {h.titleLine2}
               </span>
             </motion.h1>
@@ -235,7 +235,7 @@ export default function Homepage() {
               <AnimatedSection key={stat.label} delay={index * 0.1}>
                 <div className="text-center space-y-2">
                   <stat.icon className="h-8 w-8 mx-auto text-primary" />
-                  <div className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-violet-600 bg-clip-text text-transparent">
+                  <div className="text-3xl font-bold text-primary md:text-4xl">
                     {stat.value}
                   </div>
                   <div className="text-sm text-muted-foreground">
@@ -422,7 +422,6 @@ export default function Homepage() {
         <div className="container mx-auto max-w-4xl">
           <AnimatedSection>
             <Card className="relative isolate overflow-hidden border-border/50">
-              <div className="absolute inset-0 -z-10 bg-gradient-to-b from-primary/5 via-background to-background" />
               <CardContent className="p-8 text-center space-y-6">
                 <h2 className="text-3xl sm:text-4xl font-bold">
                   {h.cta.title}
