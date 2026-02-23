@@ -1,0 +1,26 @@
+import AxeBuilder from "@axe-core/playwright";
+import { test as base } from "@playwright/test";
+
+/**
+ * Axe fixture for WCAG 2.1 AA accessibility testing.
+ * Uses tags: wcag2a, wcag2aa, wcag21a, wcag21aa
+ * @see https://playwright.dev/docs/accessibility-testing
+ */
+type AxeFixture = {
+  makeAxeBuilder: () => AxeBuilder;
+};
+
+export const test = base.extend<AxeFixture>({
+  makeAxeBuilder: async ({ page }, use) => {
+    const makeAxeBuilder = () =>
+      new AxeBuilder({ page }).withTags([
+        "wcag2a",
+        "wcag2aa",
+        "wcag21a",
+        "wcag21aa",
+      ]);
+    await use(makeAxeBuilder);
+  },
+});
+
+export { expect } from "@playwright/test";
