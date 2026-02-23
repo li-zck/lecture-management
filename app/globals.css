@@ -114,6 +114,13 @@
   --sidebar-ring: oklch(0.551 0.027 264.364);
 }
 
+/* Links in text blocks: underline + font weight for WCAG 1.4.1 (link-in-text-block) */
+a.link-in-text {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 1px;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -121,6 +128,17 @@
 
   body {
     @apply bg-background text-foreground font-sans;
+  }
+
+  /* WCAG 2.4.7 Focus Visible: Respect reduced motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
 
