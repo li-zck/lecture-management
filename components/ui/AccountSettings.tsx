@@ -235,7 +235,7 @@ export function AccountSettings() {
   const webhooks = isStudent ? studentWebhooks : lecturerWebhooks;
 
   return (
-    <div className="min-h-screen bg-background py-12 px-6">
+    <div className="min-h-screen bg-background px-4 py-8 sm:px-6 sm:py-12">
       <div className="container mx-auto max-w-3xl">
         {/* Header */}
         <div className="text-center mb-8">

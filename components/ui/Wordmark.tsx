@@ -6,7 +6,11 @@ import Link from "next/link";
 
 export function Wordmark({ className }: { className?: string }) {
   return (
-    <Link className={cn("w-fit h-fit", className)} href={ROUTES.mainSite.home}>
+    <Link
+      className={cn("w-fit h-fit", className)}
+      href={ROUTES.mainSite.home}
+      aria-label="Home"
+    >
       <GraduationCap width={30} height={30} suppressHydrationWarning />
     </Link>
   );

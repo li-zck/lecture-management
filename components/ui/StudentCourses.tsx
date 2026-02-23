@@ -188,7 +188,7 @@ export function StudentCourses() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background py-12 px-6">
+      <div className="min-h-screen bg-background px-4 py-8 sm:px-6 sm:py-12">
         <div className="container mx-auto max-w-5xl">
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
@@ -200,7 +200,7 @@ export function StudentCourses() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-background py-12 px-6">
+      <div className="min-h-screen bg-background px-4 py-8 sm:px-6 sm:py-12">
         <div className="container mx-auto max-w-5xl text-center">
           <h1 className="text-2xl font-bold mb-4">Error</h1>
           <p className="text-muted-foreground">{error}</p>
@@ -210,7 +210,7 @@ export function StudentCourses() {
   }
 
   return (
-    <div className="min-h-screen bg-background py-12 px-6">
+    <div className="min-h-screen bg-background px-4 py-8 sm:px-6 sm:py-12">
       <div className="container mx-auto max-w-5xl">
         {/* Header */}
         <div className="text-center mb-8">
