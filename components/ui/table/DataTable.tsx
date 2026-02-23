@@ -46,7 +46,8 @@ type DataTableProps<TData, TValue> = {
     | "semester"
     | "course-semester"
     | "enrollment-session"
-    | "enrollment";
+    | "enrollment"
+    | "post";
   bulkDeleteHandlerAction?: (
     selectedItems: TData[],
     onSuccess?: () => void,
