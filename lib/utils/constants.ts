@@ -2,7 +2,7 @@
  * Get runtime environment variable.
  * On the client, reads from window.__ENV (injected by entrypoint.sh at container start).
  * On the server, reads from process.env.
- * Falls back to build-time NEXT_PUBLIC_* values.
+ * Falls back to build-time 'NEXT_PUBLIC_*' values.
  */
 function getRuntimeEnv(key: string): string | undefined {
   if (typeof window !== "undefined") {
