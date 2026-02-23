@@ -6,7 +6,9 @@ test.describe("Public Pages", () => {
 
     await expect(page).toHaveURL(/\/en\/?$/);
     await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible();
-    await expect(page.getByRole("link", { name: /sign in/i })).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: /sign in/i }).first(),
+    ).toBeVisible();
   });
 
   test("about page loads", async ({ page }) => {
@@ -65,14 +67,14 @@ test.describe("Public Pages", () => {
     await expect(page).toHaveURL(/\/support\/success/);
   });
 
-  test("courses page shows sign-in required when unauthenticated", async ({
+  test("courses page redirects to sign-in when unauthenticated", async ({
     page,
   }) => {
     await page.goto("/en/courses");
 
-    await expect(page).toHaveURL(/\/courses/);
+    await expect(page).toHaveURL(/\/sign-in/);
     await expect(
-      page.getByText(/sign in required|sign in to browse/i).first(),
+      page.getByRole("heading", { name: /welcome back|sign in/i }),
     ).toBeVisible();
   });
 
