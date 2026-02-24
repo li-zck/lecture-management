@@ -68,25 +68,25 @@ export default function SignInPage() {
     password: "",
   } as const;
 
-	const onSubmit = async (values: Record<string, unknown>) => {
-		const { identifier, password } = values as {
-			identifier: string;
-			loginMethod: string;
-			password: string;
-		};
-		// Construct the form data with the correct loginMethod based on current state
-		const formData = {
-			identifier,
-			loginMethod:
-				role === "student"
-					? loginMethod === "id"
-						? ("studentId" as const)
-						: ("username" as const)
-					: loginMethod === "id"
-						? ("lecturerId" as const)
-						: ("username" as const),
-			password,
-		};
+  const onSubmit = async (values: Record<string, unknown>) => {
+    const { identifier, password } = values as {
+      identifier: string;
+      loginMethod: string;
+      password: string;
+    };
+    // Construct the form data with the correct loginMethod based on current state
+    const formData = {
+      identifier,
+      loginMethod:
+        role === "student"
+          ? loginMethod === "id"
+            ? ("studentId" as const)
+            : ("username" as const)
+          : loginMethod === "id"
+            ? ("lecturerId" as const)
+            : ("username" as const),
+      password,
+    };
 
     // The signInStudent/signInLecturer functions handle the transformation
     // from form data (identifier + loginMethod) to API format (studentId/lecturerId/username)
