@@ -1,16 +1,6 @@
 "use client";
 
 import {
-  BookOpen,
-  Building2,
-  Calendar,
-  GraduationCap,
-  Plus,
-  Users,
-} from "lucide-react";
-import Link from "next/link";
-
-import {
   useDepartments,
   useLecturers,
   useStudents,
@@ -25,6 +15,16 @@ import {
 } from "@/components/ui/shadcn/card";
 import { getClientDictionary } from "@/lib/i18n";
 import { useLocale, useLocalePath } from "@/lib/i18n/use-locale";
+import {
+  BookOpen,
+  Building2,
+  Calendar,
+  FileText,
+  GraduationCap,
+  Plus,
+  Users,
+} from "lucide-react";
+import Link from "next/link";
 
 export function AdminDashboard() {
   const locale = useLocale();
@@ -197,6 +197,10 @@ export function AdminDashboard() {
               <li className="flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-red-500" />
                 <span>{dict.admin.dashboard.scheduleSemesters}</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <FileText className="h-4 w-4 text-yellow-500" />
+                <span>{dict.admin.dashboard.managePosts}</span>
               </li>
             </ul>
           </CardContent>
