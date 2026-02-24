@@ -1,65 +1,71 @@
 import {
-	Button,
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
+  Button,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/shadcn";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale } from "@/lib/i18n/use-locale";
 import { cn } from "@/lib/utils";
 import type { Column } from "@tanstack/react-table";
 import { ArrowDown, ArrowUp, ChevronsUpDown, EyeOff } from "lucide-react";
 
 type DataTableColumnHeaderProps<TData, TValue> =
-	React.HTMLAttributes<HTMLDivElement> & {
-		column: Column<TData, TValue>;
-		title: string;
-	};
+  React.HTMLAttributes<HTMLDivElement> & {
+    column: Column<TData, TValue>;
+    title: string;
+  };
 
 export function DataTableColumnHeader<TData, TValue>({
-	column,
-	title,
-	className,
+  column,
+  title,
+  className,
 }: DataTableColumnHeaderProps<TData, TValue>) {
-	if (!column.getCanSort()) {
-		return <div className={cn(className)}>{title}</div>;
-	}
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
+  const t = dict.admin.table;
 
-	return (
-		<div className={cn("flex items-center gap-2", className)}>
-			<DropdownMenu>
-				<DropdownMenuTrigger asChild>
-					<Button
-						variant="ghost"
-						size="sm"
-						className="data-[state=open]:bg-accent -ml-3 h-8"
-					>
-						<span>{title}</span>
-						{column.getIsSorted() === "desc" ? (
-							<ArrowDown />
-						) : column.getIsSorted() === "asc" ? (
-							<ArrowUp />
-						) : (
-							<ChevronsUpDown />
-						)}
-					</Button>
-				</DropdownMenuTrigger>
-				<DropdownMenuContent align="start">
-					<DropdownMenuItem onClick={() => column.toggleSorting(false)}>
-						<ArrowUp />
-						Asc
-					</DropdownMenuItem>
-					<DropdownMenuItem onClick={() => column.toggleSorting(true)}>
-						<ArrowDown />
-						Desc
-					</DropdownMenuItem>
-					<DropdownMenuSeparator />
-					<DropdownMenuItem onClick={() => column.toggleVisibility(false)}>
-						<EyeOff />
-						Hide
-					</DropdownMenuItem>
-				</DropdownMenuContent>
-			</DropdownMenu>
-		</div>
-	);
+  if (!column.getCanSort()) {
+    return <div className={cn(className)}>{title}</div>;
+  }
+
+  return (
+    <div className={cn("flex items-center gap-2", className)}>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="data-[state=open]:bg-accent -ml-3 h-8"
+          >
+            <span>{title}</span>
+            {column.getIsSorted() === "desc" ? (
+              <ArrowDown />
+            ) : column.getIsSorted() === "asc" ? (
+              <ArrowUp />
+            ) : (
+              <ChevronsUpDown />
+            )}
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start">
+          <DropdownMenuItem onClick={() => column.toggleSorting(false)}>
+            <ArrowUp />
+            {t.asc}
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => column.toggleSorting(true)}>
+            <ArrowDown />
+            {t.desc}
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => column.toggleVisibility(false)}>
+            <EyeOff />
+            {t.hide}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  );
 }

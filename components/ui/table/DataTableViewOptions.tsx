@@ -12,6 +12,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "@/components/ui/shadcn/dropdown-menu";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale } from "@/lib/i18n/use-locale";
 
 /** User-friendly label for toggle; prefers meta.label, else humanizes column id */
 function getColumnToggleLabel(column: {
@@ -39,6 +41,10 @@ export function DataTableViewOptions<TData>({
 }: {
   table: Table<TData>;
 }) {
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
+  const t = dict.admin.table;
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -48,11 +54,11 @@ export function DataTableViewOptions<TData>({
           className="ml-auto hidden h-8 lg:flex"
         >
           <Settings2 />
-          View
+          {t.view}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[180px]">
-        <DropdownMenuLabel>Toggle columns</DropdownMenuLabel>
+        <DropdownMenuLabel>{t.toggleColumns}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {table
           .getAllColumns()

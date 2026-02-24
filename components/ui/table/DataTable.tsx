@@ -10,6 +10,8 @@ import {
   TableRow,
 } from "@/components/ui/shadcn";
 import { Checkbox } from "@/components/ui/shadcn/checkbox";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale } from "@/lib/i18n/use-locale";
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -61,12 +63,17 @@ export function DataTable<TData extends { id: string }, TValue>({
   columns,
   data,
   filterColumn,
-  filterPlaceholder = "Filter by name...",
+  filterPlaceholder,
   entityType,
   bulkDeleteHandlerAction,
   entityName,
   initialColumnVisibility,
 }: DataTableProps<TData, TValue>) {
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
+  const t = dict.admin.table;
+  const c = dict.admin.common;
+
   // Derive entity name from entityType if not provided
   const resolvedEntityName = entityName || entityType || "item";
   const getDefaultFilterColumn = () => {
@@ -95,7 +102,7 @@ export function DataTable<TData extends { id: string }, TValue>({
             (table.getIsSomePageRowsSelected() && "indeterminate")
           }
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
+          aria-label={c.selectAll}
           onClick={(e) => e.stopPropagation()}
         />
       ),
@@ -103,7 +110,7 @@ export function DataTable<TData extends { id: string }, TValue>({
         <Checkbox
           checked={row.getIsSelected()}
           onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
+          aria-label={c.selectRow}
           onClick={(e) => e.stopPropagation()}
         />
       ),
@@ -111,7 +118,7 @@ export function DataTable<TData extends { id: string }, TValue>({
       enableHiding: false,
     };
     return [selectColumn, ...columns];
-  }, [columns]);
+  }, [columns, c.selectAll, c.selectRow]);
 
   const getDetailUrl = (entityType: string, id: string) => {
     return `/admin/management/${entityType}/${id}`;
@@ -147,7 +154,7 @@ export function DataTable<TData extends { id: string }, TValue>({
       <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="w-full sm:max-w-sm">
           <Input
-            placeholder={filterPlaceholder}
+            placeholder={filterPlaceholder ?? t.filterPlaceholder}
             value={
               (table
                 .getColumn(actualFilterColumn)
@@ -213,7 +220,7 @@ export function DataTable<TData extends { id: string }, TValue>({
                   colSpan={allColumns.length}
                   className="h-24 text-center"
                 >
-                  No results.
+                  {t.noResults}
                 </TableCell>
               </TableRow>
             )}

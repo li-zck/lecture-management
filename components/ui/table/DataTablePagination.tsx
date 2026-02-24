@@ -28,6 +28,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/shadcn/select";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale } from "@/lib/i18n/use-locale";
 
 type DataTablePaginationProps<TData> = {
   table: Table<TData>;
@@ -46,6 +48,10 @@ export function DataTablePagination<TData>({
   entityName = "item",
   showSelection = true,
 }: DataTablePaginationProps<TData>) {
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
+  const t = dict.admin.table;
+  const c = dict.admin.common;
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const selectedCount = table.getFilteredSelectedRowModel().rows.length;
@@ -70,8 +76,12 @@ export function DataTablePagination<TData>({
       {showSelection && (
         <>
           <div className="flex flex-1 flex-wrap items-center gap-2 text-sm text-muted-foreground">
-            {selectedCount} of {table.getFilteredRowModel().rows.length} row(s)
-            selected.
+            {t.rowsSelected
+              .replace("{selected}", String(selectedCount))
+              .replace(
+                "{total}",
+                String(table.getFilteredRowModel().rows.length),
+              )}
             {selectedCount > 0 && bulkDeleteHandlerAction && (
               <Button
                 variant="destructive"
@@ -80,8 +90,12 @@ export function DataTablePagination<TData>({
                 className="ml-4 gap-2"
               >
                 <Trash2 className="h-4 w-4" />
-                Delete {selectedCount}{" "}
-                {selectedCount === 1 ? entityName : `${entityName}s`}
+                {t.deleteSelected
+                  .replace("{count}", String(selectedCount))
+                  .replace(
+                    "{entity}",
+                    selectedCount === 1 ? entityName : `${entityName}s`,
+                  )}
               </Button>
             )}
           </div>
@@ -93,17 +107,19 @@ export function DataTablePagination<TData>({
           >
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogTitle>{c.confirmTitle}</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete{" "}
-                  <strong>{selectedCount}</strong>{" "}
-                  {selectedCount === 1 ? entityName : `${entityName}s`} and
-                  remove all associated data.
+                  {t.deleteSelectedConfirm
+                    .replace("{count}", String(selectedCount))
+                    .replace(
+                      "{entity}",
+                      selectedCount === 1 ? entityName : `${entityName}s`,
+                    )}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel disabled={isDeleting}>
-                  Cancel
+                  {c.cancel}
                 </AlertDialogCancel>
                 <AlertDialogAction
                   disabled={isDeleting}
@@ -114,8 +130,13 @@ export function DataTablePagination<TData>({
                   className="bg-red-600 hover:bg-red-700"
                 >
                   {isDeleting
-                    ? "Deleting..."
-                    : `Delete ${selectedCount} ${selectedCount === 1 ? entityName : `${entityName}s`}`}
+                    ? c.deleting
+                    : t.deleteSelected
+                        .replace("{count}", String(selectedCount))
+                        .replace(
+                          "{entity}",
+                          selectedCount === 1 ? entityName : `${entityName}s`,
+                        )}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
@@ -126,7 +147,7 @@ export function DataTablePagination<TData>({
         className={`flex flex-wrap items-center justify-center gap-4 sm:justify-end sm:gap-6 lg:gap-8 ${!showSelection ? "ml-auto" : ""}`}
       >
         <div className="flex items-center space-x-2">
-          <p className="text-sm font-medium">Rows per page</p>
+          <p className="text-sm font-medium">{c.rowsPerPage}</p>
           <Select
             value={`${table.getState().pagination.pageSize}`}
             onValueChange={(value) => {
@@ -146,8 +167,12 @@ export function DataTablePagination<TData>({
           </Select>
         </div>
         <div className="flex w-[100px] items-center justify-center text-sm font-medium">
-          Page {table.getState().pagination.pageIndex + 1} of{" "}
-          {table.getPageCount()}
+          {t.pageOf
+            .replace(
+              "{current}",
+              String(table.getState().pagination.pageIndex + 1),
+            )
+            .replace("{total}", String(table.getPageCount()))}
         </div>
         <div className="flex items-center space-x-2">
           <Button
@@ -157,7 +182,7 @@ export function DataTablePagination<TData>({
             onClick={() => table.setPageIndex(0)}
             disabled={!table.getCanPreviousPage()}
           >
-            <span className="sr-only">Go to first page</span>
+            <span className="sr-only">{t.goToFirstPage}</span>
             <ChevronsLeft />
           </Button>
           <Button
@@ -167,7 +192,7 @@ export function DataTablePagination<TData>({
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
-            <span className="sr-only">Go to previous page</span>
+            <span className="sr-only">{t.goToPreviousPage}</span>
             <ChevronLeft />
           </Button>
           <Button
@@ -177,7 +202,7 @@ export function DataTablePagination<TData>({
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
-            <span className="sr-only">Go to next page</span>
+            <span className="sr-only">{t.goToNextPage}</span>
             <ChevronRight />
           </Button>
           <Button
@@ -187,7 +212,7 @@ export function DataTablePagination<TData>({
             onClick={() => table.setPageIndex(table.getPageCount() - 1)}
             disabled={!table.getCanNextPage()}
           >
-            <span className="sr-only">Go to last page</span>
+            <span className="sr-only">{t.goToLastPage}</span>
             <ChevronsRight />
           </Button>
         </div>

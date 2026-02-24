@@ -8,12 +8,13 @@ export type { PublicPost } from "@/lib/api/post";
 // Note: PostType and PostQueryParams are exported from use-posts.tsx (admin)
 
 /**
- * Hook for fetching global public posts
+ * Hook for fetching public posts feed (global + department-specific).
+ * Use for the /posts page so students/lecturers see all public content.
  */
 export const usePublicGlobalPosts = (params?: PostQueryParams) => {
   const query = useQuery({
     queryKey: queryKeys.publicPosts.global(),
-    queryFn: () => postApi.getGlobal(params),
+    queryFn: () => postApi.getFeed(params),
   });
 
   return {
