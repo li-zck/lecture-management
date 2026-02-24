@@ -43,7 +43,22 @@ export interface PostQueryParams {
  */
 export const postApi = {
   /**
-   * GET /post/global - Get global posts
+   * GET /post/feed - Get all public posts (global + department-specific).
+   * Use for the /posts page so students/lecturers see all public content.
+   */
+  getFeed: async (params?: PostQueryParams): Promise<PublicPost[]> => {
+    const response = await apiClient.get<PublicPost[]>("/post/feed", {
+      params: {
+        includeAdmin: params?.includeAdmin ? "true" : undefined,
+        includeDepartment: params?.includeDepartment ? "true" : undefined,
+      },
+    });
+    return response.data;
+  },
+
+  /**
+   * GET /post/global - Get global posts only (departmentId: null).
+   * @deprecated Prefer getFeed for the /posts page.
    */
   getGlobal: async (params?: PostQueryParams): Promise<PublicPost[]> => {
     const response = await apiClient.get<PublicPost[]>("/post/global", {
