@@ -9,6 +9,8 @@ import {
   adminEnrollmentSessionApi,
   type EnrollmentSession,
 } from "@/lib/api/admin-enrollment-session";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale } from "@/lib/i18n/use-locale";
 import { sortByUpdatedAtDesc } from "@/lib/utils";
 import { BarChart3, ClipboardList, Plus } from "lucide-react";
 import Link from "next/link";
@@ -16,14 +18,17 @@ import { useRouter } from "next/navigation";
 import { useMemo } from "react";
 import { toast } from "sonner";
 import { EnrollmentSessionOverviewChart } from "./_components/enrollment-session-overview-chart";
-import { columns } from "./columns";
+import { getColumns } from "./columns";
 
 type TabId = "chart" | "table";
 
 export default function EnrollmentSessionManagementPage() {
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
   const [activeTab, setActiveTab] = useManagementTab("edit-enrollment-session");
   const { enrollmentSessions, loading, refetch } = useEnrollmentSessions();
   const router = useRouter();
+  const columns = useMemo(() => getColumns(dict), [dict]);
   const sortedEnrollmentSessions = useMemo(
     () => sortByUpdatedAtDesc(enrollmentSessions),
     [enrollmentSessions],
@@ -37,32 +42,44 @@ export default function EnrollmentSessionManagementPage() {
       const ids = selectedItems.map((item) => item.id);
       await adminEnrollmentSessionApi.deleteMultiple(ids);
       toast.success(
-        `Successfully deleted ${selectedItems.length} enrollment session(s)`,
+        dict.admin.common.bulkDeleteSuccess
+          .replace("{count}", String(selectedItems.length))
+          .replace("{entity}", "enrollment session(s)"),
       );
       refetch();
       router.refresh();
       onSuccess?.();
     } catch (error: unknown) {
       const err = error as { message?: string };
-      toast.error(err?.message || "Failed to delete enrollment sessions");
+      toast.error(
+        err?.message ||
+          dict.admin.common.bulkDeleteFailed.replace(
+            "{entity}",
+            "enrollment sessions",
+          ),
+      );
     }
   };
 
   const tabs: { id: TabId; label: string; icon: typeof BarChart3 }[] = [
-    { id: "chart", label: "Overview", icon: BarChart3 },
-    { id: "table", label: "Edit sessions", icon: ClipboardList },
+    { id: "chart", label: dict.admin.management.overview, icon: BarChart3 },
+    {
+      id: "table",
+      label: dict.admin.management.editSessions,
+      icon: ClipboardList,
+    },
   ];
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Enrollment Sessions"
-        description="Manage enrollment periods when students can register for courses. Control when enrollment is open or closed."
+        title={dict.admin.enrollmentSessions.title}
+        description={dict.admin.enrollmentSessions.manageDescription}
         action={
           <Button asChild>
             <Link href="/admin/management/enrollment-session/create">
               <Plus className="mr-2 h-4 w-4" />
-              Create New Session
+              {dict.admin.management.createNewSession}
             </Link>
           </Button>
         }
@@ -90,7 +107,7 @@ export default function EnrollmentSessionManagementPage() {
           {loading ? (
             <div className="flex items-center justify-center p-8">
               <div className="text-muted-foreground">
-                Loading enrollment sessions...
+                {dict.admin.enrollmentSessions.loadingSessions}
               </div>
             </div>
           ) : (

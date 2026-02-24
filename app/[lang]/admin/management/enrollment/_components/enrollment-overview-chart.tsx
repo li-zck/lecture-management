@@ -8,6 +8,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/shadcn/card";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale } from "@/lib/i18n/use-locale";
 import { useMemo } from "react";
 import {
   Bar,
@@ -23,6 +25,9 @@ import {
  * Enrollments overview: total, per semester, per course (top N) + grade summary (aggregate histogram).
  */
 export function EnrollmentOverviewChart() {
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
+  const t = dict.admin.chart;
   const { enrollments, loading } = useEnrollments();
 
   const bySemesterData = useMemo(() => {
@@ -46,8 +51,8 @@ export function EnrollmentOverviewChart() {
       const cos = e.courseOnSemester;
       const id = cos?.id ?? "unknown";
       const label = cos
-        ? `${cos.course?.name ?? "Course"} (${cos.semester?.name ?? ""})`
-        : "Unknown";
+        ? `${cos.course?.name ?? t.course} (${cos.semester?.name ?? ""})`
+        : t.unassigned;
       const existing = map.get(id);
       if (existing) {
         existing.count += 1;
@@ -58,11 +63,11 @@ export function EnrollmentOverviewChart() {
     return Array.from(map.values())
       .sort((a, b) => b.count - a.count)
       .slice(0, 10);
-  }, [enrollments]);
+  }, [enrollments, t]);
 
   const gradeDistribution = useMemo(() => {
     const buckets: Record<string, number> = {
-      "No grade": 0,
+      [t.noGrade]: 0,
       "0-1": 0,
       "1-2": 0,
       "2-3": 0,
@@ -72,7 +77,7 @@ export function EnrollmentOverviewChart() {
     for (const e of enrollments) {
       const g = e.finalGrade;
       if (g == null) {
-        buckets["No grade"] += 1;
+        buckets[t.noGrade] += 1;
       } else if (g < 1) {
         buckets["0-1"] += 1;
       } else if (g < 2) {
@@ -89,17 +94,17 @@ export function EnrollmentOverviewChart() {
       grade,
       count,
     }));
-  }, [enrollments]);
+  }, [enrollments, t.noGrade]);
 
   if (loading) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Enrollment overview</CardTitle>
-          <CardDescription>Loading chart data...</CardDescription>
+          <CardTitle>{t.enrollmentOverview}</CardTitle>
+          <CardDescription>{t.loading}</CardDescription>
         </CardHeader>
         <CardContent className="h-[280px] flex items-center justify-center text-muted-foreground">
-          Loading...
+          {t.loadingShort}
         </CardContent>
       </Card>
     );
@@ -110,8 +115,8 @@ export function EnrollmentOverviewChart() {
       <div className="grid gap-4 sm:grid-cols-2">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">Total enrollments</CardTitle>
-            <CardDescription>Students enrolled in courses</CardDescription>
+            <CardTitle className="text-base">{t.totalEnrollments}</CardTitle>
+            <CardDescription>{t.studentsEnrolled}</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-bold">{enrollments.length}</p>
@@ -122,8 +127,8 @@ export function EnrollmentOverviewChart() {
       {bySemesterData.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Enrollments per semester</CardTitle>
-            <CardDescription>Number of enrollments by semester</CardDescription>
+            <CardTitle>{t.enrollmentsPerSemester}</CardTitle>
+            <CardDescription>{t.enrollmentsBySemesterDesc}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-[240px] w-full">
@@ -156,7 +161,8 @@ export function EnrollmentOverviewChart() {
                         <div className="rounded-lg border bg-background px-3 py-2 shadow-sm">
                           <p className="font-medium">{d.name}</p>
                           <p className="text-sm text-muted-foreground">
-                            {d.count} enrollment{d.count === 1 ? "" : "s"}
+                            {d.count}{" "}
+                            {d.count === 1 ? t.enrollment : t.enrollments}
                           </p>
                         </div>
                       );
@@ -167,7 +173,7 @@ export function EnrollmentOverviewChart() {
                     dataKey="count"
                     fill="hsl(var(--primary))"
                     radius={[4, 4, 0, 0]}
-                    name="Enrollments"
+                    name={t.enrollments}
                   />
                 </BarChart>
               </ResponsiveContainer>
@@ -179,10 +185,8 @@ export function EnrollmentOverviewChart() {
       {byCourseData.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Top courses by enrollment</CardTitle>
-            <CardDescription>
-              Course-semesters with most enrollments (top 10)
-            </CardDescription>
+            <CardTitle>{t.topCoursesByEnrollment}</CardTitle>
+            <CardDescription>{t.topCoursesDesc}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-[280px] w-full">
@@ -215,7 +219,7 @@ export function EnrollmentOverviewChart() {
                         <div className="rounded-lg border bg-background px-3 py-2 shadow-sm">
                           <p className="font-medium">{d.name}</p>
                           <p className="text-sm text-muted-foreground">
-                            {d.count} enrolled
+                            {d.count} {t.enrolled}
                           </p>
                         </div>
                       );
@@ -226,7 +230,7 @@ export function EnrollmentOverviewChart() {
                     dataKey="count"
                     fill="hsl(var(--chart-2, 220 70% 50%))"
                     radius={[0, 4, 4, 0]}
-                    name="Enrolled"
+                    name={t.enrolled}
                   />
                 </BarChart>
               </ResponsiveContainer>
@@ -237,10 +241,8 @@ export function EnrollmentOverviewChart() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Grade summary (aggregate)</CardTitle>
-          <CardDescription>
-            Distribution of final grades across all enrollments (no PII)
-          </CardDescription>
+          <CardTitle>{t.gradeSummary}</CardTitle>
+          <CardDescription>{t.gradeDistDesc}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="h-[220px] w-full">
@@ -273,7 +275,8 @@ export function EnrollmentOverviewChart() {
                       <div className="rounded-lg border bg-background px-3 py-2 shadow-sm">
                         <p className="font-medium">{d.grade}</p>
                         <p className="text-sm text-muted-foreground">
-                          {d.count} enrollment{d.count === 1 ? "" : "s"}
+                          {d.count}{" "}
+                          {d.count === 1 ? t.enrollment : t.enrollments}
                         </p>
                       </div>
                     );

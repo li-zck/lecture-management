@@ -20,6 +20,8 @@ import {
 } from "@/components/ui/shadcn/dropdown-menu";
 import { DataTableColumnHeader } from "@/components/ui/table/DataTableColumnHeader";
 import { adminStudentApi, type StudentAdmin } from "@/lib/api/admin-student";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale, useLocalePath } from "@/lib/i18n/use-locale";
 import { queryKeys } from "@/lib/query";
 import { useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
@@ -29,6 +31,9 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 const ActionCell = ({ student }: { student: StudentAdmin }) => {
+  const locale = useLocale();
+  const localePath = useLocalePath();
+  const dict = getClientDictionary(locale);
   const router = useRouter();
   const queryClient = useQueryClient();
   const [openDelete, setOpenDelete] = useState(false);
@@ -37,10 +42,14 @@ const ActionCell = ({ student }: { student: StudentAdmin }) => {
     try {
       await adminStudentApi.delete(student.id);
       await queryClient.invalidateQueries({ queryKey: queryKeys.students.all });
-      toast.success("Student deleted successfully");
+      toast.success(
+        dict.admin.common.deletedSuccess.replace("{entity}", "Student"),
+      );
       router.refresh();
     } catch {
-      toast.error("Failed to delete student");
+      toast.error(
+        dict.admin.common.deleteFailed.replace("{entity}", "student"),
+      );
     }
   };
 
@@ -49,26 +58,26 @@ const ActionCell = ({ student }: { student: StudentAdmin }) => {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="h-8 w-8 p-0">
-            <span className="sr-only">Open menu</span>
+            <span className="sr-only">{dict.admin.common.openMenu}</span>
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuLabel>{dict.admin.common.actions}</DropdownMenuLabel>
           <DropdownMenuItem
             onClick={() =>
-              router.push(`/admin/management/student/${student.id}`)
+              router.push(localePath(`admin/management/student/${student.id}`))
             }
           >
             <Pencil className="mr-2 h-4 w-4" />
-            Edit
+            {dict.admin.common.edit}
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => setOpenDelete(true)}
             className="text-red-600 focus:text-red-600"
           >
             <Trash className="mr-2 h-4 w-4" />
-            Delete
+            {dict.admin.common.delete}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -76,14 +85,18 @@ const ActionCell = ({ student }: { student: StudentAdmin }) => {
       <AlertDialog open={openDelete} onOpenChange={setOpenDelete}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogTitle>
+              {dict.admin.common.confirmTitle}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the
-              student account.
+              {dict.admin.common.confirmDeleteBody.replace(
+                "{entity}",
+                "student account",
+              )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{dict.admin.common.cancel}</AlertDialogCancel>
             <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
@@ -91,7 +104,7 @@ const ActionCell = ({ student }: { student: StudentAdmin }) => {
               }}
               className="bg-red-600 hover:bg-red-700"
             >
-              Delete
+              {dict.admin.common.delete}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -100,61 +113,86 @@ const ActionCell = ({ student }: { student: StudentAdmin }) => {
   );
 };
 
-export const columns: ColumnDef<StudentAdmin>[] = [
-  {
-    accessorKey: "studentId",
-    meta: { label: "Student ID" },
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Student ID" />
-    ),
-    cell: ({ row }) => (
-      <div className="w-[100px]">{row.getValue("studentId")}</div>
-    ),
-  },
-  {
-    accessorKey: "fullName",
-    meta: { label: "Full name" },
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Full Name" />
-    ),
-  },
-  {
-    accessorKey: "username",
-    meta: { label: "Username" },
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Username" />
-    ),
-  },
-  {
-    accessorKey: "email",
-    meta: { label: "Email" },
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Email" />
-    ),
-  },
-  {
-    accessorKey: "department.name",
-    meta: { label: "Department" },
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Department" />
-    ),
-    cell: ({ row }) => {
-      const department = row.original.department;
-      return <div className="w-[150px]">{department?.name || "N/A"}</div>;
+export function getColumns(dict: any): ColumnDef<StudentAdmin>[] {
+  return [
+    {
+      accessorKey: "studentId",
+      meta: { label: dict.admin.students.studentId },
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title={dict.admin.students.studentId}
+        />
+      ),
+      cell: ({ row }) => (
+        <div className="w-[100px]">{row.getValue("studentId")}</div>
+      ),
     },
-  },
-  {
-    accessorKey: "active",
-    meta: { label: "Status" },
-    header: "Status",
-    cell: ({ row }) => (
-      <div className={row.original.active ? "text-green-600" : "text-red-600"}>
-        {row.original.active ? "Active" : "Inactive"}
-      </div>
-    ),
-  },
-  {
-    id: "actions",
-    cell: ({ row }) => <ActionCell student={row.original} />,
-  },
-];
+    {
+      accessorKey: "fullName",
+      meta: { label: dict.admin.common.fullName },
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title={dict.admin.common.fullName}
+        />
+      ),
+    },
+    {
+      accessorKey: "username",
+      meta: { label: dict.admin.common.username },
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title={dict.admin.common.username}
+        />
+      ),
+    },
+    {
+      accessorKey: "email",
+      meta: { label: dict.admin.common.email },
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title={dict.admin.common.email}
+        />
+      ),
+    },
+    {
+      accessorKey: "department.name",
+      meta: { label: dict.admin.common.department },
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title={dict.admin.common.department}
+        />
+      ),
+      cell: ({ row }) => {
+        const department = row.original.department;
+        return (
+          <div className="w-[150px]">
+            {department?.name || dict.admin.common.na}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "active",
+      meta: { label: dict.admin.common.status },
+      header: dict.admin.common.status,
+      cell: ({ row }) => (
+        <div
+          className={row.original.active ? "text-green-600" : "text-red-600"}
+        >
+          {row.original.active
+            ? dict.admin.common.active
+            : dict.admin.common.inactive}
+        </div>
+      ),
+    },
+    {
+      id: "actions",
+      cell: ({ row }) => <ActionCell student={row.original} />,
+    },
+  ];
+}

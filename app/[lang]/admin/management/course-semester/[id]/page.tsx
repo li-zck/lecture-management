@@ -3,6 +3,8 @@
 import { PageHeader } from "@/components/ui/page-header";
 import { adminCourseSemesterApi } from "@/lib/api/admin-course-semester";
 import { getErrorInfo, logError } from "@/lib/api/error";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale } from "@/lib/i18n/use-locale";
 import { queryKeys } from "@/lib/query";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
@@ -16,24 +18,29 @@ interface EditCourseSemesterPageProps {
   }>;
 }
 
-const getScheduleErrorMessage = (status: number, fallback: string): string => {
-  const messages: Record<number, string> = {
-    400: "Please check the schedule information and try again.",
-    404: "Schedule not found.",
-    409: "This course is already scheduled for this semester.",
-    422: "Some schedule information is invalid. Please review the form.",
-  };
-  return messages[status] || fallback;
-};
-
 export default function EditCourseSemesterPage({
   params,
 }: EditCourseSemesterPageProps) {
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
   const { id } = use(params);
   const router = useRouter();
   const queryClient = useQueryClient();
   const [loading, setLoading] = useState(true);
   const [initialValues, setInitialValues] = useState<any>(null);
+
+  const getScheduleErrorMessage = (
+    status: number,
+    fallback: string,
+  ): string => {
+    const messages: Record<number, string> = {
+      400: dict.admin.common.checkInfo.replace("{entity}", "schedule"),
+      404: dict.admin.common.notFound.replace("{entity}", "Schedule"),
+      409: dict.admin.common.alreadyExists.replace("{entity}", "schedule"),
+      422: dict.admin.common.invalidInfo.replace("{entity}", "schedule"),
+    };
+    return messages[status] || fallback;
+  };
 
   useEffect(() => {
     async function fetchCourseSemester() {
@@ -42,14 +49,16 @@ export default function EditCourseSemesterPage({
         setInitialValues(data);
       } catch (error) {
         logError(error, "Fetch Course Schedule");
-        toast.error("Failed to load schedule data");
+        toast.error(
+          dict.admin.common.loadFailed.replace("{entity}", "schedule"),
+        );
         router.push("/admin/management/course-semester");
       } finally {
         setLoading(false);
       }
     }
     fetchCourseSemester();
-  }, [id, router]);
+  }, [id, router, dict]);
 
   const handleSubmit = async (values: any) => {
     try {
@@ -71,7 +80,9 @@ export default function EditCourseSemesterPage({
       await queryClient.invalidateQueries({
         queryKey: queryKeys.courseSemesters.all,
       });
-      toast.success("Schedule updated successfully");
+      toast.success(
+        dict.admin.common.updatedSuccess.replace("{entity}", "Schedule"),
+      );
       router.back();
       router.refresh();
     } catch (error: unknown) {
@@ -82,14 +93,14 @@ export default function EditCourseSemesterPage({
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div>{dict.admin.common.loading}</div>;
   }
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Edit Course Schedule"
-        description={`Edit details for schedule`}
+        title={dict.admin.courseSemesters.editSchedule}
+        description={dict.admin.courseSemesters.editSchedulePageDesc}
       />
       {initialValues && (
         <CourseSemesterForm

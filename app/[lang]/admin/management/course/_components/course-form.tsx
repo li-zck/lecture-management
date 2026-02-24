@@ -22,6 +22,8 @@ import {
 } from "@/components/ui/shadcn/select";
 import { Textarea } from "@/components/ui/shadcn/textarea";
 import { adminCourseSemesterApi } from "@/lib/api/admin-course-semester";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale } from "@/lib/i18n/use-locale";
 import { queryKeys } from "@/lib/query";
 import { createCourseSchema } from "@/lib/zod/schemas/create/course";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -72,6 +74,8 @@ export function CourseForm({
   courseId,
   initialOfferings,
 }: CourseFormProps) {
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
   const queryClient = useQueryClient();
   const { departments } = useDepartments();
   const openSemesters = useOpenSemesters();
@@ -122,9 +126,9 @@ export function CourseForm({
         queryKey: queryKeys.courseSemesters.all,
       });
       await queryClient.invalidateQueries({ queryKey: queryKeys.courses.all });
-      toast.success("Offering added");
+      toast.success(dict.admin.courses.offeringAdded);
     } catch {
-      toast.error("Failed to add offering");
+      toast.error(dict.admin.courses.offeringAddFailed);
     } finally {
       setOfferingBusy(null);
     }
@@ -139,9 +143,9 @@ export function CourseForm({
         queryKey: queryKeys.courseSemesters.all,
       });
       await queryClient.invalidateQueries({ queryKey: queryKeys.courses.all });
-      toast.success("Offering removed");
+      toast.success(dict.admin.courses.offeringRemoved);
     } catch {
-      toast.error("Failed to remove offering");
+      toast.error(dict.admin.courses.offeringRemoveFailed);
     } finally {
       setOfferingBusy(null);
     }
@@ -164,12 +168,14 @@ export function CourseForm({
       <Card className="w-full max-w-2xl">
         <CardHeader>
           <CardTitle>
-            {mode === "create" ? "Create Course" : "Edit Course"}
+            {mode === "create"
+              ? dict.admin.courses.createCourse
+              : dict.admin.courses.editCourse}
           </CardTitle>
           <CardDescription>
             {mode === "create"
-              ? "Fill in the details below to create a new course."
-              : "Update the course information below."}
+              ? dict.admin.common.fillDetails.replace("{entity}", "course")
+              : dict.admin.common.updateDetails.replace("{entity}", "course")}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -184,13 +190,13 @@ export function CourseForm({
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="create-course-form-name">
-                    Course Name
+                    {dict.admin.courses.courseName}
                   </FieldLabel>
                   <Input
                     {...field}
                     id="create-course-form-name"
                     aria-invalid={fieldState.invalid}
-                    placeholder="Calculus I"
+                    placeholder={dict.admin.courses.courseNamePlaceholder}
                     autoComplete="off"
                   />
                   {fieldState.invalid && (
@@ -207,7 +213,7 @@ export function CourseForm({
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor="create-course-form-credits">
-                      Credits
+                      {dict.admin.courses.credits}
                     </FieldLabel>
                     <Input
                       {...field}
@@ -248,7 +254,7 @@ export function CourseForm({
                   return (
                     <Field data-invalid={fieldState.invalid}>
                       <FieldLabel htmlFor="create-course-form-recommendedSemester">
-                        Recommended Semester/Level
+                        {dict.admin.courses.recommendedSemester}
                       </FieldLabel>
                       <Select
                         onValueChange={field.onChange}
@@ -259,8 +265,8 @@ export function CourseForm({
                           <SelectValue
                             placeholder={
                               selectOptions.length === 0
-                                ? "No open semesters"
-                                : "Optional"
+                                ? dict.admin.courses.noOpenSemesters
+                                : dict.admin.courses.optional
                             }
                           />
                         </SelectTrigger>
@@ -273,8 +279,7 @@ export function CourseForm({
                         </SelectContent>
                       </Select>
                       <p className="text-xs text-muted-foreground mt-1">
-                        Optional. When the course is typically taken. Separate
-                        from &quot;Offer in semester&quot; below.
+                        {dict.admin.courses.recommendedHint}
                       </p>
                       {fieldState.invalid && (
                         <FieldError errors={[fieldState.error]} />
@@ -292,17 +297,21 @@ export function CourseForm({
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor="create-course-form-semesterId">
-                      Offer in semester
+                      {dict.admin.courses.offerInSemester}
                     </FieldLabel>
                     <Select
                       onValueChange={field.onChange}
                       value={field.value || "none"}
                     >
                       <SelectTrigger id="create-course-form-semesterId">
-                        <SelectValue placeholder="Select semester (optional)" />
+                        <SelectValue
+                          placeholder={dict.admin.courses.selectSemester}
+                        />
                       </SelectTrigger>
                       <SelectContent position="popper" sideOffset={5}>
-                        <SelectItem value="none">— Don't assign yet</SelectItem>
+                        <SelectItem value="none">
+                          {dict.admin.courses.dontAssignYet}
+                        </SelectItem>
                         {[...allSemesters]
                           .sort((a, b) => b.name.localeCompare(a.name))
                           .map((s) => (
@@ -313,8 +322,7 @@ export function CourseForm({
                       </SelectContent>
                     </Select>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Assigning a semester makes this course appear in the
-                      catalog and on the course-semester page immediately.
+                      {dict.admin.courses.offerHint}
                     </p>
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -326,10 +334,9 @@ export function CourseForm({
 
             {mode === "edit" && courseId && (
               <Field>
-                <FieldLabel>Offered in</FieldLabel>
+                <FieldLabel>{dict.admin.courses.offeredIn}</FieldLabel>
                 <p className="text-xs text-muted-foreground mb-2">
-                  Semesters when this course is available. Add or remove
-                  offerings below.
+                  {dict.admin.courses.offeredInHint}
                 </p>
                 {offerings.length > 0 && (
                   <ul className="space-y-1.5 mb-2">
@@ -347,7 +354,7 @@ export function CourseForm({
                           disabled={offeringBusy !== null}
                           onClick={() => removeOffering(o.id)}
                         >
-                          Remove
+                          {dict.admin.common.remove}
                         </Button>
                       </li>
                     ))}
@@ -365,7 +372,9 @@ export function CourseForm({
                     disabled={offeringBusy !== null}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Add semester..." />
+                      <SelectValue
+                        placeholder={dict.admin.courses.addSemester}
+                      />
                     </SelectTrigger>
                     <SelectContent position="popper" sideOffset={5}>
                       {semestersToAdd.map((s) => (
@@ -378,8 +387,7 @@ export function CourseForm({
                 )}
                 {offerings.length === 0 && semestersToAdd.length === 0 && (
                   <p className="text-sm text-muted-foreground">
-                    No semesters to add. This course is already offered in all
-                    semesters.
+                    {dict.admin.courses.noSemestersToAdd}
                   </p>
                 )}
               </Field>
@@ -391,7 +399,7 @@ export function CourseForm({
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="create-course-form-departmentId">
-                    Department
+                    {dict.admin.common.department}
                   </FieldLabel>
                   <Select
                     onValueChange={field.onChange}
@@ -399,7 +407,9 @@ export function CourseForm({
                     value={field.value}
                   >
                     <SelectTrigger id="create-course-form-departmentId">
-                      <SelectValue placeholder="Select a department" />
+                      <SelectValue
+                        placeholder={dict.admin.common.selectDepartment}
+                      />
                     </SelectTrigger>
                     <SelectContent position="popper" sideOffset={5}>
                       {departments.map((dept) => (
@@ -422,13 +432,13 @@ export function CourseForm({
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="create-course-form-description">
-                    Description
+                    {dict.admin.common.description}
                   </FieldLabel>
                   <Textarea
                     {...field}
                     id="create-course-form-description"
                     aria-invalid={fieldState.invalid}
-                    placeholder="Describe the course..."
+                    placeholder={dict.admin.courses.descriptionPlaceholder}
                     className="resize-none min-h-[120px]"
                     autoComplete="off"
                   />
@@ -446,7 +456,9 @@ export function CourseForm({
             disabled={form.formState.isSubmitting}
             onClick={form.handleSubmit(onSubmit)}
           >
-            {mode === "create" ? "Create Course" : "Save Changes"}
+            {mode === "create"
+              ? dict.admin.courses.createCourse
+              : dict.admin.common.saveChanges}
           </Button>
         </CardFooter>
       </Card>

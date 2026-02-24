@@ -3,26 +3,29 @@
 import { PageHeader } from "@/components/ui/page-header";
 import { adminDepartmentApi } from "@/lib/api/admin-department";
 import { getErrorInfo, logError } from "@/lib/api/error";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale, useLocalePath } from "@/lib/i18n/use-locale";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { DepartmentForm } from "../_components/department-form";
 
-const getDepartmentErrorMessage = (
-  status: number,
-  serverMessage: string,
-): string => {
-  // For 409 (Conflict), always show the server message so the user sees
-  // e.g. "This lecturer is already the head of another department..."
-  const messages: Record<number, string> = {
-    400: "Please check the department information and try again.",
-    422: "Some department information is invalid. Please review the form.",
-  };
-  if (status === 409) return serverMessage;
-  return messages[status] || serverMessage;
-};
-
 export default function CreateDepartmentPage() {
+  const locale = useLocale();
+  const localePath = useLocalePath();
+  const dict = getClientDictionary(locale);
   const router = useRouter();
+
+  const getDepartmentErrorMessage = (
+    status: number,
+    serverMessage: string,
+  ): string => {
+    if (status === 409) return serverMessage;
+    const messages: Record<number, string> = {
+      400: dict.admin.common.checkInfo.replace("{entity}", "department"),
+      422: dict.admin.common.invalidInfo.replace("{entity}", "department"),
+    };
+    return messages[status] || serverMessage;
+  };
 
   const handleSubmit = async (values: any) => {
     try {
@@ -37,8 +40,10 @@ export default function CreateDepartmentPage() {
       }
 
       await adminDepartmentApi.create(payload);
-      toast.success("Department created successfully");
-      router.push("/admin/management/department");
+      toast.success(
+        dict.admin.common.createdSuccess.replace("{entity}", "Department"),
+      );
+      router.push(localePath("admin/management/department"));
       router.refresh();
     } catch (error: unknown) {
       const { status, message } = getErrorInfo(error);
@@ -50,8 +55,11 @@ export default function CreateDepartmentPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Create Department"
-        description="Add a new department to the system"
+        title={dict.admin.departments.createDepartment}
+        description={dict.admin.common.addToSystem.replace(
+          "{entity}",
+          "department",
+        )}
       />
       <DepartmentForm onSubmit={handleSubmit} mode="create" />
     </div>

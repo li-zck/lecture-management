@@ -20,6 +20,8 @@ import {
   type ProfileUpdateRequestStatus,
 } from "@/lib/api/admin-request";
 import { getErrorInfo } from "@/lib/api/error";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale } from "@/lib/i18n/use-locale";
 import { GraduationCap, Send, UserCog, Users } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -44,6 +46,10 @@ const DAYS = [
 ];
 
 export default function RequestsManagementPage() {
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
+  const t = dict.admin.requests;
+
   const [entityTab, setEntityTab] = useState<EntityTab>("lecturer");
   const [statusFilter, setStatusFilter] = useState<
     LecturerTeachingRequestStatus | "all"
@@ -67,12 +73,12 @@ export default function RequestsManagementPage() {
       const data = await adminRequestApi.getLecturerRequests(status);
       setLecturerRequests(data);
     } catch {
-      toast.error("Failed to load lecturer requests");
+      toast.error(t.loadLecturerFailed);
       setLecturerRequests([]);
     } finally {
       setLoading(false);
     }
-  }, [statusFilter]);
+  }, [statusFilter, t]);
 
   const fetchProfileRequests = useCallback(async () => {
     setLoading(true);
@@ -82,12 +88,12 @@ export default function RequestsManagementPage() {
       const data = await adminRequestApi.getProfileUpdateRequests(status);
       setProfileRequests(data);
     } catch {
-      toast.error("Failed to load profile update requests");
+      toast.error(t.loadProfileFailed);
       setProfileRequests([]);
     } finally {
       setLoading(false);
     }
-  }, [profileStatusFilter]);
+  }, [profileStatusFilter, t]);
 
   useEffect(() => {
     if (entityTab === "lecturer") fetchLecturerRequests();
@@ -98,11 +104,11 @@ export default function RequestsManagementPage() {
     setActingId(id);
     try {
       await adminRequestApi.approveLecturerRequest(id);
-      toast.success("Request approved. Lecturer assigned to course.");
+      toast.success(t.approvedAssigned);
       fetchLecturerRequests();
     } catch (err: unknown) {
       const { message } = getErrorInfo(err);
-      toast.error(message ?? "Failed to approve");
+      toast.error(message ?? t.approvedFailed);
     } finally {
       setActingId(null);
     }
@@ -112,11 +118,11 @@ export default function RequestsManagementPage() {
     setActingId(id);
     try {
       await adminRequestApi.rejectLecturerRequest(id);
-      toast.success("Request rejected.");
+      toast.success(t.rejectedSuccess);
       fetchLecturerRequests();
     } catch (err: unknown) {
       const { message } = getErrorInfo(err);
-      toast.error(message ?? "Failed to reject");
+      toast.error(message ?? t.rejectedFailed);
     } finally {
       setActingId(null);
     }
@@ -126,11 +132,11 @@ export default function RequestsManagementPage() {
     setActingId(id);
     try {
       await adminRequestApi.approveProfileUpdateRequest(id);
-      toast.success("Profile update approved.");
+      toast.success(t.profileApproved);
       fetchProfileRequests();
     } catch (err: unknown) {
       const { message } = getErrorInfo(err);
-      toast.error(message ?? "Failed to approve");
+      toast.error(message ?? t.profileApprovedFailed);
     } finally {
       setActingId(null);
     }
@@ -140,11 +146,11 @@ export default function RequestsManagementPage() {
     setActingId(id);
     try {
       await adminRequestApi.rejectProfileUpdateRequest(id);
-      toast.success("Profile update rejected.");
+      toast.success(t.profileRejected);
       fetchProfileRequests();
     } catch (err: unknown) {
       const { message } = getErrorInfo(err);
-      toast.error(message ?? "Failed to reject");
+      toast.error(message ?? t.profileRejectedFailed);
     } finally {
       setActingId(null);
     }
@@ -152,10 +158,7 @@ export default function RequestsManagementPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Requests"
-        description="Review and approve or reject lecturer teaching requests and student requests."
-      />
+      <PageHeader title={t.title} description={t.description} />
 
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="flex gap-1 rounded-lg border bg-muted/30 p-1 w-fit">
@@ -166,7 +169,7 @@ export default function RequestsManagementPage() {
             className="gap-2"
           >
             <Users className="h-4 w-4" />
-            Lecturer requests
+            {t.lecturerRequests}
           </Button>
           <Button
             variant={entityTab === "student" ? "secondary" : "ghost"}
@@ -175,7 +178,7 @@ export default function RequestsManagementPage() {
             className="gap-2"
           >
             <GraduationCap className="h-4 w-4" />
-            Student requests
+            {t.studentRequests}
           </Button>
           <Button
             variant={entityTab === "profile" ? "secondary" : "ghost"}
@@ -184,7 +187,7 @@ export default function RequestsManagementPage() {
             className="gap-2"
           >
             <UserCog className="h-4 w-4" />
-            Profile updates
+            {t.profileUpdates}
           </Button>
         </div>
 
@@ -196,13 +199,13 @@ export default function RequestsManagementPage() {
             }
           >
             <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Filter by status" />
+              <SelectValue placeholder={t.filterByStatus} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All statuses</SelectItem>
-              <SelectItem value="PENDING">Pending</SelectItem>
-              <SelectItem value="APPROVED">Approved</SelectItem>
-              <SelectItem value="REJECTED">Rejected</SelectItem>
+              <SelectItem value="all">{t.allStatuses}</SelectItem>
+              <SelectItem value="PENDING">{t.pending}</SelectItem>
+              <SelectItem value="APPROVED">{t.approved}</SelectItem>
+              <SelectItem value="REJECTED">{t.rejected}</SelectItem>
             </SelectContent>
           </Select>
         )}
@@ -214,13 +217,13 @@ export default function RequestsManagementPage() {
             }
           >
             <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Filter by status" />
+              <SelectValue placeholder={t.filterByStatus} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All statuses</SelectItem>
-              <SelectItem value="PENDING">Pending</SelectItem>
-              <SelectItem value="APPROVED">Approved</SelectItem>
-              <SelectItem value="REJECTED">Rejected</SelectItem>
+              <SelectItem value="all">{t.allStatuses}</SelectItem>
+              <SelectItem value="PENDING">{t.pending}</SelectItem>
+              <SelectItem value="APPROVED">{t.approved}</SelectItem>
+              <SelectItem value="REJECTED">{t.rejected}</SelectItem>
             </SelectContent>
           </Select>
         )}
@@ -230,15 +233,17 @@ export default function RequestsManagementPage() {
         <div className="w-full">
           {loading ? (
             <div className="flex items-center justify-center p-12 text-muted-foreground">
-              Loading requests...
+              {t.loadingRequests}
             </div>
           ) : lecturerRequests.length === 0 ? (
             <Card>
               <CardContent className="p-12 text-center">
                 <Send className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
                 <p className="text-muted-foreground">
-                  No lecturer teaching requests
-                  {statusFilter !== "all" ? ` with status ${statusFilter}` : ""}
+                  {t.noLecturerRequests}
+                  {statusFilter !== "all"
+                    ? ` ${t.withStatus} ${statusFilter}`
+                    : ""}
                   .
                 </p>
               </CardContent>
@@ -285,7 +290,11 @@ export default function RequestsManagementPage() {
                                 : "destructive"
                           }
                         >
-                          {req.status}
+                          {req.status === "PENDING"
+                            ? t.pending
+                            : req.status === "APPROVED"
+                              ? t.approved
+                              : t.rejected}
                         </Badge>
                         {req.status === "PENDING" && (
                           <>
@@ -294,7 +303,7 @@ export default function RequestsManagementPage() {
                               onClick={() => handleApprove(req.id)}
                               disabled={actingId !== null}
                             >
-                              {actingId === req.id ? "Approving..." : "Approve"}
+                              {actingId === req.id ? t.approving : t.approve}
                             </Button>
                             <Button
                               size="sm"
@@ -302,7 +311,7 @@ export default function RequestsManagementPage() {
                               onClick={() => handleReject(req.id)}
                               disabled={actingId !== null}
                             >
-                              {actingId === req.id ? "Rejecting..." : "Reject"}
+                              {actingId === req.id ? t.rejecting : t.reject}
                             </Button>
                           </>
                         )}
@@ -320,9 +329,7 @@ export default function RequestsManagementPage() {
         <Card>
           <CardContent className="p-12 text-center">
             <GraduationCap className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">
-              Student request categories are not configured yet.
-            </p>
+            <p className="text-muted-foreground">{t.studentNotConfigured}</p>
           </CardContent>
         </Card>
       )}
@@ -331,16 +338,16 @@ export default function RequestsManagementPage() {
         <div className="w-full">
           {loading ? (
             <div className="flex items-center justify-center p-12 text-muted-foreground">
-              Loading requests...
+              {t.loadingRequests}
             </div>
           ) : profileRequests.length === 0 ? (
             <Card>
               <CardContent className="p-12 text-center">
                 <UserCog className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
                 <p className="text-muted-foreground">
-                  No profile update requests
+                  {t.noProfileRequests}
                   {profileStatusFilter !== "all"
-                    ? ` with status ${profileStatusFilter}`
+                    ? ` ${t.withStatus} ${profileStatusFilter}`
                     : ""}
                   .
                 </p>
@@ -364,7 +371,7 @@ export default function RequestsManagementPage() {
                         </p>
                         <div className="text-sm text-muted-foreground mt-2">
                           <span className="font-medium">
-                            Requested changes:{" "}
+                            {t.requestedChanges}{" "}
                           </span>
                           {Object.entries(req.requestedData)
                             .map(([k, v]) => `${k}: ${String(v)}`)
@@ -381,7 +388,11 @@ export default function RequestsManagementPage() {
                                 : "destructive"
                           }
                         >
-                          {req.status}
+                          {req.status === "PENDING"
+                            ? t.pending
+                            : req.status === "APPROVED"
+                              ? t.approved
+                              : t.rejected}
                         </Badge>
                         {req.status === "PENDING" && (
                           <>
@@ -390,7 +401,7 @@ export default function RequestsManagementPage() {
                               onClick={() => handleApproveProfile(req.id)}
                               disabled={actingId !== null}
                             >
-                              {actingId === req.id ? "Approving..." : "Approve"}
+                              {actingId === req.id ? t.approving : t.approve}
                             </Button>
                             <Button
                               size="sm"
@@ -398,7 +409,7 @@ export default function RequestsManagementPage() {
                               onClick={() => handleRejectProfile(req.id)}
                               disabled={actingId !== null}
                             >
-                              {actingId === req.id ? "Rejecting..." : "Reject"}
+                              {actingId === req.id ? t.rejecting : t.reject}
                             </Button>
                           </>
                         )}

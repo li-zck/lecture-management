@@ -6,6 +6,8 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/shadcn/button";
 import { DataTable } from "@/components/ui/table/DataTable";
 import { adminLecturerApi, type LecturerAdmin } from "@/lib/api/admin-lecturer";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale, useLocalePath } from "@/lib/i18n/use-locale";
 import { sortByUpdatedAtDesc } from "@/lib/utils";
 import { BarChart3, Plus, Upload, Users } from "lucide-react";
 import Link from "next/link";
@@ -14,14 +16,18 @@ import { useMemo } from "react";
 import { toast } from "sonner";
 
 import { LecturerOverviewChart } from "./_components/lecturer-overview-chart";
-import { columns } from "./columns";
+import { getColumns } from "./columns";
 
 type TabId = "chart" | "table";
 
 export default function LecturerManagementPage() {
+  const locale = useLocale();
+  const localePath = useLocalePath();
+  const dict = getClientDictionary(locale);
   const [activeTab, setActiveTab] = useManagementTab("edit-lecturer");
   const { lecturers, loading, refetch } = useLecturers();
   const router = useRouter();
+  const columns = useMemo(() => getColumns(dict), [dict]);
   const sortedLecturers = useMemo(
     () => sortByUpdatedAtDesc(lecturers),
     [lecturers],
@@ -34,45 +40,52 @@ export default function LecturerManagementPage() {
     try {
       const ids = selectedItems.map((item) => item.id);
       await adminLecturerApi.deleteMultiple(ids);
-      toast.success(`Successfully deleted ${selectedItems.length} lecturer(s)`);
+      toast.success(
+        dict.admin.common.bulkDeleteSuccess
+          .replace("{count}", String(selectedItems.length))
+          .replace("{entity}", "lecturer(s)"),
+      );
       refetch();
       router.refresh();
       onSuccess?.();
     } catch (error: unknown) {
       const err = error as { message?: string };
-      toast.error(err?.message || "Failed to delete lecturers");
+      toast.error(
+        err?.message ||
+          dict.admin.common.bulkDeleteFailed.replace("{entity}", "lecturers"),
+      );
     }
   };
 
   const tabs: { id: TabId; label: string; icon: typeof BarChart3 }[] = [
-    { id: "chart", label: "Overview", icon: BarChart3 },
-    { id: "table", label: "Edit lecturers", icon: Users },
+    { id: "chart", label: dict.admin.management.overview, icon: BarChart3 },
+    { id: "table", label: dict.admin.management.editLecturers, icon: Users },
   ];
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Lecturers"
-        description="Manage lecturer accounts and course assignments."
+        title={dict.admin.sidebar.lecturers}
+        description={dict.admin.lecturers.manageDescription}
         action={
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button variant="outline" asChild>
-              <Link href="/admin/management/lecturer/bulk-create">
+              <Link href={localePath("admin/management/lecturer/bulk-create")}>
                 <Upload className="mr-2 h-4 w-4" />
-                Bulk Create
+                {dict.admin.management.bulkCreate}
               </Link>
             </Button>
             <Button asChild>
-              <Link href="/admin/management/lecturer/create">
+              <Link href={localePath("admin/management/lecturer/create")}>
                 <Plus className="mr-2 h-4 w-4" />
-                Create New Lecturer
+                {dict.admin.management.createNewLecturer}
               </Link>
             </Button>
           </div>
         }
       />
 
-      <div className="flex gap-1 rounded-lg border bg-muted/30 p-1 w-fit">
+      <div className="flex flex-wrap gap-1 rounded-lg border bg-muted/30 p-1">
         {tabs.map((tab) => (
           <Button
             key={tab.id}
@@ -94,7 +107,7 @@ export default function LecturerManagementPage() {
           {loading ? (
             <div className="flex items-center justify-center p-8">
               <div className="text-muted-foreground">
-                Loading specific data...
+                {dict.admin.common.loadingData}
               </div>
             </div>
           ) : (

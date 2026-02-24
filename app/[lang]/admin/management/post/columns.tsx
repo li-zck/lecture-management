@@ -26,8 +26,12 @@ import {
 } from "@/components/ui/shadcn/dropdown-menu";
 import { DataTableColumnHeader } from "@/components/ui/table/DataTableColumnHeader";
 import { adminPostApi, type Post } from "@/lib/api/admin-post";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale } from "@/lib/i18n/use-locale";
 
 const ActionCell = ({ post }: { post: Post }) => {
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
   const router = useRouter();
   const [openDelete, setOpenDelete] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -36,12 +40,17 @@ const ActionCell = ({ post }: { post: Post }) => {
     setIsDeleting(true);
     try {
       await adminPostApi.delete(post.id);
-      toast.success("Post deleted successfully");
+      toast.success(
+        dict.admin.common.deletedSuccess.replace("{entity}", "Post"),
+      );
       router.refresh();
       window.location.reload();
     } catch (error: unknown) {
       const err = error as { message?: string };
-      toast.error(err?.message || "Failed to delete post");
+      toast.error(
+        err?.message ||
+          dict.admin.common.deleteFailed.replace("{entity}", "post"),
+      );
     } finally {
       setIsDeleting(false);
       setOpenDelete(false);
@@ -62,7 +71,7 @@ const ActionCell = ({ post }: { post: Post }) => {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuLabel>{dict.admin.common.actions}</DropdownMenuLabel>
           <DropdownMenuItem
             onClick={(e) => {
               e.stopPropagation();
@@ -70,7 +79,7 @@ const ActionCell = ({ post }: { post: Post }) => {
             }}
           >
             <Pencil className="mr-2 h-4 w-4" />
-            Edit
+            {dict.admin.common.edit}
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={(e) => {
@@ -80,7 +89,7 @@ const ActionCell = ({ post }: { post: Post }) => {
             className="text-red-600 focus:text-red-600"
           >
             <Trash className="mr-2 h-4 w-4" />
-            Delete
+            {dict.admin.common.delete}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -88,14 +97,20 @@ const ActionCell = ({ post }: { post: Post }) => {
       <AlertDialog open={openDelete} onOpenChange={setOpenDelete}>
         <AlertDialogContent onClick={(e) => e.stopPropagation()}>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogTitle>
+              {dict.admin.common.confirmTitle}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the
-              post &quot;{post.title}&quot;.
+              {dict.admin.common.confirmDeleteBody.replace(
+                "{entity}",
+                `post "${post.title}"`,
+              )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={isDeleting}>
+              {dict.admin.common.cancel}
+            </AlertDialogCancel>
             <AlertDialogAction
               disabled={isDeleting}
               onClick={(e) => {
@@ -104,7 +119,9 @@ const ActionCell = ({ post }: { post: Post }) => {
               }}
               className="bg-red-600 hover:bg-red-700"
             >
-              {isDeleting ? "Deleting..." : "Delete"}
+              {isDeleting
+                ? dict.admin.common.deleting
+                : dict.admin.common.delete}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -113,62 +130,82 @@ const ActionCell = ({ post }: { post: Post }) => {
   );
 };
 
-export const columns: ColumnDef<Post>[] = [
-  {
-    accessorKey: "title",
-    meta: { label: "Title" },
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Title" />
-    ),
-    cell: ({ row }) => (
-      <div className="max-w-[200px] truncate">{row.getValue("title")}</div>
-    ),
-  },
-  {
-    accessorKey: "type",
-    meta: { label: "Type" },
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Type" />
-    ),
-  },
-  {
-    accessorKey: "isPublic",
-    meta: { label: "Public" },
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Public" />
-    ),
-    cell: ({ row }) => (
-      <span
-        className={
-          row.getValue("isPublic") ? "text-green-600" : "text-muted-foreground"
-        }
-      >
-        {row.getValue("isPublic") ? "Yes" : "No"}
-      </span>
-    ),
-  },
-  {
-    accessorKey: "department.name",
-    meta: { label: "Department" },
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Department" />
-    ),
-    cell: ({ row }) => <div>{row.original.department?.name ?? "Global"}</div>,
-  },
-  {
-    accessorKey: "createdAt",
-    meta: { label: "Created" },
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Created" />
-    ),
-    cell: ({ row }) => (
-      <div className="text-muted-foreground text-sm">
-        {new Date(row.getValue("createdAt")).toLocaleDateString()}
-      </div>
-    ),
-  },
-  {
-    id: "actions",
-    cell: ({ row }) => <ActionCell post={row.original} />,
-  },
-];
+export function getColumns(dict: any): ColumnDef<Post>[] {
+  return [
+    {
+      accessorKey: "title",
+      meta: { label: dict.admin.posts.postTitle },
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title={dict.admin.posts.postTitle}
+        />
+      ),
+      cell: ({ row }) => (
+        <div className="max-w-[200px] truncate">{row.getValue("title")}</div>
+      ),
+    },
+    {
+      accessorKey: "type",
+      meta: { label: dict.admin.posts.type },
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={dict.admin.posts.type} />
+      ),
+    },
+    {
+      accessorKey: "isPublic",
+      meta: { label: dict.admin.posts.public },
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title={dict.admin.posts.public}
+        />
+      ),
+      cell: ({ row }) => (
+        <span
+          className={
+            row.getValue("isPublic")
+              ? "text-green-600"
+              : "text-muted-foreground"
+          }
+        >
+          {row.getValue("isPublic")
+            ? dict.admin.common.yes
+            : dict.admin.common.no}
+        </span>
+      ),
+    },
+    {
+      accessorKey: "department.name",
+      meta: { label: dict.admin.common.department },
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title={dict.admin.common.department}
+        />
+      ),
+      cell: ({ row }) => (
+        <div>{row.original.department?.name ?? dict.admin.common.global}</div>
+      ),
+    },
+    {
+      accessorKey: "createdAt",
+      meta: { label: dict.admin.posts.created },
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title={dict.admin.posts.created}
+        />
+      ),
+      cell: ({ row }) => (
+        <div className="text-muted-foreground text-sm">
+          {new Date(row.getValue("createdAt")).toLocaleDateString()}
+        </div>
+      ),
+    },
+    {
+      id: "actions",
+      cell: ({ row }) => <ActionCell post={row.original} />,
+    },
+  ];
+}

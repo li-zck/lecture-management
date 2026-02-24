@@ -9,6 +9,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/shadcn/card";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale } from "@/lib/i18n/use-locale";
 import { useMemo } from "react";
 import {
   Bar,
@@ -24,6 +26,9 @@ import {
  * Lecturers over time (sign-ups per month) + workload (course-semesters per lecturer).
  */
 export function LecturerOverviewChart() {
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
+  const t = dict.admin.chart;
   const { lecturers, loading: lecturersLoading } = useLecturers();
   const { courseSemesters, loading: courseSemestersLoading } =
     useCourseSemesters();
@@ -47,7 +52,7 @@ export function LecturerOverviewChart() {
     for (const cs of courseSemesters) {
       const lid = cs.lecturerId ?? "unassigned";
       const name =
-        cs.lecturer?.fullName ?? cs.lecturer?.lecturerId ?? "Unassigned";
+        cs.lecturer?.fullName ?? cs.lecturer?.lecturerId ?? t.unassigned;
       const existing = map.get(lid);
       if (existing) {
         existing.count += 1;
@@ -58,7 +63,7 @@ export function LecturerOverviewChart() {
     return Array.from(map.values())
       .sort((a, b) => b.count - a.count)
       .slice(0, 10);
-  }, [courseSemesters]);
+  }, [courseSemesters, t]);
 
   const loading = lecturersLoading || courseSemestersLoading;
 
@@ -66,11 +71,11 @@ export function LecturerOverviewChart() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Lecturer overview</CardTitle>
-          <CardDescription>Loading chart data...</CardDescription>
+          <CardTitle>{t.lecturerOverview}</CardTitle>
+          <CardDescription>{t.loading}</CardDescription>
         </CardHeader>
         <CardContent className="h-[280px] flex items-center justify-center text-muted-foreground">
-          Loading...
+          {t.loadingShort}
         </CardContent>
       </Card>
     );
@@ -81,10 +86,8 @@ export function LecturerOverviewChart() {
       {overTimeData.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Lecturers over time</CardTitle>
-            <CardDescription>
-              New lecturer accounts per month (last 12 months)
-            </CardDescription>
+            <CardTitle>{t.lecturersOverTime}</CardTitle>
+            <CardDescription>{t.newLecturersPerMonth}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-[220px] w-full">
@@ -117,8 +120,8 @@ export function LecturerOverviewChart() {
                         <div className="rounded-lg border bg-background px-3 py-2 shadow-sm">
                           <p className="font-medium">{d.month}</p>
                           <p className="text-sm text-muted-foreground">
-                            {d.lecturers} new lecturer
-                            {d.lecturers === 1 ? "" : "s"}
+                            {d.lecturers}{" "}
+                            {d.lecturers === 1 ? t.newLecturer : t.newLecturers}
                           </p>
                         </div>
                       );
@@ -129,7 +132,7 @@ export function LecturerOverviewChart() {
                     dataKey="lecturers"
                     fill="hsl(var(--primary))"
                     radius={[4, 4, 0, 0]}
-                    name="New lecturers"
+                    name={t.newLecturers}
                     className="fill-gray-400 hover:fill-gray-500 transition-all duration-100"
                   />
                 </BarChart>
@@ -141,10 +144,8 @@ export function LecturerOverviewChart() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Workload (course-semesters per lecturer)</CardTitle>
-          <CardDescription>
-            Number of scheduled course-semesters per lecturer (top 10)
-          </CardDescription>
+          <CardTitle>{t.workloadPerLecturer}</CardTitle>
+          <CardDescription>{t.workloadPerLecturerDesc}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="h-[280px] w-full">
@@ -178,7 +179,7 @@ export function LecturerOverviewChart() {
                         <div className="rounded-lg border bg-background px-3 py-2 shadow-sm">
                           <p className="font-medium">{d.name}</p>
                           <p className="text-sm text-muted-foreground">
-                            {d.count} schedule{d.count === 1 ? "" : "s"}
+                            {d.count} {d.count === 1 ? t.schedule : t.schedules}
                           </p>
                         </div>
                       );
@@ -189,14 +190,14 @@ export function LecturerOverviewChart() {
                     dataKey="count"
                     fill="hsl(var(--chart-2, 220 70% 50%))"
                     radius={[0, 4, 4, 0]}
-                    name="Schedules"
+                    name={t.schedules}
                     className="fill-gray-400 hover:fill-gray-500 transition-all duration-100"
                   />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
               <div className="flex h-full items-center justify-center text-muted-foreground text-sm">
-                No scheduled courses yet
+                {t.noScheduledCourses}
               </div>
             )}
           </div>

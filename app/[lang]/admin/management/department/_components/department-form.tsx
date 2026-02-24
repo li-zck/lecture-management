@@ -31,6 +31,8 @@ import {
   SelectValue,
 } from "@/components/ui/shadcn/select";
 import { Textarea } from "@/components/ui/shadcn/textarea";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale } from "@/lib/i18n/use-locale";
 import { createDepartmentSchema } from "@/lib/zod/schemas/create/department";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Trash } from "lucide-react";
@@ -53,6 +55,8 @@ export function DepartmentForm({
   onDelete,
   mode,
 }: DepartmentFormProps) {
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
   const { lecturers } = useLecturers();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -86,12 +90,17 @@ export function DepartmentForm({
       <Card className="w-full max-w-2xl">
         <CardHeader>
           <CardTitle>
-            {mode === "create" ? "Create Department" : "Edit Department"}
+            {mode === "create"
+              ? dict.admin.departments.createDepartment
+              : dict.admin.departments.editDepartment}
           </CardTitle>
           <CardDescription>
             {mode === "create"
-              ? "Fill in the details below to create a new department."
-              : "Update the department information below."}
+              ? dict.admin.common.fillDetails.replace("{entity}", "department")
+              : dict.admin.common.updateDetails.replace(
+                  "{entity}",
+                  "department",
+                )}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -106,13 +115,15 @@ export function DepartmentForm({
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor="department-form-name">
-                      Department Name
+                      {dict.admin.departments.departmentName}
                     </FieldLabel>
                     <Input
                       {...field}
                       id="department-form-name"
                       aria-invalid={fieldState.invalid}
-                      placeholder="Software Engineering"
+                      placeholder={
+                        dict.admin.departments.departmentNamePlaceholder
+                      }
                       autoComplete="off"
                     />
                     {fieldState.invalid && (
@@ -127,13 +138,15 @@ export function DepartmentForm({
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor="department-form-id">
-                      Department ID
+                      {dict.admin.departments.departmentId}
                     </FieldLabel>
                     <Input
                       {...field}
                       id="department-form-id"
                       aria-invalid={fieldState.invalid}
-                      placeholder="SE"
+                      placeholder={
+                        dict.admin.departments.departmentIdPlaceholder
+                      }
                       disabled={mode === "edit"}
                       autoComplete="off"
                     />
@@ -151,7 +164,7 @@ export function DepartmentForm({
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="department-form-headId">
-                    Head of Department
+                    {dict.admin.departments.headOfDepartment}
                   </FieldLabel>
                   <Select
                     onValueChange={field.onChange}
@@ -159,7 +172,9 @@ export function DepartmentForm({
                     value={field.value}
                   >
                     <SelectTrigger id="department-form-headId">
-                      <SelectValue placeholder="Select a lecturer" />
+                      <SelectValue
+                        placeholder={dict.admin.departments.selectLecturer}
+                      />
                     </SelectTrigger>
                     <SelectContent position="popper" sideOffset={5}>
                       <SelectItem value="none">-</SelectItem>
@@ -183,13 +198,13 @@ export function DepartmentForm({
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="department-form-description">
-                    Description
+                    {dict.admin.common.description}
                   </FieldLabel>
                   <Textarea
                     {...field}
                     id="department-form-description"
                     aria-invalid={fieldState.invalid}
-                    placeholder="Describe the department..."
+                    placeholder={dict.admin.departments.descriptionPlaceholder}
                     className="resize-none min-h-[120px]"
                     autoComplete="off"
                   />
@@ -210,7 +225,7 @@ export function DepartmentForm({
               onClick={() => setShowDeleteDialog(true)}
             >
               <Trash className="mr-2 h-4 w-4" />
-              Delete
+              {dict.admin.common.delete}
             </Button>
           ) : (
             <div />
@@ -220,7 +235,9 @@ export function DepartmentForm({
             disabled={form.formState.isSubmitting || isDeleting}
             onClick={form.handleSubmit(handleSubmit as any)}
           >
-            {mode === "create" ? "Create Department" : "Save Changes"}
+            {mode === "create"
+              ? dict.admin.departments.createDepartment
+              : dict.admin.common.saveChanges}
           </Button>
         </CardFooter>
       </Card>
@@ -229,15 +246,20 @@ export function DepartmentForm({
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogTitle>
+              {dict.admin.common.confirmTitle}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the
-              department &quot;{initialValues?.name}&quot; and remove all
-              associated data.
+              {dict.admin.departments.confirmDeleteBody.replace(
+                "{name}",
+                initialValues?.name ?? "",
+              )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={isDeleting}>
+              {dict.admin.common.cancel}
+            </AlertDialogCancel>
             <AlertDialogAction
               disabled={isDeleting}
               onClick={async (e) => {
@@ -254,7 +276,9 @@ export function DepartmentForm({
               }}
               className="bg-red-600 hover:bg-red-700"
             >
-              {isDeleting ? "Deleting..." : "Delete"}
+              {isDeleting
+                ? dict.admin.common.deleting
+                : dict.admin.common.delete}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

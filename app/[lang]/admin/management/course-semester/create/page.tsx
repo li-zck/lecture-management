@@ -3,21 +3,28 @@
 import { PageHeader } from "@/components/ui/page-header";
 import { adminCourseSemesterApi } from "@/lib/api/admin-course-semester";
 import { getErrorInfo, logError } from "@/lib/api/error";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale } from "@/lib/i18n/use-locale";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { CourseSemesterForm } from "../_components/course-semester-form";
 
-const getScheduleErrorMessage = (status: number, fallback: string): string => {
-  const messages: Record<number, string> = {
-    400: "Please check the schedule information and try again.",
-    409: "This course is already scheduled for this semester.",
-    422: "Some schedule information is invalid. Please review the form.",
-  };
-  return messages[status] || fallback;
-};
-
 export default function CreateCourseSemesterPage() {
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
   const router = useRouter();
+
+  const getScheduleErrorMessage = (
+    status: number,
+    fallback: string,
+  ): string => {
+    const messages: Record<number, string> = {
+      400: dict.admin.common.checkInfo.replace("{entity}", "schedule"),
+      409: dict.admin.common.alreadyExists.replace("{entity}", "schedule"),
+      422: dict.admin.common.invalidInfo.replace("{entity}", "schedule"),
+    };
+    return messages[status] || fallback;
+  };
 
   const handleSubmit = async (values: any) => {
     try {
@@ -27,7 +34,9 @@ export default function CreateCourseSemesterPage() {
       }
 
       await adminCourseSemesterApi.create(payload);
-      toast.success("Schedule created successfully");
+      toast.success(
+        dict.admin.common.createdSuccess.replace("{entity}", "Schedule"),
+      );
       router.back();
       router.refresh();
     } catch (error: unknown) {
@@ -40,8 +49,8 @@ export default function CreateCourseSemesterPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Add Course Schedule"
-        description="Assign a course to a semester and lecturer"
+        title={dict.admin.courseSemesters.addSchedule}
+        description={dict.admin.courseSemesters.addSchedulePageDesc}
       />
       <CourseSemesterForm onSubmit={handleSubmit} mode="create" />
     </div>

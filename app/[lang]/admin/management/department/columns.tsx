@@ -29,8 +29,13 @@ import {
   adminDepartmentApi,
   type Department,
 } from "@/lib/api/admin-department";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale, useLocalePath } from "@/lib/i18n/use-locale";
 
 const ActionCell = ({ department }: { department: Department }) => {
+  const locale = useLocale();
+  const localePath = useLocalePath();
+  const dict = getClientDictionary(locale);
   const router = useRouter();
   const [openDelete, setOpenDelete] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -39,12 +44,17 @@ const ActionCell = ({ department }: { department: Department }) => {
     setIsDeleting(true);
     try {
       await adminDepartmentApi.delete(department.id);
-      toast.success("Department deleted successfully");
+      toast.success(
+        dict.admin.common.deletedSuccess.replace("{entity}", "Department"),
+      );
       router.refresh();
       window.location.reload();
     } catch (error: unknown) {
       const err = error as { message?: string; status?: number };
-      toast.error(err?.message || "Failed to delete department");
+      toast.error(
+        err?.message ||
+          dict.admin.common.deleteFailed.replace("{entity}", "department"),
+      );
     } finally {
       setIsDeleting(false);
       setOpenDelete(false);
@@ -60,20 +70,22 @@ const ActionCell = ({ department }: { department: Department }) => {
             className="h-8 w-8 p-0"
             onClick={(e) => e.stopPropagation()}
           >
-            <span className="sr-only">Open menu</span>
+            <span className="sr-only">{dict.admin.common.openMenu}</span>
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuLabel>{dict.admin.common.actions}</DropdownMenuLabel>
           <DropdownMenuItem
             onClick={(e) => {
               e.stopPropagation();
-              router.push(`/admin/management/department/${department.id}`);
+              router.push(
+                localePath(`admin/management/department/${department.id}`),
+              );
             }}
           >
             <Pencil className="mr-2 h-4 w-4" />
-            Edit
+            {dict.admin.common.edit}
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={(e) => {
@@ -83,7 +95,7 @@ const ActionCell = ({ department }: { department: Department }) => {
             className="text-red-600 focus:text-red-600"
           >
             <Trash className="mr-2 h-4 w-4" />
-            Delete
+            {dict.admin.common.delete}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -91,14 +103,20 @@ const ActionCell = ({ department }: { department: Department }) => {
       <AlertDialog open={openDelete} onOpenChange={setOpenDelete}>
         <AlertDialogContent onClick={(e) => e.stopPropagation()}>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogTitle>
+              {dict.admin.common.confirmTitle}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the
-              department &quot;{department.name}&quot;.
+              {dict.admin.departments.confirmDeleteBody.replace(
+                "{name}",
+                department.name,
+              )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={isDeleting}>
+              {dict.admin.common.cancel}
+            </AlertDialogCancel>
             <AlertDialogAction
               disabled={isDeleting}
               onClick={(e) => {
@@ -107,7 +125,9 @@ const ActionCell = ({ department }: { department: Department }) => {
               }}
               className="bg-red-600 hover:bg-red-700"
             >
-              {isDeleting ? "Deleting..." : "Delete"}
+              {isDeleting
+                ? dict.admin.common.deleting
+                : dict.admin.common.delete}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -116,34 +136,47 @@ const ActionCell = ({ department }: { department: Department }) => {
   );
 };
 
-export const columns: ColumnDef<Department>[] = [
-  {
-    accessorKey: "departmentId",
-    meta: { label: "Department ID" },
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Dept ID" />
-    ),
-    cell: ({ row }) => (
-      <div className="w-[100px]">{row.getValue("departmentId")}</div>
-    ),
-  },
-  {
-    accessorKey: "name",
-    meta: { label: "Name" },
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Name" />
-    ),
-  },
-  {
-    accessorKey: "head.fullName",
-    meta: { label: "Head" },
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Head" />
-    ),
-    cell: ({ row }) => <div>{row.original.head?.fullName || "N/A"}</div>,
-  },
-  {
-    id: "actions",
-    cell: ({ row }) => <ActionCell department={row.original} />,
-  },
-];
+export function getColumns(dict: any): ColumnDef<Department>[] {
+  return [
+    {
+      accessorKey: "departmentId",
+      meta: { label: dict.admin.departments.departmentId },
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title={dict.admin.departments.departmentId}
+        />
+      ),
+      cell: ({ row }) => (
+        <div className="w-[100px]">{row.getValue("departmentId")}</div>
+      ),
+    },
+    {
+      accessorKey: "name",
+      meta: { label: dict.admin.departments.departmentName },
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title={dict.admin.departments.departmentName}
+        />
+      ),
+    },
+    {
+      accessorKey: "head.fullName",
+      meta: { label: dict.admin.departments.headOfDepartment },
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title={dict.admin.departments.headOfDepartment}
+        />
+      ),
+      cell: ({ row }) => (
+        <div>{row.original.head?.fullName || dict.admin.common.na}</div>
+      ),
+    },
+    {
+      id: "actions",
+      cell: ({ row }) => <ActionCell department={row.original} />,
+    },
+  ];
+}

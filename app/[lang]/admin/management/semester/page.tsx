@@ -6,6 +6,8 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/shadcn/button";
 import { DataTable } from "@/components/ui/table/DataTable";
 import { adminSemesterApi, type Semester } from "@/lib/api/admin-semester";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale } from "@/lib/i18n/use-locale";
 import { sortByUpdatedAtDesc } from "@/lib/utils";
 import { BarChart3, Calendar, Plus } from "lucide-react";
 import Link from "next/link";
@@ -13,14 +15,17 @@ import { useRouter } from "next/navigation";
 import { useMemo } from "react";
 import { toast } from "sonner";
 import { SemesterOverviewChart } from "./_components/semester-overview-chart";
-import { columns } from "./columns";
+import { getColumns } from "./columns";
 
 type TabId = "chart" | "table";
 
 export default function SemesterManagementPage() {
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
   const [activeTab, setActiveTab] = useManagementTab("edit-semester");
   const { semesters, loading, refetch } = useSemesters();
   const router = useRouter();
+  const columns = useMemo(() => getColumns(dict), [dict]);
   const sortedSemesters = useMemo(
     () => sortByUpdatedAtDesc(semesters),
     [semesters],
@@ -33,31 +38,38 @@ export default function SemesterManagementPage() {
     try {
       const ids = selectedItems.map((item) => item.id);
       await adminSemesterApi.deleteMultiple(ids);
-      toast.success(`Successfully deleted ${selectedItems.length} semester(s)`);
+      toast.success(
+        dict.admin.common.bulkDeleteSuccess
+          .replace("{count}", String(selectedItems.length))
+          .replace("{entity}", "semester(s)"),
+      );
       refetch();
       router.refresh();
       onSuccess?.();
     } catch (error: unknown) {
       const err = error as { message?: string };
-      toast.error(err?.message || "Failed to delete semesters");
+      toast.error(
+        err?.message ||
+          dict.admin.common.bulkDeleteFailed.replace("{entity}", "semesters"),
+      );
     }
   };
 
   const tabs: { id: TabId; label: string; icon: typeof BarChart3 }[] = [
-    { id: "chart", label: "Overview", icon: BarChart3 },
-    { id: "table", label: "Edit semesters", icon: Calendar },
+    { id: "chart", label: dict.admin.management.overview, icon: BarChart3 },
+    { id: "table", label: dict.admin.management.editSemesters, icon: Calendar },
   ];
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Semesters"
-        description="Manage academic semesters and their periods."
+        title={dict.admin.semesters.title}
+        description={dict.admin.semesters.manageDescription}
         action={
           <Button asChild>
             <Link href="/admin/management/semester/create">
               <Plus className="mr-2 h-4 w-4" />
-              Create New Semester
+              {dict.admin.management.createNewSemester}
             </Link>
           </Button>
         }
@@ -85,7 +97,7 @@ export default function SemesterManagementPage() {
           {loading ? (
             <div className="flex items-center justify-center p-8">
               <div className="text-muted-foreground">
-                Loading specific data...
+                {dict.admin.common.loadingData}
               </div>
             </div>
           ) : (

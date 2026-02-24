@@ -3,6 +3,8 @@
 import { PageHeader } from "@/components/ui/page-header";
 import { adminPostApi } from "@/lib/api/admin-post";
 import { getErrorInfo, logError } from "@/lib/api/error";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale } from "@/lib/i18n/use-locale";
 import { queryKeys } from "@/lib/query";
 import type { CreatePostSchema } from "@/lib/zod/schemas/create/post";
 import { useQueryClient } from "@tanstack/react-query";
@@ -12,6 +14,8 @@ import { toast } from "sonner";
 import { PostForm } from "../_components/post-form";
 
 export default function EditPostPage() {
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
   const params = useParams();
   const id = typeof params?.id === "string" ? params.id : "";
   const router = useRouter();
@@ -56,7 +60,7 @@ export default function EditPostPage() {
         if (cancelled) return;
         logError(error, "Fetch Post");
         if (!hasShownErrorRef.current) {
-          toast.error("Failed to load post");
+          toast.error(dict.admin.common.loadFailed.replace("{entity}", "post"));
           hasShownErrorRef.current = true;
         }
         router.push("/admin/management/post");
@@ -68,7 +72,7 @@ export default function EditPostPage() {
     return () => {
       cancelled = true;
     };
-  }, [id, router]);
+  }, [id, router, dict]);
 
   const handleSubmit = async (values: CreatePostSchema) => {
     try {
@@ -88,13 +92,17 @@ export default function EditPostPage() {
       await queryClient.invalidateQueries({
         queryKey: queryKeys.posts.all,
       });
-      toast.success("Post updated successfully");
+      toast.success(
+        dict.admin.common.updatedSuccess.replace("{entity}", "Post"),
+      );
       router.back();
       router.refresh();
     } catch (error: unknown) {
       const { message } = getErrorInfo(error);
       logError(error, "Update Post");
-      toast.error(message || "Failed to update post");
+      toast.error(
+        message || dict.admin.common.updateFailed.replace("{entity}", "post"),
+      );
     }
   };
 
@@ -104,13 +112,17 @@ export default function EditPostPage() {
       await queryClient.invalidateQueries({
         queryKey: queryKeys.posts.all,
       });
-      toast.success("Post deleted successfully");
+      toast.success(
+        dict.admin.common.deletedSuccess.replace("{entity}", "Post"),
+      );
       router.back();
       router.refresh();
     } catch (error: unknown) {
       const { message } = getErrorInfo(error);
       logError(error, "Delete Post");
-      toast.error(message || "Failed to delete post");
+      toast.error(
+        message || dict.admin.common.deleteFailed.replace("{entity}", "post"),
+      );
     }
   };
 
@@ -119,14 +131,17 @@ export default function EditPostPage() {
   }
 
   if (loading || !initialValues) {
-    return <div>Loading...</div>;
+    return <div>{dict.admin.common.loading}</div>;
   }
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Edit Post"
-        description={`Edit "${initialValues.title ?? "Post"}"`}
+        title={dict.admin.posts.editPost}
+        description={dict.admin.posts.editDescription.replace(
+          "{name}",
+          initialValues.title ?? "Post",
+        )}
       />
       <PostForm
         key={id}

@@ -20,6 +20,8 @@ import {
 } from "@/components/ui/shadcn/dropdown-menu";
 import type { Enrollment } from "@/lib/api/admin-enrollment";
 import { adminEnrollmentApi } from "@/lib/api/admin-enrollment";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale } from "@/lib/i18n/use-locale";
 import { useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal, Trash } from "lucide-react";
@@ -28,6 +30,8 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 const ActionCell = ({ enrollment }: { enrollment: Enrollment }) => {
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
   const router = useRouter();
   const queryClient = useQueryClient();
   const [openDelete, setOpenDelete] = useState(false);
@@ -38,10 +42,10 @@ const ActionCell = ({ enrollment }: { enrollment: Enrollment }) => {
       await queryClient.invalidateQueries({
         queryKey: ["admin", "enrollments"],
       });
-      toast.success("Enrollment removed successfully");
+      toast.success(dict.admin.enrollments.removedSuccess);
       router.refresh();
     } catch {
-      toast.error("Failed to remove enrollment");
+      toast.error(dict.admin.enrollments.removeFailed);
     }
   };
 
@@ -50,18 +54,18 @@ const ActionCell = ({ enrollment }: { enrollment: Enrollment }) => {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="h-8 w-8 p-0">
-            <span className="sr-only">Open menu</span>
+            <span className="sr-only">{dict.admin.common.openMenu}</span>
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuLabel>{dict.admin.common.actions}</DropdownMenuLabel>
           <DropdownMenuItem
             onClick={() => setOpenDelete(true)}
             className="text-red-600 focus:text-red-600"
           >
             <Trash className="mr-2 h-4 w-4" />
-            Delete
+            {dict.admin.common.delete}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -69,14 +73,15 @@ const ActionCell = ({ enrollment }: { enrollment: Enrollment }) => {
       <AlertDialog open={openDelete} onOpenChange={setOpenDelete}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Remove enrollment?</AlertDialogTitle>
+            <AlertDialogTitle>
+              {dict.admin.enrollments.removeTitle}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              This will remove the student from this course. This action cannot
-              be undone.
+              {dict.admin.enrollments.removeBody}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{dict.admin.common.cancel}</AlertDialogCancel>
             <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
@@ -84,7 +89,7 @@ const ActionCell = ({ enrollment }: { enrollment: Enrollment }) => {
               }}
               className="bg-red-600 hover:bg-red-700"
             >
-              Delete
+              {dict.admin.common.delete}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -93,55 +98,59 @@ const ActionCell = ({ enrollment }: { enrollment: Enrollment }) => {
   );
 };
 
-export const columns: ColumnDef<Enrollment>[] = [
-  {
-    id: "student",
-    accessorFn: (row) =>
-      row.student?.fullName ??
-      row.student?.email ??
-      row.student?.studentId ??
-      "",
-    meta: { label: "Student" },
-    header: "Student",
-    cell: ({ row }) => (
-      <div>
-        <p className="font-medium">
-          {row.original.student?.fullName ?? row.original.student?.email ?? "—"}
-        </p>
-        {row.original.student?.studentId && (
-          <p className="text-xs text-muted-foreground">
-            {row.original.student.studentId}
+export function getColumns(dict: any): ColumnDef<Enrollment>[] {
+  return [
+    {
+      id: "student",
+      accessorFn: (row) =>
+        row.student?.fullName ??
+        row.student?.email ??
+        row.student?.studentId ??
+        "",
+      meta: { label: dict.admin.enrollments.student },
+      header: dict.admin.enrollments.student,
+      cell: ({ row }) => (
+        <div>
+          <p className="font-medium">
+            {row.original.student?.fullName ??
+              row.original.student?.email ??
+              "—"}
           </p>
-        )}
-      </div>
-    ),
-  },
-  {
-    id: "course",
-    accessorFn: (row) => row.courseOnSemester?.course?.name ?? "",
-    meta: { label: "Course" },
-    header: "Course",
-    cell: ({ row }) => row.original.courseOnSemester?.course?.name ?? "—",
-  },
-  {
-    id: "semester",
-    accessorFn: (row) => row.courseOnSemester?.semester?.name ?? "",
-    meta: { label: "Semester" },
-    header: "Semester",
-    cell: ({ row }) => row.original.courseOnSemester?.semester?.name ?? "—",
-  },
-  {
-    id: "finalGrade",
-    accessorFn: (row) => row.finalGrade ?? "",
-    meta: { label: "Final grade" },
-    header: "Final grade",
-    cell: ({ row }) => {
-      const g = row.original.finalGrade;
-      return g != null ? String(g) : "—";
+          {row.original.student?.studentId && (
+            <p className="text-xs text-muted-foreground">
+              {row.original.student.studentId}
+            </p>
+          )}
+        </div>
+      ),
     },
-  },
-  {
-    id: "actions",
-    cell: ({ row }) => <ActionCell enrollment={row.original} />,
-  },
-];
+    {
+      id: "course",
+      accessorFn: (row) => row.courseOnSemester?.course?.name ?? "",
+      meta: { label: dict.admin.enrollments.course },
+      header: dict.admin.enrollments.course,
+      cell: ({ row }) => row.original.courseOnSemester?.course?.name ?? "—",
+    },
+    {
+      id: "semester",
+      accessorFn: (row) => row.courseOnSemester?.semester?.name ?? "",
+      meta: { label: dict.admin.enrollments.semester },
+      header: dict.admin.enrollments.semester,
+      cell: ({ row }) => row.original.courseOnSemester?.semester?.name ?? "—",
+    },
+    {
+      id: "finalGrade",
+      accessorFn: (row) => row.finalGrade ?? "",
+      meta: { label: dict.admin.enrollments.finalGrade },
+      header: dict.admin.enrollments.finalGrade,
+      cell: ({ row }) => {
+        const g = row.original.finalGrade;
+        return g != null ? String(g) : "—";
+      },
+    },
+    {
+      id: "actions",
+      cell: ({ row }) => <ActionCell enrollment={row.original} />,
+    },
+  ];
+}

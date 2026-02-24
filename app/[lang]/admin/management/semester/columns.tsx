@@ -29,8 +29,12 @@ import {
 } from "@/components/ui/shadcn/dropdown-menu";
 import { DataTableColumnHeader } from "@/components/ui/table/DataTableColumnHeader";
 import { adminSemesterApi, type Semester } from "@/lib/api/admin-semester";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale } from "@/lib/i18n/use-locale";
 
 const ActionCell = ({ semester }: { semester: Semester }) => {
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
   const router = useRouter();
   const queryClient = useQueryClient();
   const [openDelete, setOpenDelete] = useState(false);
@@ -41,10 +45,14 @@ const ActionCell = ({ semester }: { semester: Semester }) => {
       await queryClient.invalidateQueries({
         queryKey: queryKeys.semesters.all,
       });
-      toast.success("Semester deleted successfully");
+      toast.success(
+        dict.admin.common.deletedSuccess.replace("{entity}", "Semester"),
+      );
       router.refresh();
     } catch {
-      toast.error("Failed to delete semester");
+      toast.error(
+        dict.admin.common.deleteFailed.replace("{entity}", "semester"),
+      );
     }
   };
 
@@ -53,26 +61,26 @@ const ActionCell = ({ semester }: { semester: Semester }) => {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="h-8 w-8 p-0">
-            <span className="sr-only">Open menu</span>
+            <span className="sr-only">{dict.admin.common.openMenu}</span>
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuLabel>{dict.admin.common.actions}</DropdownMenuLabel>
           <DropdownMenuItem
             onClick={() =>
               router.push(`/admin/management/semester/${semester.id}`)
             }
           >
             <Pencil className="mr-2 h-4 w-4" />
-            Edit
+            {dict.admin.common.edit}
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => setOpenDelete(true)}
             className="text-red-600 focus:text-red-600"
           >
             <Trash className="mr-2 h-4 w-4" />
-            Delete
+            {dict.admin.common.delete}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -80,14 +88,18 @@ const ActionCell = ({ semester }: { semester: Semester }) => {
       <AlertDialog open={openDelete} onOpenChange={setOpenDelete}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogTitle>
+              {dict.admin.common.confirmTitle}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the
-              semester.
+              {dict.admin.common.confirmDeleteBody.replace(
+                "{entity}",
+                "semester",
+              )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{dict.admin.common.cancel}</AlertDialogCancel>
             <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
@@ -95,7 +107,7 @@ const ActionCell = ({ semester }: { semester: Semester }) => {
               }}
               className="bg-red-600 hover:bg-red-700"
             >
-              Delete
+              {dict.admin.common.delete}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -104,36 +116,47 @@ const ActionCell = ({ semester }: { semester: Semester }) => {
   );
 };
 
-export const columns: ColumnDef<Semester>[] = [
-  {
-    accessorKey: "name",
-    meta: { label: "Semester name" },
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Semester Name" />
-    ),
-  },
-  {
-    accessorKey: "startDate",
-    meta: { label: "Start date" },
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Start Date" />
-    ),
-    cell: ({ row }) => (
-      <div>{format(new Date(row.getValue("startDate")), "PPP")}</div>
-    ),
-  },
-  {
-    accessorKey: "endDate",
-    meta: { label: "End date" },
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="End Date" />
-    ),
-    cell: ({ row }) => (
-      <div>{format(new Date(row.getValue("endDate")), "PPP")}</div>
-    ),
-  },
-  {
-    id: "actions",
-    cell: ({ row }) => <ActionCell semester={row.original} />,
-  },
-];
+export function getColumns(dict: any): ColumnDef<Semester>[] {
+  return [
+    {
+      accessorKey: "name",
+      meta: { label: dict.admin.semesters.semesterName },
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title={dict.admin.semesters.semesterName}
+        />
+      ),
+    },
+    {
+      accessorKey: "startDate",
+      meta: { label: dict.admin.common.startDate },
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title={dict.admin.common.startDate}
+        />
+      ),
+      cell: ({ row }) => (
+        <div>{format(new Date(row.getValue("startDate")), "PPP")}</div>
+      ),
+    },
+    {
+      accessorKey: "endDate",
+      meta: { label: dict.admin.common.endDate },
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title={dict.admin.common.endDate}
+        />
+      ),
+      cell: ({ row }) => (
+        <div>{format(new Date(row.getValue("endDate")), "PPP")}</div>
+      ),
+    },
+    {
+      id: "actions",
+      cell: ({ row }) => <ActionCell semester={row.original} />,
+    },
+  ];
+}

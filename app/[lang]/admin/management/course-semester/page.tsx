@@ -9,6 +9,8 @@ import {
   adminCourseSemesterApi,
   type CourseSemester,
 } from "@/lib/api/admin-course-semester";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale } from "@/lib/i18n/use-locale";
 import { sortByUpdatedAtDesc } from "@/lib/utils";
 import { BarChart3, CalendarDays, Plus } from "lucide-react";
 import Link from "next/link";
@@ -16,14 +18,17 @@ import { useRouter } from "next/navigation";
 import { useMemo } from "react";
 import { toast } from "sonner";
 import { CourseSemesterOverviewChart } from "./_components/course-semester-overview-chart";
-import { columns } from "./columns";
+import { getColumns } from "./columns";
 
 type TabId = "chart" | "table";
 
 export default function CourseSemesterManagementPage() {
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
   const [activeTab, setActiveTab] = useManagementTab("edit-course-semester");
   const { courseSemesters, loading, refetch } = useCourseSemesters();
   const router = useRouter();
+  const columns = useMemo(() => getColumns(dict), [dict]);
   const sortedCourseSemesters = useMemo(
     () => sortByUpdatedAtDesc(courseSemesters),
     [courseSemesters],
@@ -37,32 +42,44 @@ export default function CourseSemesterManagementPage() {
       const ids = selectedItems.map((item) => item.id);
       await adminCourseSemesterApi.deleteMultiple(ids);
       toast.success(
-        `Successfully deleted ${selectedItems.length} course-semester(s)`,
+        dict.admin.common.bulkDeleteSuccess
+          .replace("{count}", String(selectedItems.length))
+          .replace("{entity}", "course-semester(s)"),
       );
       refetch();
       router.refresh();
       onSuccess?.();
     } catch (error: unknown) {
       const err = error as { message?: string };
-      toast.error(err?.message || "Failed to delete course-semesters");
+      toast.error(
+        err?.message ||
+          dict.admin.common.bulkDeleteFailed.replace(
+            "{entity}",
+            "course-semesters",
+          ),
+      );
     }
   };
 
   const tabs: { id: TabId; label: string; icon: typeof BarChart3 }[] = [
-    { id: "chart", label: "Overview", icon: BarChart3 },
-    { id: "table", label: "Edit schedules", icon: CalendarDays },
+    { id: "chart", label: dict.admin.management.overview, icon: BarChart3 },
+    {
+      id: "table",
+      label: dict.admin.management.editSchedules,
+      icon: CalendarDays,
+    },
   ];
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Course-Semesters"
-        description="Manage course offerings and schedule for each semester."
+        title={dict.admin.courseSemesters.title}
+        description={dict.admin.courseSemesters.manageDescription}
         action={
           <Button asChild>
             <Link href="/admin/management/course-semester/create">
               <Plus className="mr-2 h-4 w-4" />
-              Add New Schedule
+              {dict.admin.management.addNewSchedule}
             </Link>
           </Button>
         }
@@ -90,7 +107,7 @@ export default function CourseSemesterManagementPage() {
           {loading ? (
             <div className="flex items-center justify-center p-8">
               <div className="text-muted-foreground">
-                Loading specific data...
+                {dict.admin.common.loadingData}
               </div>
             </div>
           ) : (

@@ -17,6 +17,8 @@ import {
   FormMessage,
   Input,
 } from "@/components/ui/shadcn";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale } from "@/lib/i18n/use-locale";
 import { createSemesterSchema } from "@/lib/zod/schemas/create/semester";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -41,6 +43,8 @@ export function SemesterForm({
   onSubmit,
   mode,
 }: SemesterFormProps) {
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
   const form = useForm<SemesterFormValues>({
     resolver: zodResolver(createSemesterSchema),
     defaultValues: {
@@ -60,12 +64,14 @@ export function SemesterForm({
       <Card className="w-full max-w-2xl">
         <CardHeader>
           <CardTitle>
-            {mode === "create" ? "Create Semester" : "Edit Semester"}
+            {mode === "create"
+              ? dict.admin.semesters.createSemester
+              : dict.admin.semesters.editSemester}
           </CardTitle>
           <CardDescription>
             {mode === "create"
-              ? "Fill in the details below to create a new semester."
-              : "Update the semester information below."}
+              ? dict.admin.common.fillDetails.replace("{entity}", "semester")
+              : dict.admin.common.updateDetails.replace("{entity}", "semester")}
           </CardDescription>
         </CardHeader>
         <Form {...form}>
@@ -76,9 +82,14 @@ export function SemesterForm({
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Semester Name</FormLabel>
+                    <FormLabel>{dict.admin.semesters.semesterName}</FormLabel>
                     <FormControl>
-                      <Input placeholder="Spring 2026" {...field} />
+                      <Input
+                        placeholder={
+                          dict.admin.semesters.semesterNamePlaceholder
+                        }
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -91,12 +102,12 @@ export function SemesterForm({
                   name="startDate"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Start Date</FormLabel>
+                      <FormLabel>{dict.admin.common.startDate}</FormLabel>
                       <FormControl>
                         <DatePickerInput
                           value={field.value ?? ""}
                           onChange={field.onChange}
-                          placeholder="Select start date"
+                          placeholder={dict.admin.semesters.selectStartDate}
                         />
                       </FormControl>
                       <FormMessage />
@@ -108,12 +119,12 @@ export function SemesterForm({
                   name="endDate"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>End Date</FormLabel>
+                      <FormLabel>{dict.admin.common.endDate}</FormLabel>
                       <FormControl>
                         <DatePickerInput
                           value={field.value ?? ""}
                           onChange={field.onChange}
-                          placeholder="Select end date"
+                          placeholder={dict.admin.semesters.selectEndDate}
                         />
                       </FormControl>
                       <FormMessage />
@@ -124,7 +135,9 @@ export function SemesterForm({
             </CardContent>
             <CardFooter className="flex justify-end">
               <Button type="submit" disabled={form.formState.isSubmitting}>
-                {mode === "create" ? "Create Semester" : "Save Changes"}
+                {mode === "create"
+                  ? dict.admin.semesters.createSemester
+                  : dict.admin.common.saveChanges}
               </Button>
             </CardFooter>
           </form>

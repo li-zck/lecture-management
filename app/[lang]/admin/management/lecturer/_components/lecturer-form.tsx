@@ -20,6 +20,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/shadcn/select";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale } from "@/lib/i18n/use-locale";
 import { createLecturerSchema } from "@/lib/zod/schemas/create/account";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
@@ -46,6 +48,8 @@ export function LecturerForm({
   onSubmit,
   mode,
 }: LecturerFormProps) {
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
   const { departments } = useDepartments();
   const schema = mode === "edit" ? editLecturerSchema : createLecturerSchema;
 
@@ -89,13 +93,16 @@ export function LecturerForm({
         <CardHeader>
           <CardTitle>
             {mode === "create"
-              ? "Create Lecturer Account"
-              : "Edit Lecturer Account"}
+              ? dict.admin.lecturers.createAccount
+              : dict.admin.lecturers.editAccount}
           </CardTitle>
           <CardDescription>
             {mode === "create"
-              ? "Fill in the details below to create a new lecturer account."
-              : "Update the lecturer information below."}
+              ? dict.admin.common.fillDetails.replace(
+                  "{entity}",
+                  "lecturer account",
+                )
+              : dict.admin.common.updateDetails.replace("{entity}", "lecturer")}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -110,13 +117,13 @@ export function LecturerForm({
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor="lecturer-form-fullName">
-                      Full Name
+                      {dict.admin.common.fullName}
                     </FieldLabel>
                     <Input
                       {...field}
                       id="lecturer-form-fullName"
                       aria-invalid={fieldState.invalid}
-                      placeholder="Dr. Nguyen Van B"
+                      placeholder={dict.admin.lecturers.fullNamePlaceholder}
                       autoComplete="off"
                     />
                     {fieldState.invalid && (
@@ -131,13 +138,13 @@ export function LecturerForm({
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor="lecturer-form-lecturerId">
-                      Lecturer ID
+                      {dict.admin.lecturers.lecturerId}
                     </FieldLabel>
                     <Input
                       {...field}
                       id="lecturer-form-lecturerId"
                       aria-invalid={fieldState.invalid}
-                      placeholder="GV123"
+                      placeholder={dict.admin.lecturers.lecturerIdPlaceholder}
                       disabled={mode === "edit"}
                       autoComplete="off"
                     />
@@ -152,13 +159,15 @@ export function LecturerForm({
                 name="email"
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor="lecturer-form-email">Email</FieldLabel>
+                    <FieldLabel htmlFor="lecturer-form-email">
+                      {dict.admin.common.email}
+                    </FieldLabel>
                     <Input
                       {...field}
                       id="lecturer-form-email"
                       type="email"
                       aria-invalid={fieldState.invalid}
-                      placeholder="b@example.com"
+                      placeholder={dict.admin.lecturers.emailPlaceholder}
                       autoComplete="off"
                     />
                     {fieldState.invalid && (
@@ -173,13 +182,13 @@ export function LecturerForm({
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor="lecturer-form-username">
-                      Username
+                      {dict.admin.common.username}
                     </FieldLabel>
                     <Input
                       {...field}
                       id="lecturer-form-username"
                       aria-invalid={fieldState.invalid}
-                      placeholder="username"
+                      placeholder={dict.admin.common.username.toLowerCase()}
                       autoComplete="off"
                     />
                     {fieldState.invalid && (
@@ -198,8 +207,9 @@ export function LecturerForm({
                     className="md:col-span-2"
                   >
                     <FieldLabel htmlFor="lecturer-form-password">
-                      Password{" "}
-                      {mode === "edit" && "(Leave blank to keep unchanged)"}
+                      {dict.admin.common.password}{" "}
+                      {mode === "edit" &&
+                        `(${dict.admin.common.newPasswordHint})`}
                     </FieldLabel>
                     <Input
                       {...field}
@@ -226,7 +236,7 @@ export function LecturerForm({
                       className="md:col-span-2"
                     >
                       <FieldLabel htmlFor="lecturer-form-departmentHeadId">
-                        Assign as Department Head
+                        {dict.admin.lecturers.assignDeptHead}
                       </FieldLabel>
                       <Select
                         onValueChange={(value) =>
@@ -235,10 +245,14 @@ export function LecturerForm({
                         value={field.value ?? "__none__"}
                       >
                         <SelectTrigger id="lecturer-form-departmentHeadId">
-                          <SelectValue placeholder="None (not a department head)" />
+                          <SelectValue
+                            placeholder={dict.admin.lecturers.noneDeptHead}
+                          />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="__none__">None</SelectItem>
+                          <SelectItem value="__none__">
+                            {dict.admin.common.none}
+                          </SelectItem>
                           {departments.map((dept) => (
                             <SelectItem key={dept.id} value={dept.id}>
                               {dept.name}
@@ -262,7 +276,9 @@ export function LecturerForm({
             disabled={form.formState.isSubmitting}
             onClick={form.handleSubmit(handleSubmit as any)}
           >
-            {mode === "create" ? "Create Lecturer" : "Save Changes"}
+            {mode === "create"
+              ? dict.admin.lecturers.createAccount
+              : dict.admin.common.saveChanges}
           </Button>
         </CardFooter>
       </Card>

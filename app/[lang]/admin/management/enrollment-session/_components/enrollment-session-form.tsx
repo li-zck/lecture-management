@@ -24,6 +24,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/shadcn";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale } from "@/lib/i18n/use-locale";
 import {
   createEnrollmentSessionSchema,
   type CreateEnrollmentSessionFormValues,
@@ -42,6 +44,8 @@ export function EnrollmentSessionForm({
   onSubmit,
   mode,
 }: EnrollmentSessionFormProps) {
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
   const { semesters, loading: semestersLoading } = useSemesters();
 
   const form = useForm<CreateEnrollmentSessionFormValues>({
@@ -69,13 +73,13 @@ export function EnrollmentSessionForm({
         <CardHeader>
           <CardTitle>
             {mode === "create"
-              ? "Create Enrollment Session"
-              : "Edit Enrollment Session"}
+              ? dict.admin.enrollmentSessions.createSession
+              : dict.admin.enrollmentSessions.editSession}
           </CardTitle>
           <CardDescription>
             {mode === "create"
-              ? "Define a time period when students can enroll in courses."
-              : "Update the enrollment session details."}
+              ? dict.admin.enrollmentSessions.createDesc
+              : dict.admin.enrollmentSessions.editDesc}
           </CardDescription>
         </CardHeader>
         <Form {...form}>
@@ -86,15 +90,19 @@ export function EnrollmentSessionForm({
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Session Name (Optional)</FormLabel>
+                    <FormLabel>
+                      {dict.admin.enrollmentSessions.sessionName}
+                    </FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="e.g., Early Registration, Regular Enrollment"
+                        placeholder={
+                          dict.admin.enrollmentSessions.sessionNamePlaceholder
+                        }
                         {...field}
                       />
                     </FormControl>
                     <FormDescription>
-                      A descriptive name for this enrollment period
+                      {dict.admin.enrollmentSessions.sessionNameHint}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -106,7 +114,9 @@ export function EnrollmentSessionForm({
                 name="semesterId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Semester</FormLabel>
+                    <FormLabel>
+                      {dict.admin.enrollmentSessions.semester}
+                    </FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
@@ -114,7 +124,11 @@ export function EnrollmentSessionForm({
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select a semester" />
+                          <SelectValue
+                            placeholder={
+                              dict.admin.enrollmentSessions.selectSemester
+                            }
+                          />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -126,7 +140,7 @@ export function EnrollmentSessionForm({
                       </SelectContent>
                     </Select>
                     <FormDescription>
-                      The semester this enrollment session is for
+                      {dict.admin.enrollmentSessions.semesterFor}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -139,11 +153,15 @@ export function EnrollmentSessionForm({
                   name="startDate"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Start Date & Time</FormLabel>
+                      <FormLabel>
+                        {dict.admin.enrollmentSessions.startDateTime}
+                      </FormLabel>
                       <FormControl>
                         <Input type="datetime-local" {...field} />
                       </FormControl>
-                      <FormDescription>When enrollment opens</FormDescription>
+                      <FormDescription>
+                        {dict.admin.enrollmentSessions.whenOpens}
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -153,11 +171,15 @@ export function EnrollmentSessionForm({
                   name="endDate"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>End Date & Time</FormLabel>
+                      <FormLabel>
+                        {dict.admin.enrollmentSessions.endDateTime}
+                      </FormLabel>
                       <FormControl>
                         <Input type="datetime-local" {...field} />
                       </FormControl>
-                      <FormDescription>When enrollment closes</FormDescription>
+                      <FormDescription>
+                        {dict.admin.enrollmentSessions.whenCloses}
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -176,10 +198,11 @@ export function EnrollmentSessionForm({
                       />
                     </FormControl>
                     <div className="space-y-1 leading-none">
-                      <FormLabel>Active</FormLabel>
+                      <FormLabel>
+                        {dict.admin.enrollmentSessions.activeLabel}
+                      </FormLabel>
                       <FormDescription>
-                        When active, this session will be available for
-                        enrollment during the specified time range
+                        {dict.admin.enrollmentSessions.activeHint}
                       </FormDescription>
                     </div>
                   </FormItem>
@@ -189,8 +212,8 @@ export function EnrollmentSessionForm({
             <CardFooter className="flex justify-end mt-4">
               <Button type="submit" disabled={form.formState.isSubmitting}>
                 {mode === "create"
-                  ? "Create Enrollment Session"
-                  : "Save Changes"}
+                  ? dict.admin.enrollmentSessions.createSession
+                  : dict.admin.common.saveChanges}
               </Button>
             </CardFooter>
           </form>

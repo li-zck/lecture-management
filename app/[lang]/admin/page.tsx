@@ -21,7 +21,6 @@ import {
   useSemesters,
   useStudents,
 } from "@/components/ui/hooks";
-import { Button } from "@/components/ui/shadcn/button";
 import {
   Card,
   CardContent,
@@ -214,9 +213,11 @@ export default function AdminPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Activity className="h-5 w-5" />
-              System Overview
+              {dict.admin.dashboard.systemOverview}
             </CardTitle>
-            <CardDescription>Current system status and tips</CardDescription>
+            <CardDescription>
+              {dict.admin.dashboard.systemStatusAndTips}
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center gap-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
@@ -224,42 +225,44 @@ export default function AdminPage() {
                 <TrendingUp className="h-4 w-4 text-green-600" />
               </div>
               <div>
-                <p className="font-medium text-sm">System Status</p>
+                <p className="font-medium text-sm">
+                  {dict.admin.dashboard.systemStatus}
+                </p>
                 <p className="text-xs text-muted-foreground">
-                  All services are running normally
+                  {dict.admin.dashboard.allServicesRunning}
                 </p>
               </div>
             </div>
 
             <div className="space-y-3">
-              <h4 className="font-medium text-sm">Quick Tips</h4>
+              <h4 className="font-medium text-sm">
+                {dict.admin.dashboard.quickTips}
+              </h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li className="flex items-start gap-2">
                   <span className="text-primary">•</span>
                   <span>
-                    Use{" "}
+                    {dict.admin.dashboard.cmdkTip.split("{key}")[0]}
                     <kbd className="px-1.5 py-0.5 text-xs bg-muted rounded">
                       ⌘K
-                    </kbd>{" "}
-                    to open the command palette for quick navigation
+                    </kbd>
+                    {dict.admin.dashboard.cmdkTip.split("{key}")[1]}
                   </span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-primary">•</span>
-                  <span>
-                    Click on any stat card to view and manage that entity
-                  </span>
+                  <span>{dict.admin.dashboard.statCardTip}</span>
                 </li>
               </ul>
             </div>
 
-            <div className="pt-2">
+            {/* <div className="pt-2">
               <Button variant="outline" className="w-full" asChild>
                 <Link href={localePath("admin/management")}>
                   {dict.admin.dashboard.viewAllManagement}
                 </Link>
               </Button>
-            </div>
+            </div> */}
           </CardContent>
         </Card>
       </div>

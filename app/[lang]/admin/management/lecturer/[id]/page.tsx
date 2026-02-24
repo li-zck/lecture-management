@@ -4,6 +4,8 @@ import { useLecturer } from "@/components/ui/hooks/use-lecturer";
 import { PageHeader } from "@/components/ui/page-header";
 import { adminLecturerApi } from "@/lib/api/admin-lecturer";
 import { getErrorInfo, logError } from "@/lib/api/error";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale, useLocalePath } from "@/lib/i18n/use-locale";
 import { queryKeys } from "@/lib/query";
 import { useQueryClient } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
@@ -11,17 +13,28 @@ import { useEffect } from "react";
 import { toast } from "sonner";
 import { LecturerForm } from "../_components/lecturer-form";
 
-const getLecturerErrorMessage = (status: number, fallback: string): string => {
+const getLecturerErrorMessage = (
+  status: number,
+  backendMessage: string,
+  dict: any,
+): string => {
+  if (status === 409 && backendMessage) {
+    return backendMessage;
+  }
+
   const messages: Record<number, string> = {
-    400: "Please check the lecturer information and try again.",
-    404: "Lecturer not found.",
-    409: "A lecturer with this email already exists.",
-    422: "Some lecturer information is invalid. Please review the form.",
+    400: dict.admin.common.checkInfo.replace("{entity}", "lecturer"),
+    404: dict.admin.common.notFound.replace("{entity}", "Lecturer"),
+    409: dict.admin.common.alreadyExists.replace("{entity}", "lecturer"),
+    422: dict.admin.common.invalidInfo.replace("{entity}", "lecturer"),
   };
-  return messages[status] || fallback;
+  return messages[status] || backendMessage;
 };
 
 export default function EditLecturerPage() {
+  const locale = useLocale();
+  const localePath = useLocalePath();
+  const dict = getClientDictionary(locale);
   const params = useParams();
   const id = typeof params?.id === "string" ? params.id : "";
   const router = useRouter();
@@ -30,18 +43,18 @@ export default function EditLecturerPage() {
 
   useEffect(() => {
     if (!id) {
-      router.push("/admin/management/lecturer");
+      router.push(localePath("admin/management/lecturer"));
       return;
     }
-  }, [id, router]);
+  }, [id, router, localePath]);
 
   useEffect(() => {
     if (error) {
       logError(error, "Fetch Lecturer");
-      toast.error("Failed to load lecturer data");
-      router.push("/admin/management/lecturer");
+      toast.error(dict.admin.common.loadFailed.replace("{entity}", "lecturer"));
+      router.push(localePath("admin/management/lecturer"));
     }
-  }, [error, router]);
+  }, [error, router, dict, localePath]);
 
   const handleSubmit = async (values: any) => {
     try {
@@ -60,13 +73,15 @@ export default function EditLecturerPage() {
       await queryClient.invalidateQueries({
         queryKey: queryKeys.lecturers.all,
       });
-      toast.success("Lecturer updated successfully");
+      toast.success(
+        dict.admin.common.updatedSuccess.replace("{entity}", "Lecturer"),
+      );
       router.back();
       router.refresh();
     } catch (error: unknown) {
       const { status, message } = getErrorInfo(error);
       logError(error, "Update Lecturer");
-      toast.error(getLecturerErrorMessage(status, message));
+      toast.error(getLecturerErrorMessage(status, message, dict));
     }
   };
 
@@ -86,14 +101,17 @@ export default function EditLecturerPage() {
       : null;
 
   if (!id || loading || error) {
-    return <div>Loading...</div>;
+    return <div>{dict.admin.common.loading}</div>;
   }
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Edit Lecturer"
-        description={`Edit details for ${initialValues?.fullName ?? "Lecturer"}`}
+        title={dict.admin.lecturers.editAccount}
+        description={dict.admin.common.updateDetails.replace(
+          "{entity}",
+          initialValues?.fullName ?? "Lecturer",
+        )}
       />
       {initialValues && (
         <LecturerForm

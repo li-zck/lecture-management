@@ -9,6 +9,8 @@ import {
   CardTitle,
 } from "@/components/ui/shadcn/card";
 import { adminEnrollmentApi } from "@/lib/api/admin-enrollment";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale } from "@/lib/i18n/use-locale";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import {
@@ -21,20 +23,13 @@ import {
   YAxis,
 } from "recharts";
 
-const DAYS = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-];
-
 /**
  * Schedules by day of week + lecturer workload (course-semesters per lecturer).
  */
 export function CourseSemesterOverviewChart() {
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
+  const t = dict.admin.chart;
   const { courseSemesters, loading } = useCourseSemesters();
   const { data: enrollments = [], isLoading: enrollmentsLoading } = useQuery({
     queryKey: ["admin", "enrollments", "list"],
@@ -46,9 +41,18 @@ export function CourseSemesterOverviewChart() {
   });
 
   const byDayData = useMemo(() => {
+    const days = [
+      t.sunday,
+      t.monday,
+      t.tuesday,
+      t.wednesday,
+      t.thursday,
+      t.friday,
+      t.saturday,
+    ];
     const counts = new Array(7)
       .fill(0)
-      .map((_, i) => ({ day: i, name: DAYS[i], count: 0 }));
+      .map((_, i) => ({ day: i, name: days[i], count: 0 }));
     for (const cs of courseSemesters) {
       const day = cs.dayOfWeek ?? 0;
       if (day >= 0 && day <= 6) counts[day].count += 1;
@@ -56,14 +60,14 @@ export function CourseSemesterOverviewChart() {
     return counts.filter((d) => d.count > 0).length > 0
       ? counts
       : counts.slice(0, 5);
-  }, [courseSemesters]);
+  }, [courseSemesters, t]);
 
   const byLecturerData = useMemo(() => {
     const map = new Map<string, { id: string; name: string; count: number }>();
     for (const cs of courseSemesters) {
       const lid = cs.lecturerId ?? "unassigned";
       const name =
-        cs.lecturer?.fullName ?? cs.lecturer?.lecturerId ?? "Unassigned";
+        cs.lecturer?.fullName ?? cs.lecturer?.lecturerId ?? t.unassigned;
       const existing = map.get(lid);
       if (existing) {
         existing.count += 1;
@@ -74,7 +78,7 @@ export function CourseSemesterOverviewChart() {
     return Array.from(map.values())
       .sort((a, b) => b.count - a.count)
       .slice(0, 10);
-  }, [courseSemesters]);
+  }, [courseSemesters, t]);
 
   const enrollmentLoadData = useMemo(() => {
     const countByCsId = new Map<string, number>();
@@ -85,7 +89,7 @@ export function CourseSemesterOverviewChart() {
     const csIdToLabel = new Map(
       courseSemesters.map((cs) => [
         cs.id,
-        `${cs.course?.name ?? "Course"} (${cs.semester?.name ?? ""})`,
+        `${cs.course?.name ?? t.course} (${cs.semester?.name ?? ""})`,
       ]),
     );
     return Array.from(countByCsId.entries())
@@ -96,17 +100,17 @@ export function CourseSemesterOverviewChart() {
       }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 10);
-  }, [enrollments, courseSemesters]);
+  }, [enrollments, courseSemesters, t]);
 
   if (loading) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Schedule overview</CardTitle>
-          <CardDescription>Loading chart data...</CardDescription>
+          <CardTitle>{t.scheduleOverview}</CardTitle>
+          <CardDescription>{t.loading}</CardDescription>
         </CardHeader>
         <CardContent className="h-[280px] flex items-center justify-center text-muted-foreground">
-          Loading...
+          {t.loadingShort}
         </CardContent>
       </Card>
     );
@@ -119,10 +123,8 @@ export function CourseSemesterOverviewChart() {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Schedules by day</CardTitle>
-          <CardDescription>
-            Number of course-semesters per day of week
-          </CardDescription>
+          <CardTitle>{t.schedulesByDay}</CardTitle>
+          <CardDescription>{t.schedulesByDayDesc}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="h-[280px] w-full">
@@ -155,7 +157,7 @@ export function CourseSemesterOverviewChart() {
                       <div className="rounded-lg border bg-background px-3 py-2 shadow-sm">
                         <p className="font-medium">{d.name}</p>
                         <p className="text-sm text-muted-foreground">
-                          {d.count} schedule{d.count === 1 ? "" : "s"}
+                          {d.count} {d.count === 1 ? t.schedule : t.schedules}
                         </p>
                       </div>
                     );
@@ -166,7 +168,7 @@ export function CourseSemesterOverviewChart() {
                   dataKey="count"
                   fill="hsl(var(--primary))"
                   radius={[4, 4, 0, 0]}
-                  name="Schedules"
+                  name={t.schedules}
                   className="fill-gray-400 hover:fill-gray-500 transition-all duration-100"
                 />
               </BarChart>
@@ -178,10 +180,8 @@ export function CourseSemesterOverviewChart() {
       {showEnrollmentLoad && (
         <Card>
           <CardHeader>
-            <CardTitle>Enrollment load</CardTitle>
-            <CardDescription>
-              Top 10 course-semesters by number of enrolled students
-            </CardDescription>
+            <CardTitle>{t.enrollmentLoad}</CardTitle>
+            <CardDescription>{t.enrollmentLoadDesc}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-[280px] w-full">
@@ -214,7 +214,7 @@ export function CourseSemesterOverviewChart() {
                         <div className="rounded-lg border bg-background px-3 py-2 shadow-sm">
                           <p className="font-medium">{d.name}</p>
                           <p className="text-sm text-muted-foreground">
-                            {d.count} enrolled
+                            {d.count} {t.enrolled}
                           </p>
                         </div>
                       );
@@ -225,7 +225,7 @@ export function CourseSemesterOverviewChart() {
                     dataKey="count"
                     fill="hsl(var(--chart-3, 280 70% 50%))"
                     radius={[0, 4, 4, 0]}
-                    name="Enrolled"
+                    name={t.enrolled}
                     className="fill-gray-400 hover:fill-gray-500 transition-all duration-100"
                   />
                 </BarChart>
@@ -238,10 +238,8 @@ export function CourseSemesterOverviewChart() {
       {byLecturerData.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Lecturer workload</CardTitle>
-            <CardDescription>
-              Number of course-semesters per lecturer (top 10)
-            </CardDescription>
+            <CardTitle>{t.lecturerWorkload}</CardTitle>
+            <CardDescription>{t.lecturerWorkloadDesc}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-[280px] w-full">
@@ -274,7 +272,7 @@ export function CourseSemesterOverviewChart() {
                         <div className="rounded-lg border bg-background px-3 py-2 shadow-sm">
                           <p className="font-medium">{d.name}</p>
                           <p className="text-sm text-muted-foreground">
-                            {d.count} schedule{d.count === 1 ? "" : "s"}
+                            {d.count} {d.count === 1 ? t.schedule : t.schedules}
                           </p>
                         </div>
                       );
@@ -285,7 +283,7 @@ export function CourseSemesterOverviewChart() {
                     dataKey="count"
                     fill="hsl(var(--chart-2, 220 70% 50%))"
                     radius={[0, 4, 4, 0]}
-                    name="Schedules"
+                    name={t.schedules}
                     className="fill-gray-400 hover:fill-gray-500 transition-all duration-100"
                   />
                 </BarChart>

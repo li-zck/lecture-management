@@ -26,6 +26,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/shadcn/select";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale } from "@/lib/i18n/use-locale";
 import { createCourseSemesterSchema } from "@/lib/zod/schemas/create/course-semester";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -63,6 +65,8 @@ export function CourseSemesterForm({
   onSubmit,
   mode,
 }: CourseSemesterFormProps) {
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
   const { courses } = useCourses();
   const { semesters } = useSemesters();
   const { lecturers } = useLecturers();
@@ -91,12 +95,14 @@ export function CourseSemesterForm({
       <Card className="w-full max-w-2xl">
         <CardHeader>
           <CardTitle>
-            {mode === "create" ? "Add Course Schedule" : "Edit Course Schedule"}
+            {mode === "create"
+              ? dict.admin.courseSemesters.addSchedule
+              : dict.admin.courseSemesters.editSchedule}
           </CardTitle>
           <CardDescription>
             {mode === "create"
-              ? "Assign a course to a semester with schedule details."
-              : "Update the course schedule information below."}
+              ? dict.admin.courseSemesters.addScheduleDesc
+              : dict.admin.courseSemesters.editScheduleDesc}
           </CardDescription>
         </CardHeader>
         <Form {...form}>
@@ -108,7 +114,7 @@ export function CourseSemesterForm({
                   name="courseId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Course</FormLabel>
+                      <FormLabel>{dict.admin.courseSemesters.course}</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
@@ -117,7 +123,11 @@ export function CourseSemesterForm({
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select a course" />
+                            <SelectValue
+                              placeholder={
+                                dict.admin.courseSemesters.selectCourse
+                              }
+                            />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent position="popper" sideOffset={5}>
@@ -137,7 +147,9 @@ export function CourseSemesterForm({
                   name="semesterId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Semester</FormLabel>
+                      <FormLabel>
+                        {dict.admin.courseSemesters.semester}
+                      </FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
@@ -146,7 +158,11 @@ export function CourseSemesterForm({
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select a semester" />
+                            <SelectValue
+                              placeholder={
+                                dict.admin.courseSemesters.selectSemester
+                              }
+                            />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent position="popper" sideOffset={5}>
@@ -168,7 +184,9 @@ export function CourseSemesterForm({
                 name="lecturerId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Lecturer (Optional)</FormLabel>
+                    <FormLabel>
+                      {dict.admin.courseSemesters.lecturerOptional}
+                    </FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
@@ -176,11 +194,17 @@ export function CourseSemesterForm({
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select a lecturer" />
+                          <SelectValue
+                            placeholder={
+                              dict.admin.courseSemesters.selectLecturer
+                            }
+                          />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent position="popper" sideOffset={5}>
-                        <SelectItem value="none">Unassigned</SelectItem>
+                        <SelectItem value="none">
+                          {dict.admin.common.unassigned}
+                        </SelectItem>
                         {lecturers.map((l) => (
                           <SelectItem key={l.id} value={l.id}>
                             {l.fullName}
@@ -199,14 +223,18 @@ export function CourseSemesterForm({
                   name="dayOfWeek"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Day of Week</FormLabel>
+                      <FormLabel>
+                        {dict.admin.courseSemesters.dayOfWeek}
+                      </FormLabel>
                       <Select
                         onValueChange={(val) => field.onChange(Number(val))}
                         value={field.value?.toString()}
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select day" />
+                            <SelectValue
+                              placeholder={dict.admin.courseSemesters.selectDay}
+                            />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent position="popper" sideOffset={5}>
@@ -226,7 +254,9 @@ export function CourseSemesterForm({
                   name="startTime"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Start Period</FormLabel>
+                      <FormLabel>
+                        {dict.admin.courseSemesters.startPeriod}
+                      </FormLabel>
                       <FormControl>
                         <Input
                           type="number"
@@ -247,7 +277,9 @@ export function CourseSemesterForm({
                   name="endTime"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>End Period</FormLabel>
+                      <FormLabel>
+                        {dict.admin.courseSemesters.endPeriod}
+                      </FormLabel>
                       <FormControl>
                         <Input
                           type="number"
@@ -271,9 +303,16 @@ export function CourseSemesterForm({
                   name="location"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Location</FormLabel>
+                      <FormLabel>
+                        {dict.admin.courseSemesters.location}
+                      </FormLabel>
                       <FormControl>
-                        <Input placeholder="Room 101" {...field} />
+                        <Input
+                          placeholder={
+                            dict.admin.courseSemesters.locationPlaceholder
+                          }
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -284,7 +323,9 @@ export function CourseSemesterForm({
                   name="capacity"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Capacity</FormLabel>
+                      <FormLabel>
+                        {dict.admin.courseSemesters.capacity}
+                      </FormLabel>
                       <FormControl>
                         <Input
                           type="number"
@@ -303,7 +344,9 @@ export function CourseSemesterForm({
             </CardContent>
             <CardFooter className="flex justify-end">
               <Button type="submit" disabled={form.formState.isSubmitting}>
-                {mode === "create" ? "Add Schedule" : "Save Changes"}
+                {mode === "create"
+                  ? dict.admin.courseSemesters.addSchedule
+                  : dict.admin.common.saveChanges}
               </Button>
             </CardFooter>
           </form>

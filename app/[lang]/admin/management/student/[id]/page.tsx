@@ -4,6 +4,8 @@ import { useStudent } from "@/components/ui/hooks/use-students";
 import { PageHeader } from "@/components/ui/page-header";
 import { adminStudentApi } from "@/lib/api/admin-student";
 import { getErrorInfo, logError } from "@/lib/api/error";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale, useLocalePath } from "@/lib/i18n/use-locale";
 import { queryKeys } from "@/lib/query";
 import { useQueryClient } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
@@ -21,23 +23,25 @@ function normalizeBirthDate(v: string | null | undefined): string {
 const getStudentErrorMessage = (
   status: number,
   backendMessage: string,
+  dict: any,
 ): string => {
-  // For 409 conflicts, use the backend message which is more specific
-  // (e.g., "Email already exists" or "Username already exists")
   if (status === 409 && backendMessage) {
     return backendMessage;
   }
 
   const messages: Record<number, string> = {
-    400: "Please check the student information and try again.",
-    404: "Student not found.",
-    409: "A student with this email already exists.",
-    422: "Some student information is invalid. Please review the form.",
+    400: dict.admin.common.checkInfo.replace("{entity}", "student"),
+    404: dict.admin.common.notFound.replace("{entity}", "Student"),
+    409: dict.admin.common.alreadyExists.replace("{entity}", "student"),
+    422: dict.admin.common.invalidInfo.replace("{entity}", "student"),
   };
   return messages[status] || backendMessage;
 };
 
 export default function EditStudentPage() {
+  const locale = useLocale();
+  const localePath = useLocalePath();
+  const dict = getClientDictionary(locale);
   const params = useParams();
   const id = typeof params?.id === "string" ? params.id : "";
   const router = useRouter();
@@ -46,18 +50,18 @@ export default function EditStudentPage() {
 
   useEffect(() => {
     if (!id) {
-      router.push("/admin/management/student");
+      router.push(localePath("admin/management/student"));
       return;
     }
-  }, [id, router]);
+  }, [id, router, localePath]);
 
   useEffect(() => {
     if (error) {
       logError(error, "Fetch Student");
-      toast.error("Failed to load student data");
-      router.push("/admin/management/student");
+      toast.error(dict.admin.common.loadFailed.replace("{entity}", "student"));
+      router.push(localePath("admin/management/student"));
     }
-  }, [error, router]);
+  }, [error, router, dict, localePath]);
 
   const handleSubmit = async (values: any) => {
     try {
@@ -72,13 +76,15 @@ export default function EditStudentPage() {
 
       await adminStudentApi.update(id, payload);
       await queryClient.invalidateQueries({ queryKey: queryKeys.students.all });
-      toast.success("Student updated successfully");
+      toast.success(
+        dict.admin.common.updatedSuccess.replace("{entity}", "Student"),
+      );
       router.back();
       router.refresh();
     } catch (error: unknown) {
       const { status, message } = getErrorInfo(error);
       logError(error, "Update Student");
-      toast.error(getStudentErrorMessage(status, message));
+      toast.error(getStudentErrorMessage(status, message, dict));
     }
   };
 
@@ -99,14 +105,17 @@ export default function EditStudentPage() {
       : null;
 
   if (!id || loading || error) {
-    return <div>Loading...</div>;
+    return <div>{dict.admin.common.loading}</div>;
   }
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Edit Student"
-        description={`Edit details for ${initialValues?.fullName ?? "Student"}`}
+        title={dict.admin.students.editAccount}
+        description={dict.admin.common.updateDetails.replace(
+          "{entity}",
+          initialValues?.fullName ?? "Student",
+        )}
       />
       {initialValues && (
         <StudentForm

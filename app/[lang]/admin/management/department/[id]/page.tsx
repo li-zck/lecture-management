@@ -3,6 +3,8 @@
 import { PageHeader } from "@/components/ui/page-header";
 import { adminDepartmentApi } from "@/lib/api/admin-department";
 import { getErrorInfo, logError } from "@/lib/api/error";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale, useLocalePath } from "@/lib/i18n/use-locale";
 import { queryKeys } from "@/lib/query";
 import { useQueryClient } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
@@ -10,36 +12,38 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { DepartmentForm } from "../_components/department-form";
 
-const getDepartmentErrorMessage = (
-  status: number,
-  fallback: string,
-): string => {
-  const messages: Record<number, string> = {
-    400: "Please check the department information and try again.",
-    404: "Department not found.",
-    409: "This lecturer is already head of another department.",
-    422: "Some department information is invalid. Please review the form.",
-  };
-  // Prefer backend message for 409 (e.g. "already head of: Dept Name - DEPT_ID")
-  return status === 409 && fallback && fallback !== "An error occurred"
-    ? fallback
-    : messages[status] || fallback;
-};
-
 export default function EditDepartmentPage() {
+  const locale = useLocale();
+  const localePath = useLocalePath();
+  const dict = getClientDictionary(locale);
   const params = useParams();
   const id = typeof params?.id === "string" ? params.id : "";
   const router = useRouter();
   const queryClient = useQueryClient();
+
+  const getDepartmentErrorMessage = (
+    status: number,
+    fallback: string,
+  ): string => {
+    const messages: Record<number, string> = {
+      400: dict.admin.common.checkInfo.replace("{entity}", "department"),
+      404: dict.admin.common.notFound.replace("{entity}", "Department"),
+      409: dict.admin.departments.alreadyHead,
+      422: dict.admin.common.invalidInfo.replace("{entity}", "department"),
+    };
+    return status === 409 && fallback && fallback !== "An error occurred"
+      ? fallback
+      : messages[status] || fallback;
+  };
   const [loading, setLoading] = useState(true);
   const [initialValues, setInitialValues] = useState<any>(null);
   const hasShownErrorRef = useRef(false);
 
   useEffect(() => {
     if (!id) {
-      router.push("/admin/management/department");
+      router.push(localePath("admin/management/department"));
     }
-  }, [id, router]);
+  }, [id, router, localePath]);
 
   // Clear stale form data when navigating to a different department
   useEffect(() => {
@@ -64,10 +68,12 @@ export default function EditDepartmentPage() {
         if (cancelled) return;
         logError(error, "Fetch Department");
         if (!hasShownErrorRef.current) {
-          toast.error("Failed to load department data");
+          toast.error(
+            dict.admin.common.loadFailed.replace("{entity}", "department"),
+          );
           hasShownErrorRef.current = true;
         }
-        router.push("/admin/management/department");
+        router.push(localePath("admin/management/department"));
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -76,7 +82,7 @@ export default function EditDepartmentPage() {
     return () => {
       cancelled = true;
     };
-  }, [id, router]);
+  }, [id, router, dict, localePath]);
 
   const handleSubmit = async (values: any) => {
     try {
@@ -91,7 +97,9 @@ export default function EditDepartmentPage() {
       await queryClient.invalidateQueries({
         queryKey: queryKeys.departments.all,
       });
-      toast.success("Department updated successfully");
+      toast.success(
+        dict.admin.common.updatedSuccess.replace("{entity}", "Department"),
+      );
       router.back();
       router.refresh();
     } catch (error: unknown) {
@@ -107,7 +115,9 @@ export default function EditDepartmentPage() {
       await queryClient.invalidateQueries({
         queryKey: queryKeys.departments.all,
       });
-      toast.success("Department deleted successfully");
+      toast.success(
+        dict.admin.common.deletedSuccess.replace("{entity}", "Department"),
+      );
       router.back();
       router.refresh();
     } catch (error: unknown) {
@@ -118,13 +128,15 @@ export default function EditDepartmentPage() {
       if (message && message !== "An error occurred") {
         toast.error(message);
       } else if (status === 404) {
-        toast.error("Department not found");
-      } else if (status === 409) {
         toast.error(
-          "Cannot delete department: It has related records. Please remove them first.",
+          dict.admin.common.notFound.replace("{entity}", "Department"),
         );
+      } else if (status === 409) {
+        toast.error(dict.admin.departments.cannotDelete);
       } else {
-        toast.error("Failed to delete department");
+        toast.error(
+          dict.admin.common.deleteFailed.replace("{entity}", "department"),
+        );
       }
     }
   };
@@ -134,14 +146,17 @@ export default function EditDepartmentPage() {
   }
 
   if (loading || !initialValues || initialValues.id !== id) {
-    return <div>Loading...</div>;
+    return <div>{dict.admin.common.loading}</div>;
   }
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Edit Department"
-        description={`Edit details for ${initialValues.name ?? "Department"}`}
+        title={dict.admin.departments.editDepartment}
+        description={dict.admin.common.updateDetails.replace(
+          "{entity}",
+          initialValues.name ?? "Department",
+        )}
       />
       <DepartmentForm
         key={id}

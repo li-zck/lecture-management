@@ -9,6 +9,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/shadcn/card";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale } from "@/lib/i18n/use-locale";
 import { useMemo } from "react";
 import {
   Bar,
@@ -24,6 +26,9 @@ import {
  * Courses by department + credits distribution.
  */
 export function CourseOverviewChart() {
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
+  const t = dict.admin.chart;
   const { courses, loading: coursesLoading } = useCourses();
   const { departments, loading: departmentsLoading } = useDepartments();
 
@@ -39,7 +44,7 @@ export function CourseOverviewChart() {
       } else {
         deptMap.set(deptId, {
           id: deptId,
-          name: c.department?.name ?? "Unassigned",
+          name: c.department?.name ?? t.unassigned,
           count: 1,
         });
       }
@@ -47,7 +52,7 @@ export function CourseOverviewChart() {
     return Array.from(deptMap.values())
       .filter((d) => d.count > 0)
       .sort((a, b) => b.count - a.count);
-  }, [courses, departments]);
+  }, [courses, departments, t]);
 
   const creditsData = useMemo(() => {
     const byCredits = new Map<number, number>();
@@ -66,11 +71,11 @@ export function CourseOverviewChart() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Course overview</CardTitle>
-          <CardDescription>Loading chart data...</CardDescription>
+          <CardTitle>{t.courseOverview}</CardTitle>
+          <CardDescription>{t.loading}</CardDescription>
         </CardHeader>
         <CardContent className="h-[280px] flex items-center justify-center text-muted-foreground">
-          Loading...
+          {t.loadingShort}
         </CardContent>
       </Card>
     );
@@ -80,8 +85,8 @@ export function CourseOverviewChart() {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Courses by department</CardTitle>
-          <CardDescription>Number of courses per department</CardDescription>
+          <CardTitle>{t.coursesByDept}</CardTitle>
+          <CardDescription>{t.coursesByDeptDesc}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="h-[280px] w-full">
@@ -114,7 +119,7 @@ export function CourseOverviewChart() {
                       <div className="rounded-lg border bg-background px-3 py-2 shadow-sm">
                         <p className="font-medium">{d.name}</p>
                         <p className="text-sm text-muted-foreground">
-                          {d.count} course{d.count === 1 ? "" : "s"}
+                          {d.count} {d.count === 1 ? t.course : t.courses}
                         </p>
                       </div>
                     );
@@ -125,7 +130,7 @@ export function CourseOverviewChart() {
                   dataKey="count"
                   fill="hsl(var(--primary))"
                   radius={[4, 4, 0, 0]}
-                  name="Courses"
+                  name={t.courses}
                   className="fill-gray-400 hover:fill-gray-500 transition-all duration-100"
                 />
               </BarChart>
@@ -137,8 +142,8 @@ export function CourseOverviewChart() {
       {creditsData.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Credits distribution</CardTitle>
-            <CardDescription>Number of courses by credit value</CardDescription>
+            <CardTitle>{t.creditsDistribution}</CardTitle>
+            <CardDescription>{t.creditsDistDesc}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-[220px] w-full">
@@ -169,9 +174,11 @@ export function CourseOverviewChart() {
                       const d = payload[0].payload;
                       return (
                         <div className="rounded-lg border bg-background px-3 py-2 shadow-sm">
-                          <p className="font-medium">{d.credits} credits</p>
+                          <p className="font-medium">
+                            {d.credits} {t.credits}
+                          </p>
                           <p className="text-sm text-muted-foreground">
-                            {d.count} course{d.count === 1 ? "" : "s"}
+                            {d.count} {d.count === 1 ? t.course : t.courses}
                           </p>
                         </div>
                       );
@@ -182,7 +189,7 @@ export function CourseOverviewChart() {
                     dataKey="count"
                     fill="hsl(var(--chart-2, 220 70% 50%))"
                     radius={[4, 4, 0, 0]}
-                    name="Courses"
+                    name={t.courses}
                     className="fill-gray-400 hover:fill-gray-500 transition-all duration-100"
                   />
                 </BarChart>

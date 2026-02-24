@@ -31,6 +31,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/shadcn/select";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale } from "@/lib/i18n/use-locale";
 import {
   createPostSchema,
   type CreatePostSchema,
@@ -53,6 +55,8 @@ export function PostForm({
   onDelete,
   mode,
 }: PostFormProps) {
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
   const { departments } = useDepartments();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -78,12 +82,14 @@ export function PostForm({
       <Card className="w-full max-w-2xl">
         <CardHeader>
           <CardTitle>
-            {mode === "create" ? "Create Post" : "Edit Post"}
+            {mode === "create"
+              ? dict.admin.posts.createPost
+              : dict.admin.posts.editPost}
           </CardTitle>
           <CardDescription>
             {mode === "create"
-              ? "Write a new post or announcement."
-              : "Update the post content below."}
+              ? dict.admin.posts.writeNewDescLong
+              : dict.admin.posts.updateDesc}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -96,12 +102,14 @@ export function PostForm({
               name="title"
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="post-form-title">Title</FieldLabel>
+                  <FieldLabel htmlFor="post-form-title">
+                    {dict.admin.posts.postTitle}
+                  </FieldLabel>
                   <Input
                     {...field}
                     id="post-form-title"
                     aria-invalid={fieldState.invalid}
-                    placeholder="Post title"
+                    placeholder={dict.admin.posts.postTitlePlaceholder}
                     autoComplete="off"
                   />
                   {fieldState.invalid && (
@@ -116,7 +124,9 @@ export function PostForm({
               name="content"
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="post-form-content">Content</FieldLabel>
+                  <FieldLabel htmlFor="post-form-content">
+                    {dict.admin.posts.content}
+                  </FieldLabel>
                   <RichTextEditor
                     value={field.value}
                     onChange={field.onChange}
@@ -135,15 +145,19 @@ export function PostForm({
                 name="type"
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor="post-form-type">Type</FieldLabel>
+                    <FieldLabel htmlFor="post-form-type">
+                      {dict.admin.posts.type}
+                    </FieldLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <SelectTrigger id="post-form-type">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent position="popper" sideOffset={5}>
-                        <SelectItem value="NEWS">News</SelectItem>
+                        <SelectItem value="NEWS">
+                          {dict.admin.posts.news}
+                        </SelectItem>
                         <SelectItem value="ANNOUNCEMENT">
-                          Announcement
+                          {dict.admin.posts.announcement}
                         </SelectItem>
                       </SelectContent>
                     </Select>
@@ -160,15 +174,17 @@ export function PostForm({
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor="post-form-department">
-                      Department
+                      {dict.admin.common.department}
                     </FieldLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <SelectTrigger id="post-form-department">
-                        <SelectValue placeholder="Select department" />
+                        <SelectValue
+                          placeholder={dict.admin.posts.selectDepartment}
+                        />
                       </SelectTrigger>
                       <SelectContent position="popper" sideOffset={5}>
                         <SelectItem value="none">
-                          Global (all departments)
+                          {dict.admin.posts.globalAllDepts}
                         </SelectItem>
                         {departments.map((dept) => (
                           <SelectItem key={dept.id} value={dept.id}>
@@ -200,7 +216,7 @@ export function PostForm({
                       htmlFor="post-form-isPublic"
                       className="font-normal cursor-pointer"
                     >
-                      Public (visible to everyone without login)
+                      {dict.admin.posts.publicDesc}
                     </FieldLabel>
                   </div>
                 </Field>
@@ -213,13 +229,13 @@ export function PostForm({
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="post-form-thumbnail">
-                    Thumbnail URL (optional)
+                    {dict.admin.posts.thumbnailUrl}
                   </FieldLabel>
                   <Input
                     {...field}
                     id="post-form-thumbnail"
                     aria-invalid={fieldState.invalid}
-                    placeholder="https://example.com/image.jpg"
+                    placeholder={dict.admin.posts.thumbnailPlaceholder}
                     autoComplete="off"
                   />
                   {fieldState.invalid && (
@@ -239,7 +255,7 @@ export function PostForm({
               onClick={() => setShowDeleteDialog(true)}
             >
               <Trash className="mr-2 h-4 w-4" />
-              Delete
+              {dict.admin.common.delete}
             </Button>
           ) : (
             <div />
@@ -249,7 +265,9 @@ export function PostForm({
             disabled={form.formState.isSubmitting || isDeleting}
             onClick={form.handleSubmit((values) => handleSubmit(values))}
           >
-            {mode === "create" ? "Create Post" : "Save Changes"}
+            {mode === "create"
+              ? dict.admin.posts.createPost
+              : dict.admin.common.saveChanges}
           </Button>
         </CardFooter>
       </Card>
@@ -258,15 +276,19 @@ export function PostForm({
         <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+              <AlertDialogTitle>
+                {dict.admin.common.confirmTitle}
+              </AlertDialogTitle>
               <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete this
-                post.
+                {dict.admin.common.confirmDeleteBody.replace(
+                  "{entity}",
+                  "post",
+                )}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel disabled={isDeleting}>
-                Cancel
+                {dict.admin.common.cancel}
               </AlertDialogCancel>
               <AlertDialogAction
                 disabled={isDeleting}
@@ -284,7 +306,9 @@ export function PostForm({
                 }}
                 className="bg-red-600 hover:bg-red-700"
               >
-                {isDeleting ? "Deleting..." : "Delete"}
+                {isDeleting
+                  ? dict.admin.common.deleting
+                  : dict.admin.common.delete}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

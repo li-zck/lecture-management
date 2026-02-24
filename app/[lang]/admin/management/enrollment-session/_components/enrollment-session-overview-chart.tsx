@@ -9,6 +9,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/shadcn/card";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale } from "@/lib/i18n/use-locale";
 import { useMemo } from "react";
 import {
   Bar,
@@ -24,6 +26,9 @@ import {
  * Sessions by semester (bar) + timeline list (sessions by date).
  */
 export function EnrollmentSessionOverviewChart() {
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
+  const t = dict.admin.chart;
   const { enrollmentSessions, loading: sessionsLoading } =
     useEnrollmentSessions();
   const { semesters, loading: semestersLoading } = useSemesters();
@@ -69,11 +74,11 @@ export function EnrollmentSessionOverviewChart() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Enrollment sessions overview</CardTitle>
-          <CardDescription>Loading chart data...</CardDescription>
+          <CardTitle>{t.sessionsOverview}</CardTitle>
+          <CardDescription>{t.loading}</CardDescription>
         </CardHeader>
         <CardContent className="h-[280px] flex items-center justify-center text-muted-foreground">
-          Loading...
+          {t.loadingShort}
         </CardContent>
       </Card>
     );
@@ -83,10 +88,8 @@ export function EnrollmentSessionOverviewChart() {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Sessions by semester</CardTitle>
-          <CardDescription>
-            Number of enrollment sessions per semester (open in tooltip)
-          </CardDescription>
+          <CardTitle>{t.sessionsBySemester}</CardTitle>
+          <CardDescription>{t.sessionsBySemesterDesc}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="h-[280px] w-full">
@@ -120,8 +123,8 @@ export function EnrollmentSessionOverviewChart() {
                         <div className="rounded-lg border bg-background px-3 py-2 shadow-sm">
                           <p className="font-medium">{d.name}</p>
                           <p className="text-sm text-muted-foreground">
-                            {d.count} session{d.count === 1 ? "" : "s"} (
-                            {d.open} open)
+                            {d.count} {d.count === 1 ? t.session : t.sessions} (
+                            {d.open} {t.open})
                           </p>
                         </div>
                       );
@@ -132,14 +135,14 @@ export function EnrollmentSessionOverviewChart() {
                     dataKey="count"
                     fill="hsl(var(--primary))"
                     radius={[4, 4, 0, 0]}
-                    name="Sessions"
+                    name={t.sessions}
                     className="fill-gray-400 hover:fill-gray-500 transition-all duration-100"
                   />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
               <div className="flex h-full items-center justify-center text-muted-foreground text-sm">
-                No sessions yet
+                {t.noSessions}
               </div>
             )}
           </div>
@@ -148,10 +151,8 @@ export function EnrollmentSessionOverviewChart() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Timeline</CardTitle>
-          <CardDescription>
-            Enrollment sessions by start date (most recent first)
-          </CardDescription>
+          <CardTitle>{t.timeline}</CardTitle>
+          <CardDescription>{t.timelineDesc}</CardDescription>
         </CardHeader>
         <CardContent>
           {timelineSessions.length > 0 ? (
@@ -163,7 +164,7 @@ export function EnrollmentSessionOverviewChart() {
                 >
                   <div>
                     <p className="font-medium">
-                      {s.name || s.semester?.name || "Session"}
+                      {s.name || s.semester?.name || t.sessionFallback}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {new Date(s.startDate).toLocaleDateString()} –{" "}
@@ -177,15 +178,13 @@ export function EnrollmentSessionOverviewChart() {
                         : "bg-muted text-muted-foreground"
                     }`}
                   >
-                    {s.isActive ? "Open" : "Closed"}
+                    {s.isActive ? t.openLabel : t.closedLabel}
                   </span>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="text-sm text-muted-foreground">
-              No enrollment sessions yet.
-            </p>
+            <p className="text-sm text-muted-foreground">{t.noSessionsYet}</p>
           )}
         </CardContent>
       </Card>

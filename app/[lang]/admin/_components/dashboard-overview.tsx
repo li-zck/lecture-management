@@ -14,6 +14,8 @@ import {
   CardTitle,
 } from "@/components/ui/shadcn/card";
 import { adminEnrollmentApi } from "@/lib/api/admin-enrollment";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale } from "@/lib/i18n/use-locale";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useMemo } from "react";
@@ -31,6 +33,8 @@ import {
  * Department distribution: students per department (compact for dashboard).
  */
 function DepartmentDistributionChart() {
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
   const { students, loading: studentsLoading } = useStudents();
   const { departments, loading: departmentsLoading } = useDepartments();
 
@@ -46,7 +50,7 @@ function DepartmentDistributionChart() {
       } else {
         deptMap.set(deptId, {
           id: deptId,
-          name: s.department?.name ?? "Unassigned",
+          name: s.department?.name ?? dict.admin.common.unassigned,
           count: 1,
         });
       }
@@ -54,7 +58,7 @@ function DepartmentDistributionChart() {
     return Array.from(deptMap.values())
       .sort((a, b) => b.count - a.count)
       .slice(0, 8);
-  }, [students, departments]);
+  }, [students, departments, dict]);
 
   const loading = studentsLoading || departmentsLoading;
 
@@ -62,11 +66,13 @@ function DepartmentDistributionChart() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Students by department</CardTitle>
-          <CardDescription>Loading...</CardDescription>
+          <CardTitle className="text-base">
+            {dict.admin.overview.studentsByDept}
+          </CardTitle>
+          <CardDescription>{dict.admin.common.loading}</CardDescription>
         </CardHeader>
         <CardContent className="h-[200px] flex items-center justify-center text-muted-foreground text-sm">
-          Loading chart...
+          {dict.admin.overview.loadingChart}
         </CardContent>
       </Card>
     );
@@ -75,8 +81,12 @@ function DepartmentDistributionChart() {
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-base">Students by department</CardTitle>
-        <CardDescription>Top departments by student count</CardDescription>
+        <CardTitle className="text-base">
+          {dict.admin.overview.studentsByDept}
+        </CardTitle>
+        <CardDescription>
+          {dict.admin.overview.topDeptsByStudentCount}
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="h-[200px] w-full">
@@ -109,7 +119,10 @@ function DepartmentDistributionChart() {
                     <div className="rounded-lg border bg-background px-3 py-2 shadow-sm text-sm">
                       <p className="font-medium">{d.name}</p>
                       <p className="text-muted-foreground">
-                        {d.count} student{d.count === 1 ? "" : "s"}
+                        {d.count}{" "}
+                        {d.count === 1
+                          ? dict.admin.overview.student
+                          : dict.admin.overview.studentsPlural}
                       </p>
                     </div>
                   );
@@ -120,7 +133,7 @@ function DepartmentDistributionChart() {
                 dataKey="count"
                 fill="hsl(var(--primary))"
                 radius={[4, 4, 0, 0]}
-                name="Students"
+                name={dict.admin.overview.students}
                 className="fill-gray-400 hover:fill-gray-500 transition-all duration-100"
               />
             </BarChart>
@@ -130,7 +143,7 @@ function DepartmentDistributionChart() {
           href="/admin/management/department"
           className="text-xs text-primary hover:underline mt-2 inline-block"
         >
-          View all departments →
+          {dict.admin.overview.viewAllDepts}
         </Link>
       </CardContent>
     </Card>
@@ -141,6 +154,8 @@ function DepartmentDistributionChart() {
  * Enrollment sessions status: open vs closed counts and list.
  */
 function EnrollmentSessionsStatus() {
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
   const { enrollmentSessions, loading } = useEnrollmentSessions();
 
   const { openCount, closedCount, recentSessions } = useMemo(() => {
@@ -170,11 +185,13 @@ function EnrollmentSessionsStatus() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Enrollment sessions</CardTitle>
-          <CardDescription>Loading...</CardDescription>
+          <CardTitle className="text-base">
+            {dict.admin.overview.enrollmentSessions}
+          </CardTitle>
+          <CardDescription>{dict.admin.common.loading}</CardDescription>
         </CardHeader>
         <CardContent className="text-sm text-muted-foreground">
-          Loading...
+          {dict.admin.common.loading}
         </CardContent>
       </Card>
     );
@@ -183,22 +200,24 @@ function EnrollmentSessionsStatus() {
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-base">Enrollment sessions</CardTitle>
-        <CardDescription>Open vs closed sessions</CardDescription>
+        <CardTitle className="text-base">
+          {dict.admin.overview.enrollmentSessions}
+        </CardTitle>
+        <CardDescription>{dict.admin.overview.openVsClosed}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex gap-3">
           <span className="inline-flex items-center rounded-full bg-green-100 dark:bg-green-900/30 px-3 py-1 text-xs font-medium text-green-700 dark:text-green-400">
-            {openCount} open
+            {openCount} {dict.admin.overview.open.toLowerCase()}
           </span>
           <span className="inline-flex items-center rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
-            {closedCount} closed
+            {closedCount} {dict.admin.overview.closed.toLowerCase()}
           </span>
         </div>
         {recentSessions.length > 0 && (
           <div className="space-y-2">
             <p className="text-xs font-medium text-muted-foreground">
-              Recent sessions
+              {dict.admin.overview.recentSessions}
             </p>
             <ul className="space-y-1.5 text-sm">
               {recentSessions.map((s) => (
@@ -211,7 +230,9 @@ function EnrollmentSessionsStatus() {
                         : "bg-muted text-muted-foreground"
                     }`}
                   >
-                    {s.isActive ? "Open" : "Closed"}
+                    {s.isActive
+                      ? dict.admin.overview.open
+                      : dict.admin.overview.closed}
                   </span>
                 </li>
               ))}
@@ -222,7 +243,7 @@ function EnrollmentSessionsStatus() {
           href="/admin/management/enrollment-session"
           className="text-xs text-primary hover:underline inline-block"
         >
-          Manage sessions →
+          {dict.admin.overview.manageSessions}
         </Link>
       </CardContent>
     </Card>
@@ -233,6 +254,8 @@ function EnrollmentSessionsStatus() {
  * Enrollments snapshot: total count (and optional schedules/capacity).
  */
 function EnrollmentsSnapshot() {
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
   const { data: enrollments = [], isLoading } = useQuery({
     queryKey: ["admin", "enrollments", "list"],
     queryFn: () =>
@@ -247,8 +270,12 @@ function EnrollmentsSnapshot() {
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-base">Enrollments</CardTitle>
-        <CardDescription>Total course enrollments</CardDescription>
+        <CardTitle className="text-base">
+          {dict.admin.overview.enrollments}
+        </CardTitle>
+        <CardDescription>
+          {dict.admin.overview.totalEnrollments}
+        </CardDescription>
       </CardHeader>
       <CardContent>
         {isLoading ? (
@@ -260,7 +287,7 @@ function EnrollmentsSnapshot() {
           href="/admin/management/course-semester"
           className="text-xs text-primary hover:underline mt-2 inline-block"
         >
-          View schedules →
+          {dict.admin.overview.viewSchedules}
         </Link>
       </CardContent>
     </Card>
@@ -271,13 +298,19 @@ function EnrollmentsSnapshot() {
  * Schedules/capacity: number of course-semesters (offerings).
  */
 function SchedulesSnapshot() {
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
   const { courseSemesters, loading } = useCourseSemesters();
 
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-base">Course schedules</CardTitle>
-        <CardDescription>Offerings this term</CardDescription>
+        <CardTitle className="text-base">
+          {dict.admin.overview.courseSchedules}
+        </CardTitle>
+        <CardDescription>
+          {dict.admin.overview.offeringsThisTerm}
+        </CardDescription>
       </CardHeader>
       <CardContent>
         {loading ? (
@@ -289,7 +322,7 @@ function SchedulesSnapshot() {
           href="/admin/management/course-semester"
           className="text-xs text-primary hover:underline mt-2 inline-block"
         >
-          Manage schedules →
+          {dict.admin.overview.manageSchedules}
         </Link>
       </CardContent>
     </Card>

@@ -10,6 +10,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/shadcn/card";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale } from "@/lib/i18n/use-locale";
 import { useMemo } from "react";
 import {
   Bar,
@@ -25,6 +27,9 @@ import {
  * Offerings (course-semesters) per semester + enrollment sessions per semester.
  */
 export function SemesterOverviewChart() {
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
+  const t = dict.admin.chart;
   const { semesters, loading: semestersLoading } = useSemesters();
   const { courseSemesters, loading: courseSemestersLoading } =
     useCourseSemesters();
@@ -83,11 +88,11 @@ export function SemesterOverviewChart() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Semester overview</CardTitle>
-          <CardDescription>Loading chart data...</CardDescription>
+          <CardTitle>{t.semesterOverview}</CardTitle>
+          <CardDescription>{t.loading}</CardDescription>
         </CardHeader>
         <CardContent className="h-[280px] flex items-center justify-center text-muted-foreground">
-          Loading...
+          {t.loadingShort}
         </CardContent>
       </Card>
     );
@@ -97,10 +102,8 @@ export function SemesterOverviewChart() {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Offerings per semester</CardTitle>
-          <CardDescription>
-            Number of course-semesters (offerings) per semester
-          </CardDescription>
+          <CardTitle>{t.offeringsPerSemester}</CardTitle>
+          <CardDescription>{t.offeringsPerSemesterDesc}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="h-[280px] w-full">
@@ -133,7 +136,7 @@ export function SemesterOverviewChart() {
                       <div className="rounded-lg border bg-background px-3 py-2 shadow-sm">
                         <p className="font-medium">{d.name}</p>
                         <p className="text-sm text-muted-foreground">
-                          {d.count} offering{d.count === 1 ? "" : "s"}
+                          {d.count} {d.count === 1 ? t.offering : t.offerings}
                         </p>
                       </div>
                     );
@@ -144,7 +147,7 @@ export function SemesterOverviewChart() {
                   dataKey="count"
                   fill="hsl(var(--primary))"
                   radius={[4, 4, 0, 0]}
-                  name="Offerings"
+                  name={t.offerings}
                   className="fill-gray-400 hover:fill-gray-500 transition-all duration-100"
                 />
               </BarChart>
@@ -156,10 +159,8 @@ export function SemesterOverviewChart() {
       {sessionsData.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Enrollment sessions per semester</CardTitle>
-            <CardDescription>
-              Number of enrollment sessions per semester (open count in tooltip)
-            </CardDescription>
+            <CardTitle>{t.sessionsPerSemester}</CardTitle>
+            <CardDescription>{t.sessionsPerSemesterDesc}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-[220px] w-full">
@@ -192,8 +193,8 @@ export function SemesterOverviewChart() {
                         <div className="rounded-lg border bg-background px-3 py-2 shadow-sm">
                           <p className="font-medium">{d.name}</p>
                           <p className="text-sm text-muted-foreground">
-                            {d.count} session{d.count === 1 ? "" : "s"} (
-                            {d.open} open)
+                            {d.count} {d.count === 1 ? t.session : t.sessions} (
+                            {d.open} {t.open})
                           </p>
                         </div>
                       );
@@ -204,7 +205,7 @@ export function SemesterOverviewChart() {
                     dataKey="count"
                     fill="hsl(var(--chart-2, 220 70% 50%))"
                     radius={[4, 4, 0, 0]}
-                    name="Sessions"
+                    name={t.sessions}
                     className="fill-gray-400 hover:fill-gray-500 transition-all duration-100"
                   />
                 </BarChart>

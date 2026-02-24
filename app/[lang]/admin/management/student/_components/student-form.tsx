@@ -27,6 +27,8 @@ import {
   SelectValue,
 } from "@/components/ui/shadcn/select";
 import { getErrorInfo, logError, parseValidationErrors } from "@/lib/api/error";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale } from "@/lib/i18n/use-locale";
 import { createStudentSchema } from "@/lib/zod/schemas/create/account";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
@@ -70,6 +72,8 @@ export function StudentForm({
   onSubmit,
   mode,
 }: StudentFormProps) {
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
   const { departments } = useDepartments();
 
   const schema = mode === "edit" ? editStudentSchema : createStudentSchema;
@@ -128,7 +132,7 @@ export function StudentForm({
         toast.error(
           status === 400
             ? message
-            : "Please check the student information and try again.",
+            : dict.admin.common.checkInfo.replace("{entity}", "student"),
         );
       }
     }
@@ -140,13 +144,16 @@ export function StudentForm({
         <CardHeader>
           <CardTitle>
             {mode === "create"
-              ? "Create Student Account"
-              : "Edit Student Account"}
+              ? dict.admin.students.createAccount
+              : dict.admin.students.editAccount}
           </CardTitle>
           <CardDescription>
             {mode === "create"
-              ? "Fill in the details below to create a new student account."
-              : "Update the student information below."}
+              ? dict.admin.common.fillDetails.replace(
+                  "{entity}",
+                  "student account",
+                )
+              : dict.admin.common.updateDetails.replace("{entity}", "student")}
           </CardDescription>
         </CardHeader>
         <form
@@ -162,13 +169,13 @@ export function StudentForm({
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor="student-form-fullName">
-                      Full Name
+                      {dict.admin.common.fullName}
                     </FieldLabel>
                     <Input
                       {...field}
                       id="student-form-fullName"
                       aria-invalid={fieldState.invalid}
-                      placeholder="John Doe"
+                      placeholder={dict.admin.students.fullNamePlaceholder}
                       autoComplete="off"
                     />
                     {fieldState.invalid && (
@@ -183,13 +190,13 @@ export function StudentForm({
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor="student-form-studentId">
-                      Student ID
+                      {dict.admin.students.studentId}
                     </FieldLabel>
                     <Input
                       {...field}
                       id="student-form-studentId"
                       aria-invalid={fieldState.invalid}
-                      placeholder="ST123"
+                      placeholder={dict.admin.students.studentIdPlaceholder}
                       disabled={mode === "edit"}
                       autoComplete="off"
                     />
@@ -204,13 +211,15 @@ export function StudentForm({
                 name="email"
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor="student-form-email">Email</FieldLabel>
+                    <FieldLabel htmlFor="student-form-email">
+                      {dict.admin.common.email}
+                    </FieldLabel>
                     <Input
                       {...field}
                       id="student-form-email"
                       type="email"
                       aria-invalid={fieldState.invalid}
-                      placeholder="a@example.com"
+                      placeholder={dict.admin.students.emailPlaceholder}
                       autoComplete="off"
                     />
                     {fieldState.invalid && (
@@ -225,13 +234,13 @@ export function StudentForm({
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor="student-form-username">
-                      Username
+                      {dict.admin.common.username}
                     </FieldLabel>
                     <Input
                       {...field}
                       id="student-form-username"
                       aria-invalid={fieldState.invalid}
-                      placeholder="username"
+                      placeholder={dict.admin.students.usernamePlaceholder}
                       autoComplete="off"
                     />
                     {fieldState.invalid && (
@@ -248,14 +257,14 @@ export function StudentForm({
                   render={({ field, fieldState }) => (
                     <Field data-invalid={fieldState.invalid}>
                       <FieldLabel htmlFor="student-form-password">
-                        Password
+                        {dict.admin.common.password}
                       </FieldLabel>
                       <Input
                         {...field}
                         id="student-form-password"
                         type="password"
                         aria-invalid={fieldState.invalid}
-                        placeholder="********"
+                        placeholder={dict.admin.students.passwordPlaceholder}
                         autoComplete="off"
                       />
                       {fieldState.invalid && (
@@ -272,14 +281,14 @@ export function StudentForm({
                     render={({ field, fieldState }) => (
                       <Field data-invalid={fieldState.invalid}>
                         <FieldLabel htmlFor="student-form-newPassword">
-                          New Password (Leave blank to keep unchanged)
+                          {dict.admin.students.newPasswordLabel}
                         </FieldLabel>
                         <Input
                           {...field}
                           id="student-form-newPassword"
                           type="password"
                           aria-invalid={fieldState.invalid}
-                          placeholder="********"
+                          placeholder={dict.admin.students.passwordPlaceholder}
                           autoComplete="off"
                         />
                         {fieldState.invalid && (
@@ -294,14 +303,14 @@ export function StudentForm({
                     render={({ field, fieldState }) => (
                       <Field data-invalid={fieldState.invalid}>
                         <FieldLabel htmlFor="student-form-confirmPassword">
-                          Confirm Password
+                          {dict.admin.common.confirmPassword}
                         </FieldLabel>
                         <Input
                           {...field}
                           id="student-form-confirmPassword"
                           type="password"
                           aria-invalid={fieldState.invalid}
-                          placeholder="********"
+                          placeholder={dict.admin.students.passwordPlaceholder}
                           autoComplete="off"
                         />
                         {fieldState.invalid && (
@@ -319,7 +328,7 @@ export function StudentForm({
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor="student-form-departmentId">
-                      Department
+                      {dict.admin.common.department}
                     </FieldLabel>
                     <Select
                       onValueChange={field.onChange}
@@ -327,7 +336,9 @@ export function StudentForm({
                       value={field.value}
                     >
                       <SelectTrigger id="student-form-departmentId">
-                        <SelectValue placeholder="Select a department" />
+                        <SelectValue
+                          placeholder={dict.admin.common.selectDepartment}
+                        />
                       </SelectTrigger>
                       <SelectContent position="popper" sideOffset={5}>
                         {departments.map((dept) => (
@@ -350,13 +361,13 @@ export function StudentForm({
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor="student-form-citizenId">
-                      Citizen ID
+                      {dict.admin.common.citizenId}
                     </FieldLabel>
                     <Input
                       {...field}
                       id="student-form-citizenId"
                       aria-invalid={fieldState.invalid}
-                      placeholder="123456789"
+                      placeholder={dict.admin.students.citizenIdPlaceholder}
                       autoComplete="off"
                     />
                     {fieldState.invalid && (
@@ -370,12 +381,14 @@ export function StudentForm({
                 name="phone"
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor="student-form-phone">Phone</FieldLabel>
+                    <FieldLabel htmlFor="student-form-phone">
+                      {dict.admin.common.phone}
+                    </FieldLabel>
                     <Input
                       {...field}
                       id="student-form-phone"
                       aria-invalid={fieldState.invalid}
-                      placeholder="+84..."
+                      placeholder={dict.admin.students.phonePlaceholder}
                       autoComplete="off"
                     />
                     {fieldState.invalid && (
@@ -390,7 +403,7 @@ export function StudentForm({
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor="student-form-gender">
-                      Gender
+                      {dict.admin.common.gender}
                     </FieldLabel>
                     <Select
                       onValueChange={(value) =>
@@ -400,11 +413,17 @@ export function StudentForm({
                       defaultValue={field.value?.toString()}
                     >
                       <SelectTrigger id="student-form-gender">
-                        <SelectValue placeholder="Select gender" />
+                        <SelectValue
+                          placeholder={dict.admin.common.selectGender}
+                        />
                       </SelectTrigger>
                       <SelectContent position="popper" sideOffset={5}>
-                        <SelectItem value="true">Male</SelectItem>
-                        <SelectItem value="false">Female</SelectItem>
+                        <SelectItem value="true">
+                          {dict.admin.common.male}
+                        </SelectItem>
+                        <SelectItem value="false">
+                          {dict.admin.common.female}
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                     {fieldState.invalid && (
@@ -419,13 +438,13 @@ export function StudentForm({
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor="student-form-birthDate">
-                      Birth Date
+                      {dict.admin.common.birthDate}
                     </FieldLabel>
                     <DatePickerInput
                       id="student-form-birthDate"
                       value={field.value ?? ""}
                       onChange={field.onChange}
-                      placeholder="December 12, 2000"
+                      placeholder={dict.admin.students.birthDatePlaceholder}
                       aria-invalid={fieldState.invalid}
                     />
                     {fieldState.invalid && (
@@ -440,13 +459,13 @@ export function StudentForm({
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor="student-form-address">
-                      Address (Optional)
+                      {dict.admin.students.addressLabel}
                     </FieldLabel>
                     <Input
                       {...field}
                       id="student-form-address"
                       aria-invalid={fieldState.invalid}
-                      placeholder="123 Street..."
+                      placeholder={dict.admin.students.addressPlaceholder}
                       autoComplete="off"
                     />
                     {fieldState.invalid && (
@@ -464,7 +483,9 @@ export function StudentForm({
               disabled={form.formState.isSubmitting}
               form="create-student-form"
             >
-              {mode === "create" ? "Create Student" : "Save Changes"}
+              {mode === "create"
+                ? dict.admin.students.createAccount
+                : dict.admin.common.saveChanges}
             </Button>
           </CardFooter>
         </form>

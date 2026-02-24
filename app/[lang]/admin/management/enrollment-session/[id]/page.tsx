@@ -4,6 +4,8 @@ import { useEnrollmentSession } from "@/components/ui/hooks/use-enrollment-sessi
 import { PageHeader } from "@/components/ui/page-header";
 import { adminEnrollmentSessionApi } from "@/lib/api/admin-enrollment-session";
 import { getErrorInfo, logError } from "@/lib/api/error";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale } from "@/lib/i18n/use-locale";
 import { queryKeys } from "@/lib/query";
 import type { CreateEnrollmentSessionFormValues } from "@/lib/zod/schemas/create/enrollment-session";
 import { useQueryClient } from "@tanstack/react-query";
@@ -12,6 +14,8 @@ import { toast } from "sonner";
 import { EnrollmentSessionForm } from "../_components/enrollment-session-form";
 
 export default function EditEnrollmentSessionPage() {
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
   const params = useParams();
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -28,13 +32,24 @@ export default function EditEnrollmentSessionPage() {
       await queryClient.invalidateQueries({
         queryKey: queryKeys.enrollmentSessions.all,
       });
-      toast.success("Enrollment session updated successfully");
+      toast.success(
+        dict.admin.common.updatedSuccess.replace(
+          "{entity}",
+          "Enrollment session",
+        ),
+      );
       router.back();
       router.refresh();
     } catch (err: unknown) {
       const { message } = getErrorInfo(err);
       logError(err, "Update Enrollment Session");
-      toast.error(message || "Failed to update enrollment session");
+      toast.error(
+        message ||
+          dict.admin.common.updateFailed.replace(
+            "{entity}",
+            "enrollment session",
+          ),
+      );
     }
   };
 
@@ -42,7 +57,7 @@ export default function EditEnrollmentSessionPage() {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="text-muted-foreground">
-          Loading enrollment session...
+          {dict.admin.enrollmentSessions.loadingSession}
         </div>
       </div>
     );
@@ -52,7 +67,7 @@ export default function EditEnrollmentSessionPage() {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="text-destructive">
-          Failed to load enrollment session
+          {dict.admin.enrollmentSessions.loadFailed}
         </div>
       </div>
     );
@@ -61,8 +76,12 @@ export default function EditEnrollmentSessionPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Edit Enrollment Session"
-        description={`Editing: ${enrollmentSession.name || "Unnamed Session"}`}
+        title={dict.admin.enrollmentSessions.editSession}
+        description={dict.admin.enrollmentSessions.editing.replace(
+          "{name}",
+          enrollmentSession.name ||
+            dict.admin.enrollmentSessions.unnamedSession,
+        )}
       />
       <EnrollmentSessionForm
         initialValues={{

@@ -6,6 +6,8 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/shadcn/button";
 import { DataTable } from "@/components/ui/table/DataTable";
 import { adminCourseApi, type Course } from "@/lib/api/admin-course";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale, useLocalePath } from "@/lib/i18n/use-locale";
 import { sortByUpdatedAtDesc } from "@/lib/utils";
 import { BarChart3, BookOpen, Plus, Upload } from "lucide-react";
 import Link from "next/link";
@@ -13,14 +15,18 @@ import { useRouter } from "next/navigation";
 import { useMemo } from "react";
 import { toast } from "sonner";
 import { CourseOverviewChart } from "./_components/course-overview-chart";
-import { columns } from "./columns";
+import { getColumns } from "./columns";
 
 type TabId = "chart" | "table";
 
 export default function CourseManagementPage() {
+  const locale = useLocale();
+  const localePath = useLocalePath();
+  const dict = getClientDictionary(locale);
   const [activeTab, setActiveTab] = useManagementTab("edit-course");
   const { courses, loading, refetch } = useCourses();
   const router = useRouter();
+  const columns = useMemo(() => getColumns(dict), [dict]);
   const sortedCourses = useMemo(() => sortByUpdatedAtDesc(courses), [courses]);
 
   const handleBulkDelete = async (
@@ -30,38 +36,45 @@ export default function CourseManagementPage() {
     try {
       const ids = selectedItems.map((item) => item.id);
       await adminCourseApi.deleteMultiple(ids);
-      toast.success(`Successfully deleted ${selectedItems.length} course(s)`);
+      toast.success(
+        dict.admin.common.bulkDeleteSuccess
+          .replace("{count}", String(selectedItems.length))
+          .replace("{entity}", "course(s)"),
+      );
       refetch();
       router.refresh();
       onSuccess?.();
     } catch (error: unknown) {
       const err = error as { message?: string };
-      toast.error(err?.message || "Failed to delete courses");
+      toast.error(
+        err?.message ||
+          dict.admin.common.bulkDeleteFailed.replace("{entity}", "courses"),
+      );
     }
   };
 
   const tabs: { id: TabId; label: string; icon: typeof BarChart3 }[] = [
-    { id: "chart", label: "Overview", icon: BarChart3 },
-    { id: "table", label: "Edit courses", icon: BookOpen },
+    { id: "chart", label: dict.admin.management.overview, icon: BarChart3 },
+    { id: "table", label: dict.admin.management.editCourses, icon: BookOpen },
   ];
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Courses"
-        description="Manage courses, credits, and department assignments."
+        title={dict.admin.sidebar.courses}
+        description={dict.admin.courses.manageDescription}
         action={
           <div className="flex gap-2">
             <Button variant="outline" asChild>
-              <Link href="/admin/management/course/bulk-create">
+              <Link href={localePath("admin/management/course/bulk-create")}>
                 <Upload className="mr-2 h-4 w-4" />
-                Bulk Create
+                {dict.admin.management.bulkCreate}
               </Link>
             </Button>
             <Button asChild>
-              <Link href="/admin/management/course/create">
+              <Link href={localePath("admin/management/course/create")}>
                 <Plus className="mr-2 h-4 w-4" />
-                Create New Course
+                {dict.admin.management.createNewCourse}
               </Link>
             </Button>
           </div>
@@ -90,7 +103,7 @@ export default function CourseManagementPage() {
           {loading ? (
             <div className="flex items-center justify-center p-8">
               <div className="text-muted-foreground">
-                Loading specific data...
+                {dict.admin.common.loadingData}
               </div>
             </div>
           ) : (

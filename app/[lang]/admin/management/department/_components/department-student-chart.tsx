@@ -11,6 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/shadcn/card";
+import { getClientDictionary, useLocale } from "@/lib/i18n";
 import { useMemo } from "react";
 import {
   Bar,
@@ -27,9 +28,11 @@ import {
  * Optional engagement view: students created per time period (by month).
  */
 export function DepartmentStudentChart() {
+  const locale = useLocale();
   const { students, loading: studentsLoading } = useStudents();
   const { departments, loading: departmentsLoading } = useDepartments();
-
+  const dict = getClientDictionary(locale);
+  const t = dict.admin.chart;
   const chartData = useMemo(() => {
     const deptMap = new Map(
       departments.map((d) => [d.id, { id: d.id, name: d.name, count: 0 }]),
@@ -43,14 +46,14 @@ export function DepartmentStudentChart() {
       } else {
         deptMap.set(deptId, {
           id: deptId,
-          name: s.department?.name ?? "Unassigned",
+          name: s.department?.name ?? t.unassigned,
           count: 1,
         });
       }
     }
 
     return Array.from(deptMap.values()).sort((a, b) => b.count - a.count);
-  }, [students, departments]);
+  }, [students, departments, t]);
 
   const engagementData = useMemo(() => {
     const byMonth = new Map<string, number>();
@@ -83,7 +86,7 @@ export function DepartmentStudentChart() {
       } else {
         deptMap.set(deptId, {
           id: deptId,
-          name: c.department?.name ?? "Unassigned",
+          name: c.department?.name ?? t.unassigned,
           count: 1,
         });
       }
@@ -91,7 +94,7 @@ export function DepartmentStudentChart() {
     return Array.from(deptMap.values())
       .filter((d) => d.count > 0)
       .sort((a, b) => b.count - a.count);
-  }, [courses, departments]);
+  }, [courses, departments, t]);
 
   const headsByDeptData = useMemo(() => {
     const deptMap = new Map(
@@ -113,11 +116,11 @@ export function DepartmentStudentChart() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Student overview</CardTitle>
-          <CardDescription>Loading chart data...</CardDescription>
+          <CardTitle>{t.deptStudentOverview}</CardTitle>
+          <CardDescription>{t.loading}</CardDescription>
         </CardHeader>
         <CardContent className="h-[280px] flex items-center justify-center text-muted-foreground">
-          Loading...
+          {t.loadingShort}
         </CardContent>
       </Card>
     );
@@ -127,8 +130,8 @@ export function DepartmentStudentChart() {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Total students by department</CardTitle>
-          <CardDescription>Number of students per department</CardDescription>
+          <CardTitle>{t.totalStudentsByDept}</CardTitle>
+          <CardDescription>{t.studentsPerDeptDesc}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="h-[280px] w-full">
@@ -161,7 +164,7 @@ export function DepartmentStudentChart() {
                       <div className="rounded-lg border bg-background px-3 py-2 shadow-sm">
                         <p className="font-medium">{d.name}</p>
                         <p className="text-sm text-muted-foreground">
-                          {d.count} student{d.count === 1 ? "" : "s"}
+                          {d.count} {d.count === 1 ? t.student : t.students}
                         </p>
                       </div>
                     );
@@ -172,7 +175,7 @@ export function DepartmentStudentChart() {
                   dataKey="count"
                   fill="hsl(var(--primary))"
                   radius={[4, 4, 0, 0]}
-                  name="Students"
+                  name={t.students}
                   className="fill-gray-400 hover:fill-gray-500 transition-all duration-100"
                 />
               </BarChart>
@@ -184,10 +187,8 @@ export function DepartmentStudentChart() {
       {engagementData.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Student sign-ups over time</CardTitle>
-            <CardDescription>
-              New student accounts per month (last 12 months)
-            </CardDescription>
+            <CardTitle>{t.signUpsOverTime}</CardTitle>
+            <CardDescription>{t.newStudentsPerMonth}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-[220px] w-full">
@@ -220,8 +221,8 @@ export function DepartmentStudentChart() {
                         <div className="rounded-lg border bg-background px-3 py-2 shadow-sm">
                           <p className="font-medium">{d.month}</p>
                           <p className="text-sm text-muted-foreground">
-                            {d.students} new student
-                            {d.students === 1 ? "" : "s"}
+                            {d.students}{" "}
+                            {d.students === 1 ? t.newStudent : t.newStudents}
                           </p>
                         </div>
                       );
@@ -232,7 +233,7 @@ export function DepartmentStudentChart() {
                     dataKey="students"
                     fill="hsl(var(--chart-2, 220 70% 50%))"
                     radius={[4, 4, 0, 0]}
-                    name="New students"
+                    name={t.newStudents}
                     className="fill-gray-400 hover:fill-gray-500 transition-all duration-100"
                   />
                 </BarChart>
@@ -245,8 +246,8 @@ export function DepartmentStudentChart() {
       {coursesByDeptData.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Courses per department</CardTitle>
-            <CardDescription>Number of courses per department</CardDescription>
+            <CardTitle>{t.coursesPerDept}</CardTitle>
+            <CardDescription>{t.coursesPerDeptDesc}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-[260px] w-full">
@@ -279,7 +280,7 @@ export function DepartmentStudentChart() {
                         <div className="rounded-lg border bg-background px-3 py-2 shadow-sm">
                           <p className="font-medium">{d.name}</p>
                           <p className="text-sm text-muted-foreground">
-                            {d.count} course{d.count === 1 ? "" : "s"}
+                            {d.count} {d.count === 1 ? t.course : t.courses}
                           </p>
                         </div>
                       );
@@ -290,7 +291,7 @@ export function DepartmentStudentChart() {
                     dataKey="count"
                     fill="hsl(var(--chart-3, 280 70% 50%))"
                     radius={[4, 4, 0, 0]}
-                    name="Courses"
+                    name={t.courses}
                     className="fill-gray-400 hover:fill-gray-500 transition-all duration-100"
                   />
                 </BarChart>
@@ -302,11 +303,8 @@ export function DepartmentStudentChart() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Department heads</CardTitle>
-          <CardDescription>
-            Lecturers assigned as head of each department (0 or 1 per
-            department)
-          </CardDescription>
+          <CardTitle>{t.departmentHeads}</CardTitle>
+          <CardDescription>{t.departmentHeadsDesc}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="h-[260px] w-full">
@@ -339,7 +337,7 @@ export function DepartmentStudentChart() {
                       <div className="rounded-lg border bg-background px-3 py-2 shadow-sm">
                         <p className="font-medium">{d.name}</p>
                         <p className="text-sm text-muted-foreground">
-                          {d.count} head{d.count === 1 ? "" : "s"} assigned
+                          {d.count} {d.count === 1 ? t.head : t.heads}
                         </p>
                       </div>
                     );
@@ -350,7 +348,7 @@ export function DepartmentStudentChart() {
                   dataKey="count"
                   fill="hsl(var(--chart-4, 340 70% 50%))"
                   radius={[4, 4, 0, 0]}
-                  name="Heads"
+                  name={t.heads}
                   className="fill-gray-400 hover:fill-gray-500 transition-all duration-100"
                 />
               </BarChart>
