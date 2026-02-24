@@ -9,6 +9,8 @@ import {
   CommandList,
   CommandSeparator,
 } from "@/components/ui/shadcn";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale } from "@/lib/i18n/use-locale";
 import {
   BookOpen,
   Building2,
@@ -23,118 +25,131 @@ import {
   Users,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 interface CommandPaletteProps {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }
 
-const navigationItems = [
-  {
-    title: "Dashboard",
-    url: "/admin",
-    icon: LayoutDashboard,
-    keywords: ["home", "overview", "stats"],
-  },
-  {
-    title: "Students",
-    url: "/admin/management/student",
-    icon: GraduationCap,
-    keywords: ["student", "enrolled", "users"],
-  },
-  {
-    title: "Lecturers",
-    url: "/admin/management/lecturer",
-    icon: Users,
-    keywords: ["lecturer", "teacher", "instructor", "professor"],
-  },
-  {
-    title: "Departments",
-    url: "/admin/management/department",
-    icon: Building2,
-    keywords: ["department", "faculty", "division"],
-  },
-  {
-    title: "Courses",
-    url: "/admin/management/course",
-    icon: BookOpen,
-    keywords: ["course", "subject", "class"],
-  },
-  {
-    title: "Semesters",
-    url: "/admin/management/semester",
-    icon: Calendar,
-    keywords: ["semester", "term", "period"],
-  },
-  {
-    title: "Course-Semesters",
-    url: "/admin/management/course-semester",
-    icon: CalendarDays,
-    keywords: ["course semester", "schedule", "offering"],
-  },
-  {
-    title: "Requests",
-    url: "/admin/management/requests",
-    icon: Send,
-    keywords: ["request", "teaching request", "approve", "lecturer request"],
-  },
-  {
-    title: "Posts",
-    url: "/admin/management/post",
-    icon: FileText,
-    keywords: ["post", "announcement", "news", "article"],
-  },
-];
-
-const quickActions = [
-  {
-    title: "Create Student",
-    url: "/admin/management/student/create",
-    icon: Plus,
-    keywords: ["add student", "new student"],
-  },
-  {
-    title: "Create Lecturer",
-    url: "/admin/management/lecturer/create",
-    icon: Plus,
-    keywords: ["add lecturer", "new lecturer"],
-  },
-  {
-    title: "Create Department",
-    url: "/admin/management/department/create",
-    icon: Plus,
-    keywords: ["add department", "new department"],
-  },
-  {
-    title: "Create Course",
-    url: "/admin/management/course/create",
-    icon: Plus,
-    keywords: ["add course", "new course"],
-  },
-  {
-    title: "Create Semester",
-    url: "/admin/management/semester/create",
-    icon: Plus,
-    keywords: ["add semester", "new semester"],
-  },
-  {
-    title: "Create Course-Semester",
-    url: "/admin/management/course-semester/create",
-    icon: Plus,
-    keywords: ["add course semester", "new course semester"],
-  },
-  {
-    title: "Create Post",
-    url: "/admin/management/post/create",
-    icon: Plus,
-    keywords: ["add post", "new post", "announcement", "news"],
-  },
-];
-
 export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
+
+  const navigationItems = useMemo(
+    () => [
+      {
+        title: dict.admin.sidebar.dashboard,
+        url: "/admin",
+        icon: LayoutDashboard,
+        keywords: ["home", "overview", "stats"],
+      },
+      {
+        title: dict.admin.sidebar.students,
+        url: "/admin/management/student",
+        icon: GraduationCap,
+        keywords: ["student", "enrolled", "users"],
+      },
+      {
+        title: dict.admin.sidebar.lecturers,
+        url: "/admin/management/lecturer",
+        icon: Users,
+        keywords: ["lecturer", "teacher", "instructor", "professor"],
+      },
+      {
+        title: dict.admin.sidebar.departments,
+        url: "/admin/management/department",
+        icon: Building2,
+        keywords: ["department", "faculty", "division"],
+      },
+      {
+        title: dict.admin.sidebar.courses,
+        url: "/admin/management/course",
+        icon: BookOpen,
+        keywords: ["course", "subject", "class"],
+      },
+      {
+        title: dict.admin.sidebar.semesters,
+        url: "/admin/management/semester",
+        icon: Calendar,
+        keywords: ["semester", "term", "period"],
+      },
+      {
+        title: dict.admin.sidebar.courseSemesters,
+        url: "/admin/management/course-semester",
+        icon: CalendarDays,
+        keywords: ["course semester", "schedule", "offering"],
+      },
+      {
+        title: dict.admin.sidebar.requests,
+        url: "/admin/management/requests",
+        icon: Send,
+        keywords: [
+          "request",
+          "teaching request",
+          "approve",
+          "lecturer request",
+        ],
+      },
+      {
+        title: dict.admin.sidebar.posts,
+        url: "/admin/management/post",
+        icon: FileText,
+        keywords: ["post", "announcement", "news", "article"],
+      },
+    ],
+    [dict],
+  );
+
+  const quickActions = useMemo(
+    () => [
+      {
+        title: dict.admin.commandPalette.createStudent,
+        url: "/admin/management/student/create",
+        icon: Plus,
+        keywords: ["add student", "new student"],
+      },
+      {
+        title: dict.admin.commandPalette.createLecturer,
+        url: "/admin/management/lecturer/create",
+        icon: Plus,
+        keywords: ["add lecturer", "new lecturer"],
+      },
+      {
+        title: dict.admin.commandPalette.createDepartment,
+        url: "/admin/management/department/create",
+        icon: Plus,
+        keywords: ["add department", "new department"],
+      },
+      {
+        title: dict.admin.commandPalette.createCourse,
+        url: "/admin/management/course/create",
+        icon: Plus,
+        keywords: ["add course", "new course"],
+      },
+      {
+        title: dict.admin.commandPalette.createSemester,
+        url: "/admin/management/semester/create",
+        icon: Plus,
+        keywords: ["add semester", "new semester"],
+      },
+      {
+        title: dict.admin.commandPalette.createCourseSemester,
+        url: "/admin/management/course-semester/create",
+        icon: Plus,
+        keywords: ["add course semester", "new course semester"],
+      },
+      {
+        title: dict.admin.commandPalette.createPost,
+        url: "/admin/management/post/create",
+        icon: Plus,
+        keywords: ["add post", "new post", "announcement", "news"],
+      },
+    ],
+    [dict],
+  );
 
   const isControlled = open !== undefined;
   const isDialogOpen = isControlled ? open : isOpen;
@@ -165,14 +180,14 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
     <CommandDialog
       open={isDialogOpen}
       onOpenChange={setDialogOpen}
-      title="Admin Command Palette"
-      description="Search pages and actions"
+      title={dict.admin.commandPalette.title}
+      description={dict.admin.commandPalette.searchDescription}
     >
-      <CommandInput placeholder="Type a command or search..." />
+      <CommandInput placeholder={dict.admin.commandPalette.placeholder} />
       <CommandList>
-        <CommandEmpty>No results found.</CommandEmpty>
+        <CommandEmpty>{dict.admin.commandPalette.noResults}</CommandEmpty>
 
-        <CommandGroup heading="Navigation">
+        <CommandGroup heading={dict.admin.commandPalette.navigation}>
           {navigationItems.map((item) => (
             <CommandItem
               key={item.url}
@@ -187,7 +202,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
 
         <CommandSeparator />
 
-        <CommandGroup heading="Quick Actions">
+        <CommandGroup heading={dict.admin.commandPalette.quickActions}>
           {quickActions.map((item) => (
             <CommandItem
               key={item.url}
@@ -202,13 +217,13 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
 
         <CommandSeparator />
 
-        <CommandGroup heading="Settings">
+        <CommandGroup heading={dict.admin.commandPalette.settings}>
           <CommandItem
             value="settings preferences"
             onSelect={() => runCommand(() => console.log("Settings"))}
           >
             <Settings className="mr-2 h-4 w-4" />
-            <span>Settings</span>
+            <span>{dict.admin.commandPalette.settings}</span>
           </CommandItem>
         </CommandGroup>
       </CommandList>

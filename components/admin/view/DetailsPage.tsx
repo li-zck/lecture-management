@@ -1,7 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 import { useDeleteConfirmation } from "@/components/ui/hooks/use-delete-confirmation";
 import { RenderEntityDetails } from "@/components/ui/RenderEntityDetails";
 import { Button } from "@/components/ui/shadcn/button";
@@ -17,12 +15,16 @@ import {
   getLecturerById,
   getStudentById,
 } from "@/lib/admin/api/read/method";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale } from "@/lib/i18n/use-locale";
 import type {
   DepartmentResponse,
   LecturerAccountResponse,
   ReadAdminAccountResponse,
   StudentAccountResponse,
 } from "@/lib/types/dto/api/admin/response/read/read.dto";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 type DetailsPageProps = {
   entityType: "student" | "lecturer" | "department" | "admin";
@@ -30,6 +32,8 @@ type DetailsPageProps = {
 };
 
 export const DetailsPage = ({ entityType, entityId }: DetailsPageProps) => {
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
   const { createDeleteHandler, deleteDialog } = useDeleteConfirmation();
   const router = useRouter();
   const [entityData, setEntityData] = useState<
@@ -75,8 +79,8 @@ export const DetailsPage = ({ entityType, entityId }: DetailsPageProps) => {
         if (response) {
           setEntityData(response.data);
         }
-      } catch (error) {
-        setError("Failed to load entity data");
+      } catch {
+        setError(dict.admin.detailsPage.failedLoad);
       } finally {
         setLoading(false);
       }
@@ -85,7 +89,7 @@ export const DetailsPage = ({ entityType, entityId }: DetailsPageProps) => {
     if (entityId) {
       fetchEntityData();
     }
-  }, [entityType, entityId]);
+  }, [entityType, entityId, dict]);
 
   const handleBack = () => {
     router.back();
@@ -125,34 +129,40 @@ export const DetailsPage = ({ entityType, entityId }: DetailsPageProps) => {
         {/* header */}
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold capitalize">
-            {entityType} Details
+            {entityType} {dict.admin.detailsPage.details}
           </h1>
-          <span className="text-sm text-gray-500">ID: {entityId}</span>
+          <span className="text-sm text-gray-500">
+            {dict.admin.detailsPage.id} {entityId}
+          </span>
         </div>
 
         {/* content based on entity type */}
         {loading ? (
           <div className="flex justify-center p-8">
-            <div className="text-gray-500">Loading...</div>
+            <div className="text-gray-500">
+              {dict.admin.detailsPage.loading}
+            </div>
           </div>
         ) : error ? (
           <div className="text-red-500">{error}</div>
         ) : entityData ? (
           <RenderEntityDetails entityType={entityType} data={entityData} />
         ) : (
-          <div className="text-gray-500 p-4">No data found</div>
+          <div className="text-gray-500 p-4">
+            {dict.admin.detailsPage.noData}
+          </div>
         )}
 
         {/* actions */}
         <div className="flex gap-4 mt-8">
           <Button variant="outline" onClick={handleEdit}>
-            Edit
+            {dict.admin.common.edit}
           </Button>
           <Button variant="destructive" onClick={handleDelete}>
-            Delete
+            {dict.admin.common.delete}
           </Button>
           <Button variant="ghost" onClick={handleBack}>
-            Back
+            {dict.admin.common.back}
           </Button>
         </div>
       </div>
@@ -161,4 +171,3 @@ export const DetailsPage = ({ entityType, entityId }: DetailsPageProps) => {
     </div>
   );
 };
-

@@ -13,6 +13,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/shadcn/popover";
 import { Separator } from "@/components/ui/shadcn/separator";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale } from "@/lib/i18n/use-locale";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 import { AlertCircle, AlertTriangle, Bell, Info, X } from "lucide-react";
@@ -125,6 +127,8 @@ function NotificationItem({
 }
 
 export function AdminNotificationBell() {
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
   const params = useParams();
   const lang = (params?.lang as string) || "en";
 
@@ -143,9 +147,9 @@ export function AdminNotificationBell() {
   const handleDelete = async (id: string) => {
     try {
       await deleteNotification.mutateAsync(id);
-      toast.success("Notification deleted");
+      toast.success(dict.admin.notifications.deleted);
     } catch {
-      toast.error("Failed to delete notification");
+      toast.error(dict.admin.notifications.deleteFailed);
     }
   };
 
@@ -168,18 +172,24 @@ export function AdminNotificationBell() {
       </PopoverTrigger>
       <PopoverContent className="w-80 p-0" align="end">
         <div className="flex items-center justify-between p-3 border-b">
-          <h4 className="font-semibold text-sm">Admin Notifications</h4>
+          <h4 className="font-semibold text-sm">
+            {dict.admin.notifications.title}
+          </h4>
         </div>
 
         <div className="max-h-[300px] overflow-y-auto">
           {isLoading ? (
             <div className="flex items-center justify-center h-24">
-              <p className="text-sm text-muted-foreground">Loading...</p>
+              <p className="text-sm text-muted-foreground">
+                {dict.admin.notifications.loading}
+              </p>
             </div>
           ) : notifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-24 gap-2">
               <Bell className="h-8 w-8 text-muted-foreground/50" />
-              <p className="text-sm text-muted-foreground">No notifications</p>
+              <p className="text-sm text-muted-foreground">
+                {dict.admin.notifications.noNotifications}
+              </p>
             </div>
           ) : (
             <div className="divide-y">
@@ -205,7 +215,7 @@ export function AdminNotificationBell() {
                 onClick={() => setOpen(false)}
               >
                 <Button variant="ghost" size="sm" className="w-full text-xs">
-                  View requests
+                  {dict.admin.notifications.viewRequests}
                 </Button>
               </Link>
             </div>

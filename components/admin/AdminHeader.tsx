@@ -58,7 +58,7 @@ export function AdminHeader({ onSearchClick, onMenuClick }: AdminHeaderProps) {
 
       // Skip the first "admin" segment as a link, just label it
       if (path === "admin") {
-        items.push({ label: "Admin", href: "/admin" });
+        items.push({ label: dict.admin.header.admin, href: "/admin" });
         continue;
       }
 
@@ -70,19 +70,19 @@ export function AdminHeader({ onSearchClick, onMenuClick }: AdminHeaderProps) {
 
       // Handle special cases
       if (path === "course-semester") {
-        label = "Course-Semesters";
+        label = dict.admin.header.courseSemesters;
       }
 
       // Check if it's an ID (UUID-like)
       if (path.match(/^[a-f0-9-]{36}$/i) || path.match(/^[a-z0-9]{20,}$/i)) {
-        label = "Details";
+        label = dict.admin.header.details;
       }
 
       items.push({ label, href: currentPath });
     }
 
     return items;
-  }, [pathname]);
+  }, [pathname, dict]);
 
   return (
     <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-2 sm:gap-4 border-b bg-background px-4 sm:px-6">
@@ -146,7 +146,7 @@ export function AdminHeader({ onSearchClick, onMenuClick }: AdminHeaderProps) {
               {loc === "en" ? dict.locale.english : dict.locale.vietnamese}
               {locale === loc && (
                 <span className="ml-2 text-xs text-muted-foreground">
-                  (active)
+                  {dict.admin.header.active}
                 </span>
               )}
             </DropdownMenuItem>
@@ -162,7 +162,7 @@ export function AdminHeader({ onSearchClick, onMenuClick }: AdminHeaderProps) {
         onClick={onSearchClick}
       >
         <Search className="h-4 w-4" />
-        <span>Search...</span>
+        <span>{dict.admin.header.search}</span>
         <kbd className="pointer-events-none hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
           <span className="text-xs">⌘</span>K
         </kbd>

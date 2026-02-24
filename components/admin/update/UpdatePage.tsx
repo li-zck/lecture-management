@@ -31,6 +31,8 @@ import {
   updateLecturerAccount,
   updateStudentAccount,
 } from "@/lib/admin/api/update/method";
+import { getClientDictionary } from "@/lib/i18n";
+import { useLocale } from "@/lib/i18n/use-locale";
 import type {
   DepartmentResponse,
   LecturerAccountResponse,
@@ -62,6 +64,8 @@ type UpdatePageProps = {
 };
 
 export const UpdatePage = ({ entityType, entityId }: UpdatePageProps) => {
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
   const router = useRouter();
   const [entityData, setEntityData] = useState<
     | StudentAccountResponse
@@ -176,7 +180,7 @@ export const UpdatePage = ({ entityType, entityId }: UpdatePageProps) => {
           }
         }
       } catch {
-        toast.error("Failed to load entity data");
+        toast.error(dict.admin.updatePage.failedLoad);
       } finally {
         setLoading(false);
       }
@@ -192,6 +196,7 @@ export const UpdatePage = ({ entityType, entityId }: UpdatePageProps) => {
     lecturerForm,
     departmentForm,
     adminForm,
+    dict,
   ]);
 
   const handleStudentSubmit = async (values: UpdateStudentFormData) => {
@@ -200,11 +205,11 @@ export const UpdatePage = ({ entityType, entityId }: UpdatePageProps) => {
 
       await updateStudentAccount(values, entityId);
 
-      toast.success("Student updated successfully");
+      toast.success(dict.admin.updatePage.studentUpdated);
 
       router.back();
     } catch (error: any) {
-      toast.error(error.message || "Failed to update student");
+      toast.error(error.message || dict.admin.updatePage.studentUpdateFailed);
     } finally {
       setUpdating(false);
     }
@@ -216,11 +221,11 @@ export const UpdatePage = ({ entityType, entityId }: UpdatePageProps) => {
 
       await updateLecturerAccount(values, entityId);
 
-      toast.success("Lecturer updated successfully");
+      toast.success(dict.admin.updatePage.lecturerUpdated);
 
       router.back();
     } catch (error: any) {
-      toast.error(error.message || "Failed to update lecturer");
+      toast.error(error.message || dict.admin.updatePage.lecturerUpdateFailed);
     } finally {
       setUpdating(false);
     }
@@ -232,11 +237,13 @@ export const UpdatePage = ({ entityType, entityId }: UpdatePageProps) => {
 
       await updateDepartment(values, entityId);
 
-      toast.success("Department updated successfully");
+      toast.success(dict.admin.updatePage.departmentUpdated);
 
       router.back();
     } catch (error: any) {
-      toast.error(error.message || "Failed to update department");
+      toast.error(
+        error.message || dict.admin.updatePage.departmentUpdateFailed,
+      );
     } finally {
       setUpdating(false);
     }
@@ -248,11 +255,11 @@ export const UpdatePage = ({ entityType, entityId }: UpdatePageProps) => {
 
       await updateAdminAccount(values, entityId);
 
-      toast.success("Admin updated successfully");
+      toast.success(dict.admin.updatePage.adminUpdated);
 
       router.back();
     } catch (error: any) {
-      toast.error(error.message || "Failed to update admin");
+      toast.error(error.message || dict.admin.updatePage.adminUpdateFailed);
     } finally {
       setUpdating(false);
     }
@@ -274,8 +281,10 @@ export const UpdatePage = ({ entityType, entityId }: UpdatePageProps) => {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Entity Not Found</h1>
-          <Button onClick={handleCancel}>Go Back</Button>
+          <h1 className="text-2xl font-bold mb-4">
+            {dict.admin.updatePage.entityNotFound}
+          </h1>
+          <Button onClick={handleCancel}>{dict.admin.updatePage.goBack}</Button>
         </div>
       </div>
     );
@@ -293,9 +302,11 @@ export const UpdatePage = ({ entityType, entityId }: UpdatePageProps) => {
           >
             <ArrowLeft />
           </Button>
-          <h1 className="text-3xl font-bold capitalize">Update {entityType}</h1>
+          <h1 className="text-3xl font-bold capitalize">
+            {dict.admin.updatePage.update} {entityType}
+          </h1>
           <p className="text-gray-600 mt-2">
-            Edit the information below and save your changes.
+            {dict.admin.updatePage.description}
           </p>
         </div>
 
@@ -305,6 +316,7 @@ export const UpdatePage = ({ entityType, entityId }: UpdatePageProps) => {
             onSubmit={handleStudentSubmit}
             onCancel={handleCancel}
             updating={updating}
+            dict={dict}
           />
         )}
 
@@ -314,6 +326,7 @@ export const UpdatePage = ({ entityType, entityId }: UpdatePageProps) => {
             onSubmit={handleLecturerSubmit}
             onCancel={handleCancel}
             updating={updating}
+            dict={dict}
           />
         )}
 
@@ -323,6 +336,7 @@ export const UpdatePage = ({ entityType, entityId }: UpdatePageProps) => {
             onSubmit={handleDepartmentSubmit}
             onCancel={handleCancel}
             updating={updating}
+            dict={dict}
           />
         )}
 
@@ -332,6 +346,7 @@ export const UpdatePage = ({ entityType, entityId }: UpdatePageProps) => {
             onSubmit={handleAdminSubmit}
             onCancel={handleCancel}
             updating={updating}
+            dict={dict}
           />
         )}
       </div>
@@ -339,20 +354,23 @@ export const UpdatePage = ({ entityType, entityId }: UpdatePageProps) => {
   );
 };
 
-// student update form
 const StudentUpdateForm = ({
   form,
   onSubmit,
   onCancel,
   updating,
+  dict,
 }: {
   form: any;
   onSubmit: (values: UpdateStudentFormData) => void;
   onCancel: () => void;
   updating: boolean;
+  dict: any;
 }) => (
   <div className="rounded-lg shadow p-6">
-    <h2 className="text-xl font-semibold mb-6">Student Information</h2>
+    <h2 className="text-xl font-semibold mb-6">
+      {dict.admin.updatePage.studentInfo}
+    </h2>
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -361,7 +379,7 @@ const StudentUpdateForm = ({
             name="studentId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Student ID</FormLabel>
+                <FormLabel>{dict.admin.updatePage.studentId}</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
@@ -375,7 +393,7 @@ const StudentUpdateForm = ({
             name="departmentId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Department ID</FormLabel>
+                <FormLabel>{dict.admin.updatePage.departmentId}</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
@@ -389,7 +407,7 @@ const StudentUpdateForm = ({
             name="username"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Username</FormLabel>
+                <FormLabel>{dict.admin.common.username}</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
@@ -403,7 +421,7 @@ const StudentUpdateForm = ({
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>{dict.admin.common.email}</FormLabel>
                 <FormControl>
                   <Input type="email" {...field} />
                 </FormControl>
@@ -417,7 +435,7 @@ const StudentUpdateForm = ({
             name="fullName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Full Name</FormLabel>
+                <FormLabel>{dict.admin.common.fullName}</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
@@ -431,7 +449,7 @@ const StudentUpdateForm = ({
             name="gender"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Gender</FormLabel>
+                <FormLabel>{dict.admin.common.gender}</FormLabel>
                 <FormControl>
                   <Select
                     value={field.value ? "male" : "female"}
@@ -441,8 +459,12 @@ const StudentUpdateForm = ({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="male">Male</SelectItem>
-                      <SelectItem value="female">Female</SelectItem>
+                      <SelectItem value="male">
+                        {dict.admin.common.male}
+                      </SelectItem>
+                      <SelectItem value="female">
+                        {dict.admin.common.female}
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </FormControl>
@@ -456,12 +478,12 @@ const StudentUpdateForm = ({
             name="birthDate"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Birth Date</FormLabel>
+                <FormLabel>{dict.admin.common.birthDate}</FormLabel>
                 <FormControl>
                   <DatePickerInput
                     value={field.value ?? ""}
                     onChange={field.onChange}
-                    placeholder="Select date"
+                    placeholder={dict.admin.common.selectDate}
                   />
                 </FormControl>
                 <FormMessage />
@@ -474,7 +496,7 @@ const StudentUpdateForm = ({
             name="citizenId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Citizen ID</FormLabel>
+                <FormLabel>{dict.admin.common.citizenId}</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
@@ -488,7 +510,7 @@ const StudentUpdateForm = ({
             name="phone"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Phone Number</FormLabel>
+                <FormLabel>{dict.admin.updatePage.phoneNumber}</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
@@ -502,7 +524,7 @@ const StudentUpdateForm = ({
             name="active"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Active Status</FormLabel>
+                <FormLabel>{dict.admin.common.activeStatus}</FormLabel>
                 <FormControl>
                   <Select
                     value={field.value ? "active" : "inactive"}
@@ -514,8 +536,12 @@ const StudentUpdateForm = ({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="inactive">Inactive</SelectItem>
+                      <SelectItem value="active">
+                        {dict.admin.common.active}
+                      </SelectItem>
+                      <SelectItem value="inactive">
+                        {dict.admin.common.inactive}
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </FormControl>
@@ -530,7 +556,7 @@ const StudentUpdateForm = ({
           name="address"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Address</FormLabel>
+              <FormLabel>{dict.admin.common.address}</FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
@@ -541,7 +567,7 @@ const StudentUpdateForm = ({
 
         <div className="border-t pt-6">
           <h3 className="text-lg font-medium mb-4">
-            Change Password (Optional)
+            {dict.admin.common.changePassword}
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormField
@@ -549,7 +575,7 @@ const StudentUpdateForm = ({
               name="newPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>New Password</FormLabel>
+                  <FormLabel>{dict.admin.common.newPassword}</FormLabel>
                   <FormControl>
                     <Input type="password" {...field} />
                   </FormControl>
@@ -563,7 +589,7 @@ const StudentUpdateForm = ({
               name="confirmPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Confirm Password</FormLabel>
+                  <FormLabel>{dict.admin.common.confirmPassword}</FormLabel>
                   <FormControl>
                     <Input type="password" {...field} />
                   </FormControl>
@@ -576,10 +602,10 @@ const StudentUpdateForm = ({
 
         <div className="flex justify-end space-x-4">
           <Button type="button" variant="outline" onClick={onCancel}>
-            Cancel
+            {dict.admin.common.cancel}
           </Button>
           <Button type="submit" disabled={updating}>
-            {updating ? <Spinner /> : "Update Student"}
+            {updating ? <Spinner /> : dict.admin.updatePage.updateStudent}
           </Button>
         </div>
       </form>
@@ -587,20 +613,23 @@ const StudentUpdateForm = ({
   </div>
 );
 
-// lecturer update form
 const LecturerUpdateForm = ({
   form,
   onSubmit,
   onCancel,
   updating,
+  dict,
 }: {
   form: any;
   onSubmit: (values: UpdateLecturerFormData) => void;
   onCancel: () => void;
   updating: boolean;
+  dict: any;
 }) => (
   <div className="rounded-lg shadow p-6">
-    <h2 className="text-xl font-semibold mb-6">Lecturer Information</h2>
+    <h2 className="text-xl font-semibold mb-6">
+      {dict.admin.updatePage.lecturerInfo}
+    </h2>
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -609,7 +638,7 @@ const LecturerUpdateForm = ({
             name="lecturerId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Lecturer ID</FormLabel>
+                <FormLabel>{dict.admin.updatePage.lecturerId}</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
@@ -623,7 +652,7 @@ const LecturerUpdateForm = ({
             name="username"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Username</FormLabel>
+                <FormLabel>{dict.admin.common.username}</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
@@ -637,7 +666,7 @@ const LecturerUpdateForm = ({
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>{dict.admin.common.email}</FormLabel>
                 <FormControl>
                   <Input type="email" {...field} />
                 </FormControl>
@@ -651,7 +680,7 @@ const LecturerUpdateForm = ({
             name="fullName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Full Name</FormLabel>
+                <FormLabel>{dict.admin.common.fullName}</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
@@ -665,7 +694,7 @@ const LecturerUpdateForm = ({
             name="isActive"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Active Status</FormLabel>
+                <FormLabel>{dict.admin.common.activeStatus}</FormLabel>
                 <FormControl>
                   <Select
                     value={field.value ? "active" : "inactive"}
@@ -677,8 +706,12 @@ const LecturerUpdateForm = ({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="inactive">Inactive</SelectItem>
+                      <SelectItem value="active">
+                        {dict.admin.common.active}
+                      </SelectItem>
+                      <SelectItem value="inactive">
+                        {dict.admin.common.inactive}
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </FormControl>
@@ -690,7 +723,7 @@ const LecturerUpdateForm = ({
 
         <div className="border-t pt-6">
           <h3 className="text-lg font-medium mb-4">
-            Change Password (Optional)
+            {dict.admin.common.changePassword}
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormField
@@ -698,7 +731,7 @@ const LecturerUpdateForm = ({
               name="newPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>New Password</FormLabel>
+                  <FormLabel>{dict.admin.common.newPassword}</FormLabel>
                   <FormControl>
                     <Input type="password" {...field} />
                   </FormControl>
@@ -712,7 +745,7 @@ const LecturerUpdateForm = ({
               name="confirmPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Confirm Password</FormLabel>
+                  <FormLabel>{dict.admin.common.confirmPassword}</FormLabel>
                   <FormControl>
                     <Input type="password" {...field} />
                   </FormControl>
@@ -725,10 +758,10 @@ const LecturerUpdateForm = ({
 
         <div className="flex justify-end space-x-4">
           <Button type="button" variant="outline" onClick={onCancel}>
-            Cancel
+            {dict.admin.common.cancel}
           </Button>
           <Button type="submit" disabled={updating}>
-            {updating ? <Spinner /> : "Update Lecturer"}
+            {updating ? <Spinner /> : dict.admin.updatePage.updateLecturer}
           </Button>
         </div>
       </form>
@@ -736,20 +769,23 @@ const LecturerUpdateForm = ({
   </div>
 );
 
-// department update form
 const DepartmentUpdateForm = ({
   form,
   onSubmit,
   onCancel,
   updating,
+  dict,
 }: {
   form: any;
   onSubmit: (values: UpdateDepartmentFormData) => void;
   onCancel: () => void;
   updating: boolean;
+  dict: any;
 }) => (
   <div className="rounded-lg shadow p-6">
-    <h2 className="text-xl font-semibold mb-6">Department Information</h2>
+    <h2 className="text-xl font-semibold mb-6">
+      {dict.admin.updatePage.departmentInfo}
+    </h2>
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormField
@@ -757,7 +793,7 @@ const DepartmentUpdateForm = ({
           name="departmentId"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Department ID</FormLabel>
+              <FormLabel>{dict.admin.updatePage.departmentId}</FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
@@ -771,7 +807,7 @@ const DepartmentUpdateForm = ({
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Department Name</FormLabel>
+              <FormLabel>{dict.admin.updatePage.departmentName}</FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
@@ -785,7 +821,7 @@ const DepartmentUpdateForm = ({
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Description</FormLabel>
+              <FormLabel>{dict.admin.common.description}</FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
@@ -799,7 +835,7 @@ const DepartmentUpdateForm = ({
           name="headId"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Department Head ID</FormLabel>
+              <FormLabel>{dict.admin.updatePage.departmentHeadId}</FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
@@ -810,10 +846,10 @@ const DepartmentUpdateForm = ({
 
         <div className="flex justify-end space-x-4">
           <Button type="button" variant="outline" onClick={onCancel}>
-            Cancel
+            {dict.admin.common.cancel}
           </Button>
           <Button type="submit" disabled={updating}>
-            {updating ? <Spinner /> : "Update Department"}
+            {updating ? <Spinner /> : dict.admin.updatePage.updateDepartment}
           </Button>
         </div>
       </form>
@@ -821,20 +857,23 @@ const DepartmentUpdateForm = ({
   </div>
 );
 
-// admin update form
 const AdminUpdateForm = ({
   form,
   onSubmit,
   onCancel,
   updating,
+  dict,
 }: {
   form: any;
   onSubmit: (values: UpdateAdminFormData) => void;
   onCancel: () => void;
   updating: boolean;
+  dict: any;
 }) => (
   <div className="rounded-lg shadow p-6">
-    <h2 className="text-xl font-semibold mb-6">Admin Information</h2>
+    <h2 className="text-xl font-semibold mb-6">
+      {dict.admin.updatePage.adminInfo}
+    </h2>
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormField
@@ -842,7 +881,7 @@ const AdminUpdateForm = ({
           name="username"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Username</FormLabel>
+              <FormLabel>{dict.admin.common.username}</FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
@@ -856,7 +895,7 @@ const AdminUpdateForm = ({
           name="active"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Active Status</FormLabel>
+              <FormLabel>{dict.admin.common.activeStatus}</FormLabel>
               <FormControl>
                 <Select
                   value={field.value ? "active" : "inactive"}
@@ -866,8 +905,12 @@ const AdminUpdateForm = ({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="inactive">Inactive</SelectItem>
+                    <SelectItem value="active">
+                      {dict.admin.common.active}
+                    </SelectItem>
+                    <SelectItem value="inactive">
+                      {dict.admin.common.inactive}
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </FormControl>
@@ -878,7 +921,7 @@ const AdminUpdateForm = ({
 
         <div className="border-t pt-6">
           <h3 className="text-lg font-medium mb-4">
-            Change Password (Optional)
+            {dict.admin.common.changePassword}
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormField
@@ -886,7 +929,7 @@ const AdminUpdateForm = ({
               name="newPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>New Password</FormLabel>
+                  <FormLabel>{dict.admin.common.newPassword}</FormLabel>
                   <FormControl>
                     <Input type="password" {...field} />
                   </FormControl>
@@ -900,7 +943,7 @@ const AdminUpdateForm = ({
               name="confirmPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Confirm Password</FormLabel>
+                  <FormLabel>{dict.admin.common.confirmPassword}</FormLabel>
                   <FormControl>
                     <Input type="password" {...field} />
                   </FormControl>
@@ -913,10 +956,10 @@ const AdminUpdateForm = ({
 
         <div className="flex justify-end space-x-4">
           <Button type="button" variant="outline" onClick={onCancel}>
-            Cancel
+            {dict.admin.common.cancel}
           </Button>
           <Button type="submit" disabled={updating}>
-            {updating ? <Spinner /> : "Update Admin"}
+            {updating ? <Spinner /> : dict.admin.updatePage.updateAdmin}
           </Button>
         </div>
       </form>
