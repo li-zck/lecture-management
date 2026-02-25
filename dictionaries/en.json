@@ -1270,5 +1270,9 @@
     "whatHappensNext": "What happens next?",
     "returnHome": "Return to Home",
     "submitAnother": "Submit Another Request"
+  },
+  "posts": {
+    "noPostsYet": "No posts yet.",
+    "description": "News and announcements from the institution"
   }
 }

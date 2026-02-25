@@ -1266,5 +1266,9 @@
     "whatHappensNext": "Điều gì xảy ra tiếp theo?",
     "returnHome": "Về trang chủ",
     "submitAnother": "Gửi yêu cầu khác"
+  },
+  "posts": {
+    "noPostsYet": "Chưa có bài viết nào.",
+    "description": "Tin tức và thông báo từ trường"
   }
 }
