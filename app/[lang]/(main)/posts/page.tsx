@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/shadcn/card";
+import { getClientDictionary, isLocale } from "@/lib/i18n";
 import { FileText } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -16,6 +17,8 @@ import { useParams } from "next/navigation";
 export default function PostsPage() {
   const params = useParams();
   const lang = (params?.lang as string) || "en";
+  const locale = isLocale(lang) ? lang : "en";
+  const dict = getClientDictionary(locale);
   const { posts, loading, error } = usePublicGlobalPosts({
     includeAdmin: true,
     includeDepartment: false,
@@ -45,15 +48,12 @@ export default function PostsPage() {
 
   return (
     <div className="container mx-auto max-w-4xl px-4 py-8">
-      <PageHeader
-        title="Posts"
-        description="News and announcements from the institution"
-      />
+      <PageHeader title="Posts" description={dict.posts.description} />
 
       {posts.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16 text-center text-muted-foreground">
           <FileText className="mb-4 h-12 w-12" />
-          <p>No posts yet.</p>
+          <p>{dict.posts.noPostsYet}</p>
         </div>
       ) : (
         <ul className="space-y-4">
