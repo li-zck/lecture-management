@@ -230,9 +230,7 @@ export function SupportForm() {
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (
-                    <>
-                      <span className="mr-2">{s.submitting}</span>
-                    </>
+                    <span className="mr-2">{s.submitting}</span>
                   ) : (
                     <>
                       {s.submitRequest}
@@ -244,7 +242,7 @@ export function SupportForm() {
                   type="button"
                   variant="outline"
                   className="h-11"
-                  onClick={() => router.back()}
+                  onClick={() => router.push(`/${locale}/`)}
                   disabled={isSubmitting}
                 >
                   {dict.common.cancel}
@@ -262,12 +260,12 @@ export function SupportForm() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <div className="flex items-center gap-2 text-sm">
               <Phone className="w-4 h-4 text-primary" />
-              <span className="text-muted-foreground">+1 (555) 123-4567</span>
+              <span className="text-muted-foreground">+84 (024) 3600 5555</span>
             </div>
             <div className="hidden sm:block w-px h-4 bg-border" />
             <div className="flex items-center gap-2 text-sm">
               <Mail className="w-4 h-4 text-primary" />
-              <span className="text-muted-foreground">support@lms.edu</span>
+              <span className="text-muted-foreground">support@lms.edu.vn</span>
             </div>
           </div>
         </div>
