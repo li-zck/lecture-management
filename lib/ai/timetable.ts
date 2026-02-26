@@ -16,12 +16,17 @@ const API_KEY =
 const MODEL = process.env.NEXT_PUBLIC_GEMINI_MODEL ?? "gemini-1.5-flash";
 const API_BASE = "https://generativelanguage.googleapis.com/v1beta/models";
 
+export type ScheduleMode = "ONLINE" | "ON_CAMPUS" | "HYBRID";
+
 export type ScheduleSlot = {
   courseName: string;
   startTime: number | null;
   endTime: number | null;
   location: string | null;
   lecturer: string | null;
+  mode?: ScheduleMode;
+  meetingUrl?: string | null;
+  courseOnSemesterId?: string;
 };
 
 export type ScheduleData = Record<number, ScheduleSlot[]>;
