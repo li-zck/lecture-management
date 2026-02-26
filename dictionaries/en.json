@@ -294,6 +294,10 @@
     }
   },
   "common": {
+    "online": "Online",
+    "onCampus": "On campus",
+    "hybrid": "Hybrid",
+    "joinMeeting": "Join meeting",
     "cancel": "Cancel",
     "save": "Save",
     "error": "Error",
@@ -452,6 +456,11 @@
     "oldPassword": "Current Password",
     "newPassword": "New Password",
     "confirmPassword": "Confirm New Password",
+    "passwordOldRequired": "Current password is required to change password.",
+    "passwordTooShort": "New password must be at least 6 characters.",
+    "requestEmptyError": "Please fill in at least one field to request changes.",
+    "updateFailed": "Failed to update profile.",
+    "requestFailed": "Failed to submit request.",
     "saveChanges": "Save Changes",
     "saving": "Saving...",
     "successTitle": "Profile updated!",
@@ -1031,6 +1040,14 @@
       "endPeriod": "End Period",
       "location": "Location",
       "locationPlaceholder": "Room 101",
+      "mode": "Mode",
+      "selectMode": "Select mode",
+      "modeOnCampus": "On campus",
+      "modeOnline": "Online",
+      "modeHybrid": "Hybrid",
+      "meetingUrl": "Meeting URL",
+      "meetingUrlPlaceholder": "https://meet.google.com/xxx-xxxx-xxx",
+      "joinMeeting": "Join meeting",
       "capacity": "Capacity",
       "day": "Day",
       "lecturer": "Lecturer"
@@ -1150,7 +1167,15 @@
     "noDocuments": "No documents available.",
     "noGrades": "No grades yet.",
     "generateAI": "Generate AI Insights",
-    "exportTimetable": "Export Timetable"
+    "exportTimetable": "Export Timetable",
+    "progress": "Progress",
+    "progressDesc": "Semester-by-semester view of your GPA, credits, and status.",
+    "confirmEnrollTitle": "Enroll in course?",
+    "confirmEnrollBody": "Are you sure you want to enroll in this course?",
+    "confirmWithdrawTitle": "Withdraw from course?",
+    "confirmWithdrawBody": "Are you sure you want to withdraw from this course? This action cannot be undone.",
+    "withdrawSuccess": "Successfully withdrawn from the course.",
+    "withdrawFailed": "Failed to withdraw from course."
   },
   "lecturerDashboard": {
     "title": "Lecturer Dashboard",
@@ -1168,7 +1193,13 @@
     "saveGrades": "Save Grades",
     "gradesSaved": "Grades saved successfully",
     "generateAI": "Generate AI Insights",
-    "exportTimetable": "Export Timetable"
+    "exportTimetable": "Export Timetable",
+    "courseAnalytics": "Course Analytics",
+    "viewProfile": "View profile",
+    "avgGrade": "Avg Grade",
+    "atRisk": "At Risk (<5)",
+    "graded": "Graded",
+    "distribution": "Distribution"
   },
   "myCoursesList": {
     "title": "My Courses",

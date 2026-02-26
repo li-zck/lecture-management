@@ -290,6 +290,10 @@
     }
   },
   "common": {
+    "online": "Trực tuyến",
+    "onCampus": "Trên campus",
+    "hybrid": "Kết hợp",
+    "joinMeeting": "Tham gia họp",
     "cancel": "Hủy",
     "save": "Lưu",
     "error": "Lỗi",
@@ -448,6 +452,11 @@
     "oldPassword": "Mật khẩu hiện tại",
     "newPassword": "Mật khẩu mới",
     "confirmPassword": "Xác nhận mật khẩu mới",
+    "passwordOldRequired": "Cần nhập mật khẩu hiện tại để đổi mật khẩu.",
+    "passwordTooShort": "Mật khẩu mới phải có ít nhất 6 ký tự.",
+    "requestEmptyError": "Vui lòng điền ít nhất một trường để yêu cầu thay đổi.",
+    "updateFailed": "Cập nhật hồ sơ thất bại.",
+    "requestFailed": "Gửi yêu cầu thất bại.",
     "saveChanges": "Lưu thay đổi",
     "saving": "Đang lưu...",
     "successTitle": "Đã cập nhật hồ sơ!",
@@ -1027,6 +1036,14 @@
       "endPeriod": "Tiết kết thúc",
       "location": "Phòng",
       "locationPlaceholder": "Phòng 101",
+      "mode": "Chế độ",
+      "selectMode": "Chọn chế độ",
+      "modeOnCampus": "Trên campus",
+      "modeOnline": "Trực tuyến",
+      "modeHybrid": "Kết hợp",
+      "meetingUrl": "Link họp",
+      "meetingUrlPlaceholder": "https://meet.google.com/xxx-xxxx-xxx",
+      "joinMeeting": "Tham gia họp",
       "capacity": "Sức chứa",
       "day": "Ngày",
       "lecturer": "Giảng viên"
@@ -1146,7 +1163,15 @@
     "noDocuments": "Chưa có tài liệu.",
     "noGrades": "Chưa có điểm.",
     "generateAI": "Tạo gợi ý AI",
-    "exportTimetable": "Xuất thời khóa biểu"
+    "exportTimetable": "Xuất thời khóa biểu",
+    "progress": "Tiến độ",
+    "progressDesc": "Xem GPA, tín chỉ và trạng thái theo từng học kỳ.",
+    "confirmEnrollTitle": "Đăng ký môn học?",
+    "confirmEnrollBody": "Bạn có chắc chắn muốn đăng ký môn học này không?",
+    "confirmWithdrawTitle": "Rút môn học?",
+    "confirmWithdrawBody": "Bạn có chắc chắn muốn rút môn học này không? Thao tác này không thể hoàn tác.",
+    "withdrawSuccess": "Đã rút môn học thành công.",
+    "withdrawFailed": "Rút môn học thất bại."
   },
   "lecturerDashboard": {
     "title": "Bảng điều khiển giảng viên",
@@ -1164,7 +1189,13 @@
     "saveGrades": "Lưu điểm",
     "gradesSaved": "Đã lưu điểm thành công",
     "generateAI": "Tạo gợi ý AI",
-    "exportTimetable": "Xuất thời khóa biểu"
+    "exportTimetable": "Xuất thời khóa biểu",
+    "courseAnalytics": "Phân tích môn học",
+    "viewProfile": "Xem hồ sơ",
+    "avgGrade": "Điểm TB",
+    "atRisk": "Có rủi ro (<5)",
+    "graded": "Đã chấm",
+    "distribution": "Phân bố"
   },
   "myCoursesList": {
     "title": "Môn học của tôi",
