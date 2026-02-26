@@ -1020,6 +1020,10 @@ export type Dictionary = {
     faq: { title: string; items: { question: string; answer: string }[] };
     cta: { text: string; supportLink: string };
   };
+  posts: {
+    noPostsYet: string;
+    description: string;
+  };
 };
 
 const dictionaries: Record<Locale, () => Promise<{ default: Dictionary }>> = {
