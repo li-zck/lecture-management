@@ -3,7 +3,7 @@
 import type { ScheduleSlot } from "@/lib/ai";
 import { cn } from "@/lib/utils";
 
-const DAY_NAMES: Record<number, string> = {
+const DEFAULT_DAY_NAMES: Record<number, string> = {
   0: "Sunday",
   1: "Monday",
   2: "Tuesday",
@@ -26,17 +26,23 @@ export type TimetableGridProps = {
   /** Days to show (default: Mon–Fri) */
   days?: number[];
   className?: string;
+  /** Optional localized day names indexed by dayOfWeek (0–6). */
+  dayNames?: string[];
+  /** Optional localized empty-state message. */
+  emptyMessage?: string;
 };
 
 export function TimetableGrid({
   schedule,
   days = [1, 2, 3, 4, 5],
   className,
+  dayNames,
+  emptyMessage,
 }: TimetableGridProps) {
   const slotsByDay = days
     .map((d) => ({
       day: d,
-      name: DAY_NAMES[d],
+      name: dayNames?.[d] ?? DEFAULT_DAY_NAMES[d],
       slots: (schedule[d] ?? []).sort(
         (a, b) => (a.startTime ?? 0) - (b.startTime ?? 0),
       ),
@@ -51,7 +57,7 @@ export function TimetableGrid({
           className,
         )}
       >
-        No scheduled classes for the selected period.
+        {emptyMessage ?? "No scheduled classes for the selected period."}
       </div>
     );
   }

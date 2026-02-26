@@ -22,12 +22,18 @@ export type TimetableDownloadProps = {
   title?: string;
   /** Include lecturer (for student timetable) */
   includeLecturer?: boolean;
+  /** Localized button label (default: \"Download\") */
+  buttonLabel?: string;
+  /** Localized loading label (default: \"Downloading…\") */
+  loadingLabel?: string;
 };
 
 export function TimetableDownload({
   schedule,
   title = "Timetable",
   includeLecturer = true,
+  buttonLabel = "Download",
+  loadingLabel = "Downloading…",
 }: TimetableDownloadProps) {
   const [loading, setLoading] = useState<string | null>(null);
 
@@ -74,7 +80,7 @@ export function TimetableDownload({
           disabled={!hasSchedule || loading !== null}
         >
           <FileDown className="size-4" />
-          {loading ? "Downloading…" : "Download"}
+          {loading ? loadingLabel : buttonLabel}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
