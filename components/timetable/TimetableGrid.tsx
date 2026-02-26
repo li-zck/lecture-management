@@ -1,7 +1,10 @@
 "use client";
 
+import { Badge } from "@/components/ui/shadcn/badge";
+import { Button } from "@/components/ui/shadcn/button";
 import type { ScheduleSlot } from "@/lib/ai";
 import { cn } from "@/lib/utils";
+import { ExternalLink } from "lucide-react";
 
 const DEFAULT_DAY_NAMES: Record<number, string> = {
   0: "Sunday",
@@ -30,6 +33,9 @@ export type TimetableGridProps = {
   dayNames?: string[];
   /** Optional localized empty-state message. */
   emptyMessage?: string;
+  /** Optional labels for mode badges and join meeting button */
+  modeLabels?: { online: string; onCampus: string; hybrid: string };
+  joinMeetingLabel?: string;
 };
 
 export function TimetableGrid({
@@ -38,6 +44,8 @@ export function TimetableGrid({
   className,
   dayNames,
   emptyMessage,
+  modeLabels = { online: "Online", onCampus: "On campus", hybrid: "Hybrid" },
+  joinMeetingLabel = "Join meeting",
 }: TimetableGridProps) {
   const slotsByDay = days
     .map((d) => ({
@@ -76,7 +84,24 @@ export function TimetableGrid({
                 key={`${day}-${slot.courseName}-${slot.startTime ?? "tba"}`}
                 className="rounded-md border bg-primary/5 p-3"
               >
-                <p className="font-medium">{slot.courseName}</p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="font-medium">{slot.courseName}</p>
+                  {slot.mode && slot.mode !== "ON_CAMPUS" && (
+                    <Badge
+                      variant={slot.mode === "ONLINE" ? "secondary" : "outline"}
+                      className="text-xs"
+                    >
+                      {slot.mode === "ONLINE"
+                        ? modeLabels.online
+                        : modeLabels.hybrid}
+                    </Badge>
+                  )}
+                  {slot.mode === "ON_CAMPUS" && (
+                    <Badge variant="outline" className="text-xs">
+                      {modeLabels.onCampus}
+                    </Badge>
+                  )}
+                </div>
                 <p className="text-sm text-muted-foreground">
                   {formatTime(slot.startTime)} – {formatTime(slot.endTime)}
                   {slot.location ? ` • ${slot.location}` : ""}
@@ -86,6 +111,25 @@ export function TimetableGrid({
                     {slot.lecturer}
                   </p>
                 )}
+                {(slot.mode === "ONLINE" || slot.mode === "HYBRID") &&
+                  slot.meetingUrl && (
+                    <Button
+                      variant="link"
+                      size="sm"
+                      className="h-auto p-0 text-primary"
+                      asChild
+                    >
+                      <a
+                        href={slot.meetingUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1"
+                      >
+                        <ExternalLink className="h-3 w-3" />
+                        {joinMeetingLabel}
+                      </a>
+                    </Button>
+                  )}
               </div>
             ))}
           </div>
