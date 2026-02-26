@@ -1,5 +1,6 @@
 "use client";
 
+import { getClientDictionary, useLocale } from "@/lib/i18n";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowRight, Loader2, Lock, User } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -47,6 +48,8 @@ export function SignInForm({
   role,
 }: SignInFormProps) {
   const router = useRouter();
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
   const { login } = useSession();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -77,8 +80,13 @@ export function SignInForm({
       // Use the login function from SessionProvider to update state AND set cookie
       login(accessToken);
 
-      toast.success("Welcome back!", {
-        description: `Signed in as ${role || "user"}`,
+      toast.success(dict.signIn.welcomeBack, {
+        description:
+          role === "student"
+            ? dict.signIn.signInStudent
+            : role === "lecturer"
+              ? dict.signIn.signInLecturer
+              : undefined,
       });
       router.push(redirectUrl);
     } catch (error) {
@@ -86,7 +94,7 @@ export function SignInForm({
         (error as { message?: string }).message ??
         "Sign in failed. Please check your credentials.";
 
-      toast.error("Authentication Failed", {
+      toast.error(dict.common.error, {
         description: msg,
       });
     } finally {
@@ -166,11 +174,11 @@ export function SignInForm({
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Signing In...
+                {dict.nav.signIn}...
               </>
             ) : (
               <>
-                Sign In
+                {dict.nav.signIn}
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
               </>
             )}
