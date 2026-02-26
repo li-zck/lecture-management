@@ -3,9 +3,21 @@
 import { useSession } from "@/components/provider/SessionProvider";
 import {
   AITimetableGenerator,
+  ScheduleCalendar,
+  ScheduleChangesList,
   TimetableDownload,
   TimetableGrid,
 } from "@/components/timetable";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/shadcn/alert-dialog";
 import { Badge } from "@/components/ui/shadcn/badge";
 import { Button } from "@/components/ui/shadcn/button";
 import {
@@ -16,6 +28,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/shadcn/card";
+import { studentExamScheduleApi } from "@/lib/api/exam-schedule";
 import {
   studentApi,
   type AvailableCourse,
@@ -23,6 +36,7 @@ import {
   type EnrolledCourse,
   type GradeSummary,
   type StudentProfile,
+  type StudentProgress,
   type WeeklySchedule,
 } from "@/lib/api/student";
 import { getClientDictionary, useLocale } from "@/lib/i18n";
@@ -54,7 +68,7 @@ export function StudentDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<
-    "courses" | "grades" | "schedule" | "enroll"
+    "courses" | "grades" | "progress" | "schedule" | "enroll"
   >("courses");
 
   // State for viewing documents
@@ -62,20 +76,36 @@ export function StudentDashboard() {
   const [documents, setDocuments] = useState<CourseDocument[]>([]);
   const [loadingDocs, setLoadingDocs] = useState(false);
 
+  const [pendingEnrollCourse, setPendingEnrollCourse] = useState<string | null>(
+    null,
+  );
+  const [pendingWithdrawEnrollment, setPendingWithdrawEnrollment] = useState<
+    string | null
+  >(null);
+
+  const [progress, setProgress] = useState<StudentProgress | null>(null);
+  const [scheduleView, setScheduleView] = useState<"weekly" | "calendar">(
+    "weekly",
+  );
+  const [examSchedules, setExamSchedules] = useState<
+    Awaited<ReturnType<typeof studentExamScheduleApi.getMySchedules>>
+  >([]);
+
   const fetchData = useCallback(async () => {
     if (!user?.id) return;
 
     try {
       setLoading(true);
-      const [profileData, enrollmentsData, gradesData] = await Promise.all([
+      const [profileData, enrollmentsData, progressData] = await Promise.all([
         studentApi.getById(user.id),
         studentApi.getEnrollments(),
-        studentApi.getGrades(),
+        studentApi.getProgress(),
       ]);
       setProfile(profileData);
       setCourses(enrollmentsData);
-      setGrades(gradesData);
+      setGrades(studentApi.getGradesFromEnrollments(enrollmentsData));
       setSchedule(enrollmentsToWeeklySchedule(enrollmentsData));
+      setProgress(progressData);
     } catch (err) {
       setError("Failed to load data. Please try again.");
       console.error(err);
@@ -106,46 +136,68 @@ export function StudentDashboard() {
     }
   }, [activeTab, fetchAvailableCourses]);
 
+  // Fetch exam schedules when schedule tab is active
+  useEffect(() => {
+    if (activeTab === "schedule") {
+      studentExamScheduleApi
+        .getMySchedules()
+        .then(setExamSchedules)
+        .catch(() => setExamSchedules([]));
+    }
+  }, [activeTab]);
+
+  const confirmEnroll = (courseOnSemesterId: string) => {
+    setPendingEnrollCourse(courseOnSemesterId);
+  };
+
   const handleEnroll = async (courseOnSemesterId: string) => {
     try {
-      if (!confirm("Are you sure you want to enroll in this course?")) return;
       await studentApi.enrollCourse(courseOnSemesterId);
-      alert("Successfully enrolled!");
-      // Refresh data
+      toast.success(dict.courses.enrollSuccess, { position: "top-center" });
       fetchAvailableCourses();
-      const [enrollmentsData, scheduleData] = await Promise.all([
+      const [enrollmentsData, progressData] = await Promise.all([
         studentApi.getEnrollments(),
-        studentApi.getSchedule(),
+        studentApi.getProgress(),
       ]);
       setCourses(enrollmentsData);
-      setSchedule(scheduleData);
-    } catch (err: any) {
-      alert(err.response?.data?.message || "Failed to enroll");
+      setGrades(studentApi.getGradesFromEnrollments(enrollmentsData));
+      setSchedule(enrollmentsToWeeklySchedule(enrollmentsData));
+      setProgress(progressData);
+    } catch (err: unknown) {
+      const msg =
+        err && typeof err === "object" && "response" in err
+          ? (err as { response?: { data?: { message?: string } } }).response
+              ?.data?.message
+          : dict.courses.enrollFailed;
+      toast.error(msg || dict.courses.enrollFailed, {
+        position: "top-center",
+      });
     }
+  };
+
+  const confirmWithdraw = (enrollmentId: string) => {
+    setPendingWithdrawEnrollment(enrollmentId);
   };
 
   const handleWithdraw = async (enrollmentId: string) => {
     try {
-      if (
-        !confirm(
-          "Are you sure you want to withdraw from this course? Query cannot be undone.",
-        )
-      )
-        return;
-
       await studentApi.withdrawCourse(enrollmentId);
-      alert("Successfully withdrawn!");
-      // Refresh data
-      const [enrollmentsData, scheduleData] = await Promise.all([
+      toast.success(sd.withdrawSuccess, { position: "top-center" });
+      const [enrollmentsData, progressData] = await Promise.all([
         studentApi.getEnrollments(),
-        studentApi.getSchedule(),
+        studentApi.getProgress(),
       ]);
       setCourses(enrollmentsData);
-      setSchedule(scheduleData);
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || "Failed to withdraw", {
-        position: "top-center",
-      });
+      setGrades(studentApi.getGradesFromEnrollments(enrollmentsData));
+      setSchedule(enrollmentsToWeeklySchedule(enrollmentsData));
+      setProgress(progressData);
+    } catch (err: unknown) {
+      const msg =
+        err && typeof err === "object" && "response" in err
+          ? (err as { response?: { data?: { message?: string } } }).response
+              ?.data?.message
+          : sd.withdrawFailed;
+      toast.error(msg || sd.withdrawFailed, { position: "top-center" });
     }
   };
 
@@ -191,6 +243,70 @@ export function StudentDashboard() {
 
   return (
     <div className="container mx-auto max-w-6xl px-4 py-6 sm:px-6">
+      <AlertDialog
+        open={pendingEnrollCourse !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingEnrollCourse(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{sd.confirmEnrollTitle}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {sd.confirmEnrollBody}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setPendingEnrollCourse(null)}>
+              {dict.common.cancel}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                if (!pendingEnrollCourse) return;
+                const id = pendingEnrollCourse;
+                setPendingEnrollCourse(null);
+                await handleEnroll(id);
+              }}
+            >
+              {dict.courses.enrollInCourse}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog
+        open={pendingWithdrawEnrollment !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingWithdrawEnrollment(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{sd.confirmWithdrawTitle}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {sd.confirmWithdrawBody}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              onClick={() => setPendingWithdrawEnrollment(null)}
+            >
+              {dict.common.cancel}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                if (!pendingWithdrawEnrollment) return;
+                const id = pendingWithdrawEnrollment;
+                setPendingWithdrawEnrollment(null);
+                await handleWithdraw(id);
+              }}
+            >
+              {sd.withdraw}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold sm:text-3xl">{sd.title}</h1>
@@ -274,6 +390,17 @@ export function StudentDashboard() {
         </button>
         <button
           type="button"
+          onClick={() => setActiveTab("progress")}
+          className={`rounded-md px-3 py-2 text-sm font-medium transition sm:px-4 ${
+            activeTab === "progress"
+              ? "bg-primary text-primary-foreground"
+              : "bg-muted hover:bg-muted/80"
+          }`}
+        >
+          {sd.progress}
+        </button>
+        <button
+          type="button"
           onClick={() => setActiveTab("schedule")}
           className={`rounded-md px-3 py-2 text-sm font-medium transition sm:px-4 ${
             activeTab === "schedule"
@@ -341,6 +468,27 @@ export function StudentDashboard() {
                         {enrollment.schedule.location || "-"}
                       </p>
                     </div>
+                    {enrollment.schedule.mode && (
+                      <div>
+                        <p className="text-sm text-muted-foreground">
+                          {dict.admin?.courseSemesters?.mode ?? "Mode"}
+                        </p>
+                        <Badge
+                          variant={
+                            enrollment.schedule.mode === "ONLINE"
+                              ? "secondary"
+                              : "outline"
+                          }
+                          className="text-xs"
+                        >
+                          {enrollment.schedule.mode === "ONLINE"
+                            ? (dict.common.online ?? "Online")
+                            : enrollment.schedule.mode === "HYBRID"
+                              ? (dict.common.hybrid ?? "Hybrid")
+                              : (dict.common.onCampus ?? "On campus")}
+                        </Badge>
+                      </div>
+                    )}
                     <div>
                       <p className="text-sm text-muted-foreground">
                         {sd.grade}
@@ -351,7 +499,22 @@ export function StudentDashboard() {
                     </div>
                   </div>
 
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
+                    {(enrollment.schedule.mode === "ONLINE" ||
+                      enrollment.schedule.mode === "HYBRID") &&
+                      enrollment.schedule.meetingUrl && (
+                        <Button variant="default" size="sm" asChild>
+                          <a
+                            href={enrollment.schedule.meetingUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            {dict.admin?.courseSemesters?.joinMeeting ??
+                              dict.common.joinMeeting ??
+                              "Join meeting"}
+                          </a>
+                        </Button>
+                      )}
                     <Button
                       variant="outline"
                       size="sm"
@@ -371,7 +534,7 @@ export function StudentDashboard() {
                           variant="destructive"
                           size="sm"
                           onClick={() =>
-                            handleWithdraw(enrollment.enrollmentId)
+                            confirmWithdraw(enrollment.enrollmentId)
                           }
                         >
                           {sd.withdraw}
@@ -484,10 +647,12 @@ export function StudentDashboard() {
                         </div>
                       </div>
                       <Button
-                        onClick={() => handleEnroll(course.courseOnSemesterId)}
+                        onClick={() => confirmEnroll(course.courseOnSemesterId)}
                         disabled={!course.hasCapacity}
                       >
-                        {course.hasCapacity ? "Enroll Now" : "Class Full"}
+                        {course.hasCapacity
+                          ? dict.courses.enrollInCourse
+                          : dict.courses.full}
                       </Button>
                     </div>
                   ))}
@@ -554,39 +719,193 @@ export function StudentDashboard() {
         </Card>
       )}
 
+      {/* Progress Tab */}
+      {activeTab === "progress" && (
+        <Card>
+          <CardHeader>
+            <CardTitle>{sd.progress}</CardTitle>
+            <CardDescription>{sd.progressDesc}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {!progress || progress.bySemester.length === 0 ? (
+              <p className="text-center text-muted-foreground py-4">
+                {sd.noEnrolledCourses}
+              </p>
+            ) : (
+              <div className="space-y-6">
+                <div className="flex flex-wrap gap-4 rounded-lg border p-4">
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      Total Credits
+                    </p>
+                    <p className="text-xl font-semibold">
+                      {progress.overall.totalCreditsCompleted} /{" "}
+                      {progress.overall.totalCreditsAttempted}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      Cumulative GPA
+                    </p>
+                    <p className="text-xl font-semibold">
+                      {progress.overall.cumulativeGpa != null
+                        ? progress.overall.cumulativeGpa.toFixed(2)
+                        : "-"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Status</p>
+                    <Badge
+                      variant={
+                        progress.overall.status === "at_risk"
+                          ? "destructive"
+                          : "default"
+                      }
+                    >
+                      {progress.overall.status === "at_risk"
+                        ? "At Risk"
+                        : "On Track"}
+                    </Badge>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  {progress.bySemester.map((s) => (
+                    <div
+                      key={s.semesterId}
+                      className="rounded-lg border p-4 space-y-2"
+                    >
+                      <div className="flex justify-between items-center">
+                        <h3 className="font-semibold">{s.semesterName}</h3>
+                        <span className="text-sm text-muted-foreground">
+                          GPA: {s.gpa != null ? s.gpa.toFixed(2) : "-"} ·{" "}
+                          {s.creditsCompleted}/{s.creditsAttempted} credits
+                        </span>
+                      </div>
+                      <ul className="text-sm space-y-1">
+                        {s.enrollments.map((e) => (
+                          <li key={e.courseName}>
+                            {e.courseName} ({e.credits} cr) —{" "}
+                            {e.finalGrade != null ? e.finalGrade : "—"}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       {/* Schedule Tab */}
       {activeTab === "schedule" && (
         <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>{dict.home.studentFeatures[2]?.title}</CardTitle>
-              <CardDescription>
-                {dict.home.studentFeatures[2]?.description}
-              </CardDescription>
-              <CardAction>
-                <TimetableDownload
-                  schedule={schedule}
-                  title={
-                    courses[0]?.semester?.name
-                      ? `${dict.home.studentFeatures[2]?.title} - ${courses[0].semester.name}`
-                      : (dict.home.studentFeatures[2]?.title ?? "Timetable")
-                  }
-                  includeLecturer
-                  buttonLabel={sd.exportTimetable}
-                  loadingLabel={sd.exportTimetable}
-                />
-              </CardAction>
-            </CardHeader>
-            <CardContent>
-              {Object.keys(schedule).length === 0 ? (
-                <p className="text-center text-muted-foreground py-4">
-                  {sd.noEnrolledCourses}
-                </p>
-              ) : (
-                <TimetableGrid schedule={schedule} dayNames={dict.daysOfWeek} />
-              )}
-            </CardContent>
-          </Card>
+          <div className="flex gap-2">
+            <Button
+              variant={scheduleView === "weekly" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setScheduleView("weekly")}
+            >
+              Weekly
+            </Button>
+            <Button
+              variant={scheduleView === "calendar" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setScheduleView("calendar")}
+            >
+              Calendar
+            </Button>
+          </div>
+
+          {scheduleView === "weekly" && (
+            <Card>
+              <CardHeader>
+                <CardTitle>{dict.home.studentFeatures[2]?.title}</CardTitle>
+                <CardDescription>
+                  {dict.home.studentFeatures[2]?.description}
+                </CardDescription>
+                <CardAction>
+                  <TimetableDownload
+                    schedule={schedule}
+                    title={
+                      courses[0]?.semester?.name
+                        ? `${dict.home.studentFeatures[2]?.title} - ${courses[0].semester.name}`
+                        : (dict.home.studentFeatures[2]?.title ?? "Timetable")
+                    }
+                    includeLecturer
+                    buttonLabel={sd.exportTimetable}
+                    loadingLabel={sd.exportTimetable}
+                  />
+                </CardAction>
+              </CardHeader>
+              <CardContent>
+                {Object.keys(schedule).length === 0 ? (
+                  <p className="text-center text-muted-foreground py-4">
+                    {sd.noEnrolledCourses}
+                  </p>
+                ) : (
+                  <TimetableGrid
+                    schedule={schedule}
+                    dayNames={dict.daysOfWeek}
+                    modeLabels={{
+                      online: dict.common.online ?? "Online",
+                      onCampus: dict.common.onCampus ?? "On campus",
+                      hybrid: dict.common.hybrid ?? "Hybrid",
+                    }}
+                    joinMeetingLabel={
+                      dict.admin?.courseSemesters?.joinMeeting ??
+                      dict.common.joinMeeting ??
+                      "Join meeting"
+                    }
+                  />
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {scheduleView === "calendar" &&
+            courses[0]?.semester?.startDate &&
+            courses[0]?.semester?.endDate && (
+              <ScheduleCalendar
+                schedule={schedule}
+                exams={examSchedules}
+                semesterStart={courses[0].semester.startDate}
+                semesterEnd={courses[0].semester.endDate}
+                dayNames={dict.daysOfWeek}
+                modeLabels={{
+                  online: dict.common.online ?? "Online",
+                  onCampus: dict.common.onCampus ?? "On campus",
+                  hybrid: dict.common.hybrid ?? "Hybrid",
+                }}
+                joinMeetingLabel={
+                  dict.admin?.courseSemesters?.joinMeeting ??
+                  dict.common.joinMeeting ??
+                  "Join meeting"
+                }
+                emptyMessage={sd.noEnrolledCourses}
+              />
+            )}
+
+          {scheduleView === "calendar" &&
+            (!courses[0]?.semester?.startDate ||
+              !courses[0]?.semester?.endDate) &&
+            courses.length > 0 && (
+              <Card>
+                <CardContent className="py-6 text-center text-muted-foreground">
+                  Semester dates not available for calendar view.
+                </CardContent>
+              </Card>
+            )}
+
+          <ScheduleChangesList
+            courseOnSemesterIds={courses.map((c) => c.courseOnSemesterId)}
+            courseNames={Object.fromEntries(
+              courses.map((c) => [c.courseOnSemesterId, c.course.name]),
+            )}
+            emptyMessage="No recent schedule changes."
+          />
+
           <AITimetableGenerator
             schedule={schedule}
             userRole="student"

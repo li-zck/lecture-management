@@ -3,6 +3,7 @@
 import { useSession } from "@/components/provider/SessionProvider";
 import {
   AITimetableGenerator,
+  ScheduleChangesList,
   TimetableDownload,
   TimetableGrid,
 } from "@/components/timetable";
@@ -20,6 +21,7 @@ import { Input } from "@/components/ui/shadcn/input";
 import { getErrorInfo } from "@/lib/api/error";
 import {
   type AssignedCourse,
+  type CourseAnalytics,
   type CourseStudent,
   type LecturerProfile,
   type LecturerSchedule,
@@ -28,6 +30,7 @@ import {
 import { getClientDictionary, useLocale } from "@/lib/i18n";
 import { GRADE_TYPE_OPTIONS } from "@/lib/utils/grade-labels";
 import { coursesToLecturerSchedule } from "@/lib/utils/schedule";
+import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -58,6 +61,7 @@ export function LecturerDashboard() {
   const [editingGrades, setEditingGrades] = useState<
     Record<string, CourseStudent["grades"]>
   >({});
+  const [analytics, setAnalytics] = useState<CourseAnalytics | null>(null);
 
   const fetchData = useCallback(async () => {
     if (!user?.id) return;
@@ -89,11 +93,13 @@ export function LecturerDashboard() {
     try {
       setStudentsLoading(true);
       setSelectedCourse(course);
-      const studentsData = await lecturerApi.getCourseStudents(
-        course.courseOnSemesterId,
-      );
+      setAnalytics(null);
+      const [studentsData, analyticsData] = await Promise.all([
+        lecturerApi.getCourseStudents(course.courseOnSemesterId),
+        lecturerApi.getCourseAnalytics(course.courseOnSemesterId),
+      ]);
       setStudents(studentsData);
-      // Initialize editing grades
+      setAnalytics(analyticsData);
       const initialGrades: Record<string, CourseStudent["grades"]> = {};
       for (const student of studentsData) {
         initialGrades[student.student.id] = { ...student.grades };
@@ -288,6 +294,42 @@ export function LecturerDashboard() {
                         {formatTime(course.schedule.startTime)} -{" "}
                         {formatTime(course.schedule.endTime)}
                       </p>
+                      {course.schedule.mode && (
+                        <Badge
+                          variant={
+                            course.schedule.mode === "ONLINE"
+                              ? "secondary"
+                              : "outline"
+                          }
+                          className="mt-1 text-xs"
+                        >
+                          {course.schedule.mode === "ONLINE"
+                            ? (dict.common.online ?? "Online")
+                            : course.schedule.mode === "HYBRID"
+                              ? (dict.common.hybrid ?? "Hybrid")
+                              : (dict.common.onCampus ?? "On campus")}
+                        </Badge>
+                      )}
+                      {(course.schedule.mode === "ONLINE" ||
+                        course.schedule.mode === "HYBRID") &&
+                        course.schedule.meetingUrl && (
+                          <Button
+                            variant="link"
+                            size="sm"
+                            className="h-auto p-0 mt-1"
+                            asChild
+                          >
+                            <a
+                              href={course.schedule.meetingUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              {dict.admin?.courseSemesters?.joinMeeting ??
+                                dict.common.joinMeeting ??
+                                "Join meeting"}
+                            </a>
+                          </Button>
+                        )}
                     </div>
                     <div className="text-right">
                       <p className="text-sm text-muted-foreground">
@@ -326,6 +368,48 @@ export function LecturerDashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
+              {analytics && (
+                <div className="mb-6 flex flex-wrap gap-4 rounded-lg border p-4">
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      {dict.lecturerDashboard.courseAnalytics}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">
+                      {dict.lecturerDashboard.avgGrade}
+                    </p>
+                    <p className="font-semibold">
+                      {analytics.averageGrade != null
+                        ? analytics.averageGrade.toFixed(2)
+                        : "-"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">
+                      {dict.lecturerDashboard.atRisk}
+                    </p>
+                    <p className="font-semibold">
+                      {analytics.atRiskCount} / {analytics.totalStudents}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">
+                      {dict.lecturerDashboard.graded}
+                    </p>
+                    <p className="font-semibold">
+                      {analytics.gradedCount} / {analytics.totalStudents}
+                    </p>
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {dict.lecturerDashboard.distribution}: 0-4:{" "}
+                    {analytics.distribution["0-4"]} | 5-6:{" "}
+                    {analytics.distribution["5-6"]} | 7-8:{" "}
+                    {analytics.distribution["7-8"]} | 9-10:{" "}
+                    {analytics.distribution["9-10"]}
+                  </div>
+                </div>
+              )}
               {studentsLoading ? (
                 <div className="flex justify-center py-8">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
@@ -358,6 +442,9 @@ export function LecturerDashboard() {
                         </th>
                         <th className="text-center py-3 px-2">
                           {dict.common.submit}
+                        </th>
+                        <th className="text-center py-3 px-2">
+                          {dict.lecturerDashboard.viewProfile}
                         </th>
                       </tr>
                     </thead>
@@ -469,6 +556,15 @@ export function LecturerDashboard() {
                               {d.saveGrades}
                             </Button>
                           </td>
+                          <td className="py-3 px-2 text-center">
+                            <Button variant="ghost" size="sm" asChild>
+                              <Link
+                                href={`/${locale}/dashboard/student/${student.student.id}`}
+                              >
+                                {dict.lecturerDashboard.viewProfile}
+                              </Link>
+                            </Button>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -509,10 +605,30 @@ export function LecturerDashboard() {
                   {dict.myCoursesList.noAssignedCourses}
                 </p>
               ) : (
-                <TimetableGrid schedule={schedule} dayNames={dict.daysOfWeek} />
+                <TimetableGrid
+                  schedule={schedule}
+                  dayNames={dict.daysOfWeek}
+                  modeLabels={{
+                    online: dict.common.online ?? "Online",
+                    onCampus: dict.common.onCampus ?? "On campus",
+                    hybrid: dict.common.hybrid ?? "Hybrid",
+                  }}
+                  joinMeetingLabel={
+                    dict.admin?.courseSemesters?.joinMeeting ??
+                    dict.common.joinMeeting ??
+                    "Join meeting"
+                  }
+                />
               )}
             </CardContent>
           </Card>
+          <ScheduleChangesList
+            courseOnSemesterIds={courses.map((c) => c.courseOnSemesterId)}
+            courseNames={Object.fromEntries(
+              courses.map((c) => [c.courseOnSemesterId, c.course.name]),
+            )}
+            emptyMessage="No recent schedule changes."
+          />
           <AITimetableGenerator
             schedule={schedule}
             userRole="lecturer"
