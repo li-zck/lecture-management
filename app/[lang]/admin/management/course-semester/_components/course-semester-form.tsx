@@ -40,7 +40,9 @@ type CourseSemesterFormValues = {
   dayOfWeek?: number;
   startTime?: number;
   endTime?: number;
+  mode?: "ONLINE" | "ON_CAMPUS" | "HYBRID";
   location?: string;
+  meetingUrl?: string;
   capacity?: number;
 };
 
@@ -81,7 +83,9 @@ export function CourseSemesterForm({
       dayOfWeek: initialValues?.dayOfWeek,
       startTime: initialValues?.startTime,
       endTime: initialValues?.endTime,
+      mode: initialValues?.mode ?? "ON_CAMPUS",
       location: initialValues?.location ?? "",
+      meetingUrl: initialValues?.meetingUrl ?? "",
       capacity: initialValues?.capacity ?? 60,
     },
   });
@@ -297,6 +301,46 @@ export function CourseSemesterForm({
                 />
               </div>
 
+              <FormField
+                control={form.control}
+                name="mode"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      {dict.admin.courseSemesters.mode ?? "Mode"}
+                    </FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value ?? "ON_CAMPUS"}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue
+                            placeholder={
+                              dict.admin.courseSemesters.selectMode ??
+                              "Select mode"
+                            }
+                          />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent position="popper" sideOffset={5}>
+                        <SelectItem value="ON_CAMPUS">
+                          {dict.admin.courseSemesters.modeOnCampus ??
+                            "On campus"}
+                        </SelectItem>
+                        <SelectItem value="ONLINE">
+                          {dict.admin.courseSemesters.modeOnline ?? "Online"}
+                        </SelectItem>
+                        <SelectItem value="HYBRID">
+                          {dict.admin.courseSemesters.modeHybrid ?? "Hybrid"}
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -320,20 +364,17 @@ export function CourseSemesterForm({
                 />
                 <FormField
                   control={form.control}
-                  name="capacity"
+                  name="meetingUrl"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        {dict.admin.courseSemesters.capacity}
+                        {dict.admin.courseSemesters.meetingUrl ?? "Meeting URL"}
                       </FormLabel>
                       <FormControl>
                         <Input
-                          type="number"
-                          min={1}
+                          type="url"
+                          placeholder="https://meet.google.com/xxx-xxxx-xxx"
                           {...field}
-                          onChange={(e) =>
-                            field.onChange(e.target.valueAsNumber)
-                          }
                         />
                       </FormControl>
                       <FormMessage />
@@ -341,6 +382,25 @@ export function CourseSemesterForm({
                   )}
                 />
               </div>
+
+              <FormField
+                control={form.control}
+                name="capacity"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{dict.admin.courseSemesters.capacity}</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min={1}
+                        {...field}
+                        onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </CardContent>
             <CardFooter className="flex justify-end">
               <Button type="submit" disabled={form.formState.isSubmitting}>

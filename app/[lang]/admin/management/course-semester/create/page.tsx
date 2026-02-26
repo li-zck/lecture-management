@@ -2,7 +2,12 @@
 
 import { PageHeader } from "@/components/ui/page-header";
 import { adminCourseSemesterApi } from "@/lib/api/admin-course-semester";
-import { getErrorInfo, logError } from "@/lib/api/error";
+import {
+  formatScheduleConflictError,
+  getErrorInfo,
+  isScheduleConflictError,
+  logError,
+} from "@/lib/api/error";
 import { getClientDictionary } from "@/lib/i18n";
 import { useLocale } from "@/lib/i18n/use-locale";
 import { useRouter } from "next/navigation";
@@ -42,7 +47,10 @@ export default function CreateCourseSemesterPage() {
     } catch (error: unknown) {
       const { status, message } = getErrorInfo(error);
       logError(error, "Create Course Schedule");
-      toast.error(getScheduleErrorMessage(status, message));
+      const displayMessage = isScheduleConflictError(error)
+        ? formatScheduleConflictError(message)
+        : getScheduleErrorMessage(status, message);
+      toast.error(displayMessage, { duration: 8000 });
     }
   };
 

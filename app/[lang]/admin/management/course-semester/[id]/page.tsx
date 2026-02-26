@@ -2,7 +2,12 @@
 
 import { PageHeader } from "@/components/ui/page-header";
 import { adminCourseSemesterApi } from "@/lib/api/admin-course-semester";
-import { getErrorInfo, logError } from "@/lib/api/error";
+import {
+  formatScheduleConflictError,
+  getErrorInfo,
+  isScheduleConflictError,
+  logError,
+} from "@/lib/api/error";
 import { getClientDictionary } from "@/lib/i18n";
 import { useLocale } from "@/lib/i18n/use-locale";
 import { queryKeys } from "@/lib/query";
@@ -72,7 +77,9 @@ export default function EditCourseSemesterPage({
         dayOfWeek: payload.dayOfWeek,
         startTime: payload.startTime,
         endTime: payload.endTime,
+        mode: payload.mode,
         location: payload.location,
+        meetingUrl: payload.meetingUrl || null,
         capacity: payload.capacity,
       };
 
@@ -88,7 +95,10 @@ export default function EditCourseSemesterPage({
     } catch (error: unknown) {
       const { status, message } = getErrorInfo(error);
       logError(error, "Update Course Schedule");
-      toast.error(getScheduleErrorMessage(status, message));
+      const displayMessage = isScheduleConflictError(error)
+        ? formatScheduleConflictError(message)
+        : getScheduleErrorMessage(status, message);
+      toast.error(displayMessage, { duration: 8000 });
     }
   };
 
