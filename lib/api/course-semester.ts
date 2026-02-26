@@ -1,5 +1,26 @@
 import { apiClient } from "./client";
 
+/** Schedule change log entry */
+export interface ScheduleChange {
+  id: string;
+  courseOnSemesterId: string;
+  changedBy?: string;
+  changeType: string;
+  oldDayOfWeek?: number;
+  newDayOfWeek?: number;
+  oldStartTime?: number;
+  newStartTime?: number;
+  oldEndTime?: number;
+  newEndTime?: number;
+  oldLocation?: string;
+  newLocation?: string;
+  oldMode?: string;
+  newMode?: string;
+  oldMeetingUrl?: string;
+  newMeetingUrl?: string;
+  createdAt: string;
+}
+
 /**
  * Course on Semester interface
  * Represents a course offering in a specific semester
@@ -13,6 +34,8 @@ export interface CourseSemester {
   dayOfWeek: number | null;
   startTime: number | null;
   endTime: number | null;
+  mode?: "ONLINE" | "ON_CAMPUS" | "HYBRID";
+  meetingUrl?: string | null;
   capacity: number | null;
   isSummarized: boolean;
   createdAt: string;
@@ -82,6 +105,20 @@ export const courseSemesterApi = {
           semesterId: params?.semesterId,
         },
       },
+    );
+    return response.data;
+  },
+
+  /**
+   * GET /course-semester/:id/schedule-changes - Get schedule change history
+   */
+  getScheduleChanges: async (
+    id: string,
+    limit?: number,
+  ): Promise<ScheduleChange[]> => {
+    const response = await apiClient.get<ScheduleChange[]>(
+      `/course-semester/${id}/schedule-changes`,
+      { params: limit != null ? { limit } : {} },
     );
     return response.data;
   },

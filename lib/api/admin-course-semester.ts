@@ -1,5 +1,8 @@
 import { apiClient } from "./client";
 
+/** Schedule mode for course sessions */
+export type ScheduleMode = "ONLINE" | "ON_CAMPUS" | "HYBRID";
+
 /**
  * Course-Semester relationship interface
  */
@@ -11,7 +14,9 @@ export interface CourseSemester {
   dayOfWeek: number | null;
   startTime: number | null;
   endTime: number | null;
+  mode?: ScheduleMode;
   location: string | null;
+  meetingUrl?: string | null;
   capacity: number | null;
   course?: {
     id: string;
@@ -43,7 +48,9 @@ export interface CreateCourseSemesterRequest {
   dayOfWeek?: number;
   startTime?: number;
   endTime?: number;
+  mode?: ScheduleMode;
   location?: string;
+  meetingUrl?: string | null;
   capacity?: number;
 }
 
@@ -55,7 +62,9 @@ export interface UpdateCourseSemesterRequest {
   dayOfWeek?: number | null;
   startTime?: number | null;
   endTime?: number | null;
+  mode?: ScheduleMode | null;
   location?: string | null;
+  meetingUrl?: string | null;
   capacity?: number | null;
 }
 

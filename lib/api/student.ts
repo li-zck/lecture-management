@@ -33,6 +33,8 @@ export interface EnrolledCourse {
   semester: {
     id: string;
     name: string;
+    startDate?: string;
+    endDate?: string;
   };
   lecturer: {
     id: string;
@@ -45,6 +47,8 @@ export interface EnrolledCourse {
     startTime: number | null;
     endTime: number | null;
     location: string | null;
+    mode?: "ONLINE" | "ON_CAMPUS" | "HYBRID";
+    meetingUrl?: string | null;
   };
   grades: {
     gradeType1: number | null;
@@ -64,6 +68,27 @@ export interface GradeSummary {
   finalGrade: number | null;
 }
 
+export interface StudentProgress {
+  bySemester: Array<{
+    semesterId: string;
+    semesterName: string;
+    creditsAttempted: number;
+    creditsCompleted: number;
+    gpa: number | null;
+    enrollments: Array<{
+      courseName: string;
+      credits: number;
+      finalGrade: number | null;
+    }>;
+  }>;
+  overall: {
+    totalCreditsAttempted: number;
+    totalCreditsCompleted: number;
+    cumulativeGpa: number | null;
+    status: "on_track" | "at_risk";
+  };
+}
+
 export type WeeklySchedule = Record<
   number,
   Array<{
@@ -72,6 +97,9 @@ export type WeeklySchedule = Record<
     endTime: number | null;
     location: string | null;
     lecturer: string | null;
+    mode?: "ONLINE" | "ON_CAMPUS" | "HYBRID";
+    meetingUrl?: string | null;
+    courseOnSemesterId?: string;
   }>
 >;
 
@@ -131,6 +159,8 @@ export const studentApi = {
         dayOfWeek: number | null;
         startTime: number | null;
         endTime: number | null;
+        mode?: "ONLINE" | "ON_CAMPUS" | "HYBRID";
+        meetingUrl?: string | null;
         course: {
           id: string;
           name: string;
@@ -169,6 +199,12 @@ export const studentApi = {
         semester: {
           id: enrollment.courseOnSemester.semester.id,
           name: enrollment.courseOnSemester.semester.name,
+          startDate: (
+            enrollment.courseOnSemester.semester as { startDate?: string }
+          ).startDate,
+          endDate: (
+            enrollment.courseOnSemester.semester as { endDate?: string }
+          ).endDate,
         },
         lecturer: enrollment.courseOnSemester.lecturer,
         schedule: {
@@ -176,6 +212,8 @@ export const studentApi = {
           startTime: enrollment.courseOnSemester.startTime,
           endTime: enrollment.courseOnSemester.endTime,
           location: enrollment.courseOnSemester.location,
+          mode: enrollment.courseOnSemester.mode,
+          meetingUrl: enrollment.courseOnSemester.meetingUrl,
         },
         grades: {
           gradeType1: enrollment.gradeType1,
@@ -204,6 +242,8 @@ export const studentApi = {
         dayOfWeek: number | null;
         startTime: number | null;
         endTime: number | null;
+        mode?: "ONLINE" | "ON_CAMPUS" | "HYBRID";
+        meetingUrl?: string | null;
         course: {
           id: string;
           name: string;
@@ -237,6 +277,9 @@ export const studentApi = {
       semester: {
         id: e.courseOnSemester.semester.id,
         name: e.courseOnSemester.semester.name,
+        startDate: (e.courseOnSemester.semester as { startDate?: string })
+          .startDate,
+        endDate: (e.courseOnSemester.semester as { endDate?: string }).endDate,
       },
       lecturer: e.courseOnSemester.lecturer,
       schedule: {
@@ -244,6 +287,8 @@ export const studentApi = {
         startTime: e.courseOnSemester.startTime,
         endTime: e.courseOnSemester.endTime,
         location: e.courseOnSemester.location,
+        mode: e.courseOnSemester.mode,
+        meetingUrl: e.courseOnSemester.meetingUrl,
       },
       grades: {
         gradeType1: e.gradeType1,
@@ -255,14 +300,28 @@ export const studentApi = {
   },
 
   /**
-   * @deprecated - Endpoint doesn't exist in backend
-   * Grades should be accessed through enrollment data
+   * Derive grade summary from enrollments (no separate backend endpoint).
    */
-  getGrades: async (): Promise<GradeSummary[]> => {
-    console.warn(
-      "[studentApi.getGrades] This endpoint is not implemented in the backend",
+  getGradesFromEnrollments: (enrollments: EnrolledCourse[]): GradeSummary[] =>
+    enrollments.map((e) => ({
+      courseName: e.course.name,
+      credits: e.course.credits,
+      semester: e.semester.name,
+      gradeType1: e.grades.gradeType1,
+      gradeType2: e.grades.gradeType2,
+      gradeType3: e.grades.gradeType3,
+      finalGrade: e.grades.finalGrade,
+    })),
+
+  /**
+   * Get academic progress (semester-by-semester).
+   * Uses GET /enrollment/my-progress
+   */
+  getProgress: async (): Promise<StudentProgress> => {
+    const response = await apiClient.get<StudentProgress>(
+      "/enrollment/my-progress",
     );
-    return [];
+    return response.data;
   },
 
   /**

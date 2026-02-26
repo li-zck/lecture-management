@@ -82,6 +82,53 @@ export function parseValidationErrors(details: unknown): {
     });
 }
 
+const DAY_NAMES = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];
+
+function formatMinutes(minutes: number): string {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
+}
+
+/**
+ * Parse schedule conflict error message and return a human-readable description.
+ * Backend formats:
+ * - "Lecturer has a scheduling conflict on day X between Y and Z"
+ * - "Lecturer with ID ... has a scheduling conflict on day X between Y and Z"
+ * where X is 0-6 (day of week), Y and Z are minutes since midnight.
+ */
+export function formatScheduleConflictError(message: string): string {
+  const match = message.match(
+    /scheduling conflict on day (\d+) between (\d+) and (\d+)/i,
+  );
+  if (!match) return message;
+  const [, dayStr, startStr, endStr] = match;
+  const day = Number(dayStr);
+  const start = Number(startStr);
+  const end = Number(endStr);
+  const dayName = DAY_NAMES[day] ?? `Day ${day}`;
+  return `Schedule conflict: The lecturer already has a class on ${dayName} from ${formatMinutes(start)} to ${formatMinutes(end)}. Please choose a different time or day.`;
+}
+
+/**
+ * Check if an error is a schedule conflict (409 or 400 with conflict message).
+ */
+export function isScheduleConflictError(error: unknown): boolean {
+  const info = getErrorInfo(error);
+  return (
+    (info.status === 409 || info.status === 400) &&
+    /scheduling conflict/i.test(info.message)
+  );
+}
+
 /**
  * Log error details to console for debugging
  * @param error - The error object

@@ -19,6 +19,8 @@ interface MyCoursesResponseItem {
   startTime: number | null;
   endTime: number | null;
   location: string | null;
+  mode?: "ONLINE" | "ON_CAMPUS" | "HYBRID";
+  meetingUrl?: string | null;
   capacity: number | null;
   _count?: { enrollments: number };
 }
@@ -43,6 +45,8 @@ function mapToAssignedCourse(row: MyCoursesResponseItem): AssignedCourse {
       startTime: row.startTime ?? null,
       endTime: row.endTime ?? null,
       location: row.location ?? null,
+      mode: row.mode,
+      meetingUrl: row.meetingUrl,
     },
     enrolledCount: row._count?.enrollments ?? 0,
     capacity: row.capacity ?? null,
@@ -81,6 +85,8 @@ export interface AssignedCourse {
     startTime: number | null;
     endTime: number | null;
     location: string | null;
+    mode?: "ONLINE" | "ON_CAMPUS" | "HYBRID";
+    meetingUrl?: string | null;
   };
   enrolledCount: number;
   capacity: number | null;
@@ -122,6 +128,42 @@ export interface UpdateGradeData {
   gradeType3?: number | null;
 }
 
+export interface CourseAnalytics {
+  totalStudents: number;
+  gradedCount: number;
+  averageGrade: number | null;
+  atRiskCount: number;
+  distribution: Record<string, number>;
+}
+
+export interface LecturerStudentProfile {
+  student: {
+    id: string;
+    studentId: string | null;
+    fullName: string | null;
+    email: string;
+    phone: string | null;
+    department: { id: string; name: string } | null;
+  };
+  enrollments: Array<{
+    courseName: string;
+    semester: string;
+    credits: number;
+    grades: {
+      gradeType1: number | null;
+      gradeType2: number | null;
+      gradeType3: number | null;
+      finalGrade: number | null;
+    };
+    schedule: {
+      dayOfWeek: number | null;
+      startTime: number | null;
+      endTime: number | null;
+      location: string | null;
+    };
+  }>;
+}
+
 export type LecturerSchedule = Record<
   number,
   Array<{
@@ -130,6 +172,9 @@ export type LecturerSchedule = Record<
     endTime: number | null;
     location: string | null;
     lecturer: string | null;
+    mode?: "ONLINE" | "ON_CAMPUS" | "HYBRID";
+    meetingUrl?: string | null;
+    courseOnSemesterId?: string;
   }>
 >;
 
@@ -179,6 +224,24 @@ export const lecturerApi = {
   },
 
   /**
+   * Update meeting URL and session details for a course the lecturer teaches.
+   * Uses PATCH /course-semester/:id/lecturer-schedule. Only updates mode, location, meetingUrl.
+   */
+  updateCourseSchedule: async (
+    courseOnSemesterId: string,
+    data: {
+      mode?: "ONLINE" | "ON_CAMPUS" | "HYBRID";
+      location?: string | null;
+      meetingUrl?: string | null;
+    },
+  ): Promise<void> => {
+    await apiClient.patch(
+      `/course-semester/${courseOnSemesterId}/lecturer-schedule`,
+      data,
+    );
+  },
+
+  /**
    * Request to teach a course-semester. Fails if semester not started, already has lecturer,
    * schedule conflict, or duplicate pending request.
    */
@@ -200,6 +263,31 @@ export const lecturerApi = {
       "/request/lecturer/teaching",
     );
     return response.data ?? [];
+  },
+
+  /**
+   * Get course analytics (average grade, at-risk count, distribution).
+   * Lecturer must be assigned to the course.
+   */
+  getCourseAnalytics: async (
+    courseOnSemesterId: string,
+  ): Promise<CourseAnalytics> => {
+    const response = await apiClient.get<CourseAnalytics>(
+      `/enrollment/course-semester/${courseOnSemesterId}/analytics`,
+    );
+    return response.data;
+  },
+
+  /**
+   * Get student profile (lecturer view). Only for students the lecturer teaches.
+   */
+  getStudentProfile: async (
+    studentId: string,
+  ): Promise<LecturerStudentProfile> => {
+    const response = await apiClient.get<LecturerStudentProfile>(
+      `/lecturer/student/${studentId}`,
+    );
+    return response.data;
   },
 
   /**
