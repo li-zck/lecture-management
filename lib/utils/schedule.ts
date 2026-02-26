@@ -21,6 +21,9 @@ export function enrollmentsToWeeklySchedule(
       endTime: e.schedule.endTime,
       location: e.schedule.location,
       lecturer: e.lecturer?.fullName ?? null,
+      mode: e.schedule.mode,
+      meetingUrl: e.schedule.meetingUrl,
+      courseOnSemesterId: e.courseOnSemesterId,
     });
   }
 
@@ -57,6 +60,9 @@ export function coursesToLecturerSchedule(
       endTime: c.schedule.endTime,
       location: c.schedule.location,
       lecturer: null, // Lecturer viewing own schedule
+      mode: c.schedule.mode,
+      meetingUrl: c.schedule.meetingUrl,
+      courseOnSemesterId: c.courseOnSemesterId,
     });
   }
 
