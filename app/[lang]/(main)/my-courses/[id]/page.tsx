@@ -13,6 +13,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/shadcn";
+import { Input } from "@/components/ui/shadcn/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/shadcn/select";
 import {
   Table,
   TableBody,
@@ -45,10 +53,12 @@ import {
   Trash2,
   Upload,
   Users,
+  Video,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { use, useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "sonner";
 
 const DAYS_OF_WEEK = [
   "Sunday",
@@ -91,6 +101,21 @@ export default function LecturerCourseDetailPage({
   const [examSchedules, setExamSchedules] = useState<PublicExamSchedule[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [editingSchedule, setEditingSchedule] = useState(false);
+  const [scheduleSaving, setScheduleSaving] = useState(false);
+  const [scheduleForm, setScheduleForm] = useState({
+    mode: "ON_CAMPUS" as "ONLINE" | "ON_CAMPUS" | "HYBRID",
+    location: "",
+    meetingUrl: "",
+  });
+
+  const refetchCourse = async () => {
+    const coursesRes = await lecturerApi.getCourses();
+    const found = coursesRes.find(
+      (c) => c.courseOnSemesterId === courseOnSemesterId,
+    );
+    if (found) setCourse(found);
+  };
 
   useEffect(() => {
     if (!isAuthenticated || role !== "lecturer") return;
@@ -278,6 +303,178 @@ export default function LecturerCourseDetailPage({
             </CardContent>
           </Card>
         </div>
+
+        {/* Meeting link & session (lecturer can edit) */}
+        <Card className="border-border/50">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Video className="h-5 w-5" />
+              Meeting link & session
+            </CardTitle>
+            <CardDescription>
+              Set or update the meeting URL and mode for online/hybrid classes.
+              Students will see a &quot;Join meeting&quot; button when set.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {!editingSchedule ? (
+              <div className="space-y-2">
+                <p className="text-sm">
+                  <span className="text-muted-foreground">Mode: </span>
+                  <span className="font-medium">
+                    {course.schedule.mode === "ONLINE"
+                      ? "Online"
+                      : course.schedule.mode === "HYBRID"
+                        ? "Hybrid"
+                        : "On campus"}
+                  </span>
+                </p>
+                <p className="text-sm">
+                  <span className="text-muted-foreground">Location: </span>
+                  <span className="font-medium">
+                    {course.schedule.location || "—"}
+                  </span>
+                </p>
+                <p className="text-sm">
+                  <span className="text-muted-foreground">Meeting URL: </span>
+                  {course.schedule.meetingUrl ? (
+                    <a
+                      href={course.schedule.meetingUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-primary hover:underline font-medium"
+                    >
+                      {course.schedule.meetingUrl}
+                    </a>
+                  ) : (
+                    <span className="font-medium">Not set</span>
+                  )}
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setScheduleForm({
+                      mode: course.schedule.mode ?? "ON_CAMPUS",
+                      location: course.schedule.location ?? "",
+                      meetingUrl: course.schedule.meetingUrl ?? "",
+                    });
+                    setEditingSchedule(true);
+                  }}
+                >
+                  Edit
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div>
+                  <label
+                    htmlFor="lecturer-schedule-mode"
+                    className="text-sm font-medium mb-2 block"
+                  >
+                    Mode
+                  </label>
+                  <Select
+                    value={scheduleForm.mode}
+                    onValueChange={(v) =>
+                      setScheduleForm((prev) => ({
+                        ...prev,
+                        mode: v as "ONLINE" | "ON_CAMPUS" | "HYBRID",
+                      }))
+                    }
+                  >
+                    <SelectTrigger id="lecturer-schedule-mode">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ON_CAMPUS">On campus</SelectItem>
+                      <SelectItem value="ONLINE">Online</SelectItem>
+                      <SelectItem value="HYBRID">Hybrid</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label
+                    htmlFor="lecturer-schedule-location"
+                    className="text-sm font-medium mb-2 block"
+                  >
+                    Location (optional)
+                  </label>
+                  <Input
+                    id="lecturer-schedule-location"
+                    value={scheduleForm.location}
+                    onChange={(e) =>
+                      setScheduleForm((prev) => ({
+                        ...prev,
+                        location: e.target.value,
+                      }))
+                    }
+                    placeholder="Room A101"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="lecturer-schedule-meetingUrl"
+                    className="text-sm font-medium mb-2 block"
+                  >
+                    Meeting URL (for online/hybrid)
+                  </label>
+                  <Input
+                    id="lecturer-schedule-meetingUrl"
+                    type="url"
+                    value={scheduleForm.meetingUrl}
+                    onChange={(e) =>
+                      setScheduleForm((prev) => ({
+                        ...prev,
+                        meetingUrl: e.target.value,
+                      }))
+                    }
+                    placeholder="https://meet.google.com/xxx-xxxx-xxx"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    disabled={scheduleSaving}
+                    onClick={async () => {
+                      setScheduleSaving(true);
+                      try {
+                        await lecturerApi.updateCourseSchedule(
+                          courseOnSemesterId,
+                          {
+                            mode: scheduleForm.mode,
+                            location: scheduleForm.location.trim() || null,
+                            meetingUrl: scheduleForm.meetingUrl.trim() || null,
+                          },
+                        );
+                        await refetchCourse();
+                        setEditingSchedule(false);
+                        toast.success(
+                          "Meeting link and session details updated.",
+                        );
+                      } catch (err) {
+                        console.error(err);
+                        toast.error("Failed to update. Please try again.");
+                      } finally {
+                        setScheduleSaving(false);
+                      }
+                    }}
+                  >
+                    {scheduleSaving ? "Saving…" : "Save"}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={scheduleSaving}
+                    onClick={() => setEditingSchedule(false)}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Grade distribution donut */}
         {students.length > 0 && (
