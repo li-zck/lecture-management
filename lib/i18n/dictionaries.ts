@@ -42,6 +42,10 @@ export type Dictionary = {
     enrollment: string;
     recommendedFor: string;
     unknownCourse: string;
+    online?: string;
+    onCampus?: string;
+    hybrid?: string;
+    joinMeeting?: string;
   };
   footer: {
     copyright: string;
@@ -179,6 +183,11 @@ export type Dictionary = {
     oldPassword: string;
     newPassword: string;
     confirmPassword: string;
+    passwordOldRequired: string;
+    passwordTooShort: string;
+    requestEmptyError: string;
+    updateFailed: string;
+    requestFailed: string;
     saveChanges: string;
     saving: string;
     successTitle: string;
@@ -791,6 +800,14 @@ export type Dictionary = {
       endPeriod: string;
       location: string;
       locationPlaceholder: string;
+      mode?: string;
+      selectMode?: string;
+      modeOnCampus?: string;
+      modeOnline?: string;
+      modeHybrid?: string;
+      meetingUrl?: string;
+      meetingUrlPlaceholder?: string;
+      joinMeeting?: string;
       capacity: string;
       day: string;
       lecturer: string;
@@ -911,6 +928,14 @@ export type Dictionary = {
     noGrades: string;
     generateAI: string;
     exportTimetable: string;
+    progress: string;
+    progressDesc: string;
+    confirmEnrollTitle: string;
+    confirmEnrollBody: string;
+    confirmWithdrawTitle: string;
+    confirmWithdrawBody: string;
+    withdrawSuccess: string;
+    withdrawFailed: string;
   };
   lecturerDashboard: {
     title: string;
@@ -929,6 +954,12 @@ export type Dictionary = {
     gradesSaved: string;
     generateAI: string;
     exportTimetable: string;
+    courseAnalytics: string;
+    viewProfile: string;
+    avgGrade: string;
+    atRisk: string;
+    graded: string;
+    distribution: string;
   };
   myCoursesList: {
     title: string;
