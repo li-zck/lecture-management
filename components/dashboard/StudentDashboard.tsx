@@ -25,20 +25,11 @@ import {
   type StudentProfile,
   type WeeklySchedule,
 } from "@/lib/api/student";
+import { getClientDictionary, useLocale } from "@/lib/i18n";
 import { GRADE_TYPE_OPTIONS } from "@/lib/utils/grade-labels";
 import { enrollmentsToWeeklySchedule } from "@/lib/utils/schedule";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-
-const DAY_NAMES: Record<number, string> = {
-  0: "Sunday",
-  1: "Monday",
-  2: "Tuesday",
-  3: "Wednesday",
-  4: "Thursday",
-  5: "Friday",
-  6: "Saturday",
-};
 
 /** Backend stores time as minutes since midnight (e.g. 8:00 = 480) */
 function formatTime(minutes: number | null): string {
@@ -50,6 +41,9 @@ function formatTime(minutes: number | null): string {
 
 export function StudentDashboard() {
   const { user } = useSession();
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
+  const sd = dict.studentDashboard;
   const [profile, setProfile] = useState<StudentProfile | null>(null);
   const [courses, setCourses] = useState<EnrolledCourse[]>([]);
   const [grades, setGrades] = useState<GradeSummary[]>([]);
@@ -185,7 +179,9 @@ export function StudentDashboard() {
       <div className="flex items-center justify-center p-8">
         <Card className="w-96">
           <CardHeader>
-            <CardTitle className="text-destructive">Error</CardTitle>
+            <CardTitle className="text-destructive">
+              {dict.common.error}
+            </CardTitle>
           </CardHeader>
           <CardContent>{error}</CardContent>
         </Card>
@@ -197,41 +193,44 @@ export function StudentDashboard() {
     <div className="container mx-auto max-w-6xl px-4 py-6 sm:px-6">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold sm:text-3xl">Student Dashboard</h1>
+        <h1 className="text-2xl font-bold sm:text-3xl">{sd.title}</h1>
         <p className="mt-1 text-sm text-muted-foreground sm:text-base">
-          Welcome back, {profile?.fullName || profile?.username}
+          {sd.welcomeBack.replace(
+            "{name}",
+            profile?.fullName || profile?.username || "",
+          )}
         </p>
       </div>
 
       {/* Profile Card */}
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle>Profile Information</CardTitle>
+          <CardTitle>{sd.profileInfo}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
-              <p className="text-sm text-muted-foreground">Student ID</p>
+              <p className="text-sm text-muted-foreground">{sd.studentId}</p>
               <p className="font-medium">{profile?.studentId || "-"}</p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Full Name</p>
+              <p className="text-sm text-muted-foreground">{sd.fullName}</p>
               <p className="font-medium">{profile?.fullName || "-"}</p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Email</p>
+              <p className="text-sm text-muted-foreground">{sd.email}</p>
               <p className="font-medium">{profile?.email}</p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Department</p>
+              <p className="text-sm text-muted-foreground">{sd.department}</p>
               <p className="font-medium">{profile?.department?.name || "-"}</p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Phone</p>
+              <p className="text-sm text-muted-foreground">{sd.phone}</p>
               <p className="font-medium">{profile?.phone || "-"}</p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Address</p>
+              <p className="text-sm text-muted-foreground">{sd.address}</p>
               <p className="font-medium">{profile?.address || "-"}</p>
             </div>
           </div>
@@ -249,7 +248,7 @@ export function StudentDashboard() {
               : "bg-muted hover:bg-muted/80"
           }`}
         >
-          My Courses ({courses.length})
+          {sd.myCourses} ({courses.length})
         </button>
         <button
           type="button"
@@ -260,7 +259,7 @@ export function StudentDashboard() {
               : "bg-muted hover:bg-muted/80"
           }`}
         >
-          Enrollment
+          {sd.enrollment}
         </button>
         <button
           type="button"
@@ -271,7 +270,7 @@ export function StudentDashboard() {
               : "bg-muted hover:bg-muted/80"
           }`}
         >
-          Grades
+          {sd.grades}
         </button>
         <button
           type="button"
@@ -282,7 +281,7 @@ export function StudentDashboard() {
               : "bg-muted hover:bg-muted/80"
           }`}
         >
-          Schedule
+          {sd.schedule}
         </button>
       </div>
 
@@ -292,7 +291,7 @@ export function StudentDashboard() {
           {courses.length === 0 ? (
             <Card>
               <CardContent className="p-6 text-center text-muted-foreground">
-                No enrolled courses found.
+                {sd.noEnrolledCourses}
               </CardContent>
             </Card>
           ) : (
@@ -315,31 +314,39 @@ export function StudentDashboard() {
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
-                      <p className="text-sm text-muted-foreground">Lecturer</p>
+                      <p className="text-sm text-muted-foreground">
+                        {sd.lecturer}
+                      </p>
                       <p className="font-medium">
                         {enrollment.lecturer?.fullName || "Not assigned"}
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Schedule</p>
+                      <p className="text-sm text-muted-foreground">
+                        {sd.schedule}
+                      </p>
                       <p className="font-medium">
                         {enrollment.schedule.dayOfWeek !== null
-                          ? DAY_NAMES[enrollment.schedule.dayOfWeek]
+                          ? dict.daysOfWeek[enrollment.schedule.dayOfWeek]
                           : "-"}{" "}
                         {formatTime(enrollment.schedule.startTime)} -{" "}
                         {formatTime(enrollment.schedule.endTime)}
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Location</p>
+                      <p className="text-sm text-muted-foreground">
+                        {sd.location}
+                      </p>
                       <p className="font-medium">
                         {enrollment.schedule.location || "-"}
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Grade</p>
+                      <p className="text-sm text-muted-foreground">
+                        {sd.grade}
+                      </p>
                       <p className="font-medium">
-                        {enrollment.grades.finalGrade ?? "Not graded"}
+                        {enrollment.grades.finalGrade ?? sd.notGraded}
                       </p>
                     </div>
                   </div>
@@ -355,7 +362,7 @@ export function StudentDashboard() {
                         )
                       }
                     >
-                      View Documents
+                      {sd.viewDocuments}
                     </Button>
 
                     {enrollment.grades.finalGrade === null &&
@@ -367,7 +374,7 @@ export function StudentDashboard() {
                             handleWithdraw(enrollment.enrollmentId)
                           }
                         >
-                          Withdraw
+                          {sd.withdraw}
                         </Button>
                       )}
                   </div>
@@ -376,7 +383,7 @@ export function StudentDashboard() {
                   {viewingDocuments === enrollment.enrollmentId && (
                     <div className="mt-4 p-4 bg-muted rounded-md animate-in slide-in-from-top-2">
                       <div className="flex justify-between items-center mb-3">
-                        <h4 className="font-semibold">Course Documents</h4>
+                        <h4 className="font-semibold">{sd.documents}</h4>
                         <Button
                           variant="ghost"
                           size="sm"
@@ -393,7 +400,7 @@ export function StudentDashboard() {
                         </div>
                       ) : documents.length === 0 ? (
                         <p className="text-sm text-muted-foreground text-center py-2">
-                          No documents available for this course.
+                          {sd.noDocuments}
                         </p>
                       ) : (
                         <ul className="space-y-2">
@@ -411,7 +418,8 @@ export function StudentDashboard() {
                                 rel="noreferrer"
                                 className="text-xs text-primary hover:underline"
                               >
-                                Download
+                                {dict.home.cta.title.split("?")[0] ??
+                                  "Download"}
                               </a>
                             </li>
                           ))}
@@ -463,7 +471,7 @@ export function StudentDashboard() {
                         </p>
                         <p className="text-sm">
                           {course.schedule.dayOfWeek !== null
-                            ? DAY_NAMES[course.schedule.dayOfWeek]
+                            ? dict.daysOfWeek[course.schedule.dayOfWeek]
                             : "TBA"}{" "}
                           • {formatTime(course.schedule.startTime)} -{" "}
                           {formatTime(course.schedule.endTime)}
@@ -551,27 +559,31 @@ export function StudentDashboard() {
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Weekly Schedule</CardTitle>
-              <CardDescription>Current semester timetable</CardDescription>
+              <CardTitle>{dict.home.studentFeatures[2]?.title}</CardTitle>
+              <CardDescription>
+                {dict.home.studentFeatures[2]?.description}
+              </CardDescription>
               <CardAction>
                 <TimetableDownload
                   schedule={schedule}
                   title={
                     courses[0]?.semester?.name
-                      ? `Timetable - ${courses[0].semester.name}`
-                      : "Timetable"
+                      ? `${dict.home.studentFeatures[2]?.title} - ${courses[0].semester.name}`
+                      : (dict.home.studentFeatures[2]?.title ?? "Timetable")
                   }
                   includeLecturer
+                  buttonLabel={sd.exportTimetable}
+                  loadingLabel={sd.exportTimetable}
                 />
               </CardAction>
             </CardHeader>
             <CardContent>
               {Object.keys(schedule).length === 0 ? (
                 <p className="text-center text-muted-foreground py-4">
-                  No schedule for current semester.
+                  {sd.noEnrolledCourses}
                 </p>
               ) : (
-                <TimetableGrid schedule={schedule} />
+                <TimetableGrid schedule={schedule} dayNames={dict.daysOfWeek} />
               )}
             </CardContent>
           </Card>
