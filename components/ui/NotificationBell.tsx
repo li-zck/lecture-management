@@ -1,5 +1,6 @@
 "use client";
 
+import { getClientDictionary, useLocale } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 import {
@@ -131,6 +132,9 @@ function NotificationItem({
 
 export function NotificationBell() {
   const [open, setOpen] = useState(false);
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
+  const n = dict.notifications;
   const { notifications, unreadCount, isLoading } = useNotifications();
   const deleteNotification = useDeleteNotification();
   const deleteAllNotifications = useDeleteAllNotifications();
@@ -146,18 +150,18 @@ export function NotificationBell() {
   const handleDelete = async (id: string) => {
     try {
       await deleteNotification.mutateAsync(id);
-      toast.success("Notification deleted");
+      toast.success(n.deleted);
     } catch {
-      toast.error("Failed to delete notification");
+      toast.error(n.failedDelete);
     }
   };
 
   const handleDeleteAll = async () => {
     try {
       await deleteAllNotifications.mutateAsync();
-      toast.success("All notifications deleted");
+      toast.success(n.deletedAll);
     } catch {
-      toast.error("Failed to delete notifications");
+      toast.error(n.failedDeleteAll);
     }
   };
 
@@ -168,7 +172,13 @@ export function NotificationBell() {
           variant="ghost"
           size="icon"
           className="relative"
-          aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ""}`}
+          aria-label={
+            unreadCount > 0
+              ? unreadCount === 1
+                ? n.subtitleUnread.replace("{count}", "1")
+                : n.subtitleUnreadPlural.replace("{count}", String(unreadCount))
+              : n.title
+          }
         >
           <Bell className="h-5 w-5" />
           {unreadCount > 0 && (
@@ -180,7 +190,7 @@ export function NotificationBell() {
       </PopoverTrigger>
       <PopoverContent className="w-80 p-0" align="end">
         <div className="flex items-center justify-between p-3 border-b">
-          <h4 className="font-semibold text-sm">Notifications</h4>
+          <h4 className="font-semibold text-sm">{n.title}</h4>
           {notifications.length > 0 && (
             <Button
               variant="ghost"
@@ -190,7 +200,7 @@ export function NotificationBell() {
               disabled={deleteAllNotifications.isPending}
             >
               <Trash2 className="h-3 w-3 mr-1" />
-              Clear all
+              {n.deleteAll}
             </Button>
           )}
         </div>
@@ -198,12 +208,16 @@ export function NotificationBell() {
         <div className="max-h-[300px] overflow-y-auto">
           {isLoading ? (
             <div className="flex items-center justify-center h-24">
-              <p className="text-sm text-muted-foreground">Loading...</p>
+              <p className="text-sm text-muted-foreground">
+                {dict.admin.chart.loadingShort}
+              </p>
             </div>
           ) : notifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-24 gap-2">
               <Bell className="h-8 w-8 text-muted-foreground/50" />
-              <p className="text-sm text-muted-foreground">No notifications</p>
+              <p className="text-sm text-muted-foreground">
+                {n.noNotifications}
+              </p>
             </div>
           ) : (
             <div className="divide-y">
@@ -225,7 +239,7 @@ export function NotificationBell() {
             <div className="p-2">
               <Link href="/notifications" onClick={() => setOpen(false)}>
                 <Button variant="ghost" size="sm" className="w-full text-xs">
-                  View all notifications
+                  {n.title}
                 </Button>
               </Link>
             </div>

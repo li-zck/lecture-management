@@ -92,7 +92,7 @@ export function SupportForm() {
                     <Input
                       id="name"
                       type="text"
-                      placeholder="John Doe"
+                      placeholder={dict.admin.students.fullNamePlaceholder}
                       required
                       value={formData.name}
                       onChange={(e) => handleChange("name", e.target.value)}
@@ -111,7 +111,7 @@ export function SupportForm() {
                     <Input
                       id="email"
                       type="email"
-                      placeholder="john.doe@example.com"
+                      placeholder={dict.admin.students.emailPlaceholder}
                       required
                       value={formData.email}
                       onChange={(e) => handleChange("email", e.target.value)}

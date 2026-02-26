@@ -10,6 +10,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/shadcn/alert-dialog";
+import { getClientDictionary, useLocale } from "@/lib/i18n";
 import { type EntityWithIds, getEntityId } from "@/lib/utils/idMapping";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -41,9 +42,11 @@ function DeleteConfirmationDialog({
   onConfirm,
   title,
   description,
-  confirmText = "Delete",
-  cancelText = "Cancel",
+  confirmText,
+  cancelText,
 }: DeleteConfirmationDialogProps) {
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
       <AlertDialogContent>
@@ -52,12 +55,14 @@ function DeleteConfirmationDialog({
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={onClose}>{cancelText}</AlertDialogCancel>
+          <AlertDialogCancel onClick={onClose}>
+            {cancelText ?? dict.common.cancel}
+          </AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
-            {confirmText}
+            {confirmText ?? dict.admin.common.delete}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -105,6 +110,8 @@ const createBulkDeleteHandler = (
  * Hook to manage delete operations with confirmation
  * */
 export function useDeleteConfirmation() {
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
   const [deleteDialogState, setDeleteDialogState] = useState<DeleteDialogState>(
     {
       isOpen: false,
@@ -124,7 +131,7 @@ export function useDeleteConfirmation() {
         deleteFn(internalId);
 
         toast.success(
-          `${entityName.charAt(0).toUpperCase()} deleted successfully`,
+          dict.admin.common.deletedSuccess.replace("{entity}", entityName),
         );
       } else if (type === "bulk" && items && bulkDeleteFn) {
         const internalIds = items.map((item) => getEntityId(item));
@@ -132,7 +139,9 @@ export function useDeleteConfirmation() {
         bulkDeleteFn(internalIds);
 
         toast.success(
-          `${items.length} ${entityName.toLowerCase()}s deleted successfully`,
+          dict.admin.common.bulkDeleteSuccess
+            .replace("{count}", String(items.length))
+            .replace("{entity}", entityName),
         );
       }
 
@@ -147,7 +156,8 @@ export function useDeleteConfirmation() {
       }
     } catch (error: any) {
       toast.error(
-        error.message || `Failed to delete ${entityName.toLowerCase()}`,
+        error.message ||
+          dict.admin.common.deleteFailed.replace("{entity}", entityName),
       );
     }
   };
@@ -187,14 +197,17 @@ export function useDeleteConfirmation() {
         setDeleteDialogState({ isOpen: false, type: "single", entityName: "" })
       }
       onConfirm={handleDeleteConfirm}
-      title={`Delete ${deleteDialogState.entityName}`}
+      title={dict.admin.common.confirmTitle}
       description={
         deleteDialogState.type === "single"
-          ? `Are you sure you want to delete this ${deleteDialogState.entityName.toLowerCase()}? This action cannot be undone.`
-          : `Are you sure you want to delete ${deleteDialogState.items?.length || 0} ${deleteDialogState.entityName.toLowerCase()}s? This action cannot be undone.`
+          ? dict.admin.common.confirmDeleteBody.replace(
+              "{entity}",
+              deleteDialogState.entityName,
+            )
+          : dict.admin.table.deleteSelectedConfirm
+              .replace("{count}", String(deleteDialogState.items?.length || 0))
+              .replace("{entity}", deleteDialogState.entityName)
       }
-      confirmText="Delete"
-      cancelText="Cancel"
     />
   );
 

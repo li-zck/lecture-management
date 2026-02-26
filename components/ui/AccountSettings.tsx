@@ -111,15 +111,15 @@ export function AccountSettings() {
 
     if (formData.newPassword || formData.oldPassword) {
       if (!formData.oldPassword) {
-        toast.error("Current password is required to change password");
+        toast.error(st.passwordOldRequired);
         return;
       }
       if (formData.newPassword !== formData.confirmPassword) {
-        toast.error("New passwords do not match");
+        toast.error(dict.admin.students.passwordsDontMatch);
         return;
       }
       if (formData.newPassword.length < 6) {
-        toast.error("New password must be at least 6 characters");
+        toast.error(st.passwordTooShort);
         return;
       }
     }
@@ -158,7 +158,7 @@ export function AccountSettings() {
       }));
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "Failed to update profile";
+        err instanceof Error && err.message ? err.message : st.updateFailed;
       toast.error(message);
     } finally {
       setIsSubmitting(false);
@@ -181,7 +181,7 @@ export function AccountSettings() {
     if (formData.citizenId) requestedData.citizenId = formData.citizenId;
 
     if (Object.keys(requestedData).length === 0) {
-      toast.error("Please fill in at least one field to request changes");
+      toast.error(st.requestEmptyError);
       return;
     }
 
@@ -192,7 +192,7 @@ export function AccountSettings() {
       });
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "Failed to submit request";
+        err instanceof Error && err.message ? err.message : st.requestFailed;
       toast.error(message);
     }
   };
@@ -355,7 +355,7 @@ export function AccountSettings() {
                   <Input
                     id="username"
                     type="text"
-                    placeholder="john_doe"
+                    placeholder={dict.admin.students.usernamePlaceholder}
                     value={formData.username}
                     onChange={(e) => handleChange("username", e.target.value)}
                     className="pl-10"
@@ -477,7 +477,7 @@ export function AccountSettings() {
                     <Input
                       id="fullName"
                       type="text"
-                      placeholder="John Doe"
+                      placeholder={dict.admin.students.fullNamePlaceholder}
                       value={formData.fullName}
                       onChange={(e) => handleChange("fullName", e.target.value)}
                       className="pl-10"
@@ -495,7 +495,7 @@ export function AccountSettings() {
                         <Input
                           id="phone"
                           type="tel"
-                          placeholder="+84..."
+                          placeholder={dict.admin.students.phonePlaceholder}
                           value={formData.phone}
                           onChange={(e) =>
                             handleChange("phone", e.target.value)
@@ -513,7 +513,7 @@ export function AccountSettings() {
                         <Input
                           id="address"
                           type="text"
-                          placeholder="123 Street..."
+                          placeholder={dict.admin.students.addressPlaceholder}
                           value={formData.address}
                           onChange={(e) =>
                             handleChange("address", e.target.value)
@@ -564,7 +564,7 @@ export function AccountSettings() {
                     <Input
                       id="citizenId"
                       type="text"
-                      placeholder="123456789012"
+                      placeholder={dict.admin.students.citizenIdPlaceholder}
                       value={formData.citizenId}
                       onChange={(e) =>
                         handleChange("citizenId", e.target.value)
