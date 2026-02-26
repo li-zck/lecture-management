@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/shadcn";
 import { signOut } from "@/lib/auth";
+import { getClientDictionary, useLocale, useLocalePath } from "@/lib/i18n";
 import { getUserRole } from "@/lib/utils";
 import Cookies from "js-cookie";
 import Link from "next/link";
@@ -17,6 +18,9 @@ export function NotFoundHint() {
 }
 
 const NotFoundHintChild = () => {
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
+  const localePath = useLocalePath();
   const [accessToken, setAccessToken] = useState<string | undefined>();
   const [userRole, setUserRole] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -33,12 +37,12 @@ const NotFoundHintChild = () => {
       setIsLoading(true);
       signOut();
 
-      toast.success("Signed out successfully");
+      toast.success(dict.admin.signOut.success);
 
-      window.location.href = "/";
+      window.location.href = localePath("/");
     } catch (error) {
       console.log("Error signing out:", error);
-      toast.error("Failed to sign out");
+      toast.error(dict.admin.signOut.error);
 
       setIsLoading(false);
     } finally {
@@ -49,7 +53,7 @@ const NotFoundHintChild = () => {
   if (!accessToken) {
     return (
       <Button asChild>
-        <Link href="/">Return home</Link>
+        <Link href={localePath("/")}>{dict.success.returnHome}</Link>
       </Button>
     );
   }
@@ -63,7 +67,9 @@ const NotFoundHintChild = () => {
 
       <span>
         <Button onClick={handleSignOut} disabled={isLoading}>
-          {isLoading ? "Signing out..." : "Sign out"}
+          {isLoading
+            ? `${dict.admin.signOut.button}...`
+            : dict.admin.signOut.button}
         </Button>
       </span>
     </>
