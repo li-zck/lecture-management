@@ -21,6 +21,7 @@ EKS_CLUSTER_NAME="${EKS_CLUSTER_NAME:-thesis-cluster}"
 NAMESPACE="thesis"
 IMAGE_TAG="${IMAGE_TAG:-latest}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ENV_FILE="${SCRIPT_DIR}/../.env.local"
 
 echo "========================================"
 echo "  Frontend Deployment — AWS EKS"
@@ -77,7 +78,19 @@ echo "  ✓ ECR login successful"
 # ── 7. Build and push Docker image ───────────────────────────────────────────
 echo ""
 echo "[7/9] Building and pushing Docker image..."
-docker build -t "$ECR_REPO_NAME:$IMAGE_TAG" "$SCRIPT_DIR/.."
+BUILD_ARGS=""
+if [ -f "$ENV_FILE" ]; then
+  echo "  Loading build args from .env.local..."
+  while IFS='=' read -r key value; do
+    key=$(echo "$key" | xargs)
+    [[ -z "$key" || "$key" == \#* ]] && continue
+    value=$(echo "$value" | sed 's/^"//;s/"$//')
+    BUILD_ARGS="$BUILD_ARGS --build-arg $key=$value"
+  done < "$ENV_FILE"
+else
+  echo "  WARNING: $ENV_FILE not found. Gemini env vars will not be baked into the build."
+fi
+docker build $BUILD_ARGS -t "$ECR_REPO_NAME:$IMAGE_TAG" "$SCRIPT_DIR/.."
 docker tag "$ECR_REPO_NAME:$IMAGE_TAG" "$IMAGE_URI"
 docker push "$IMAGE_URI"
 echo "  ✓ Image pushed to ECR"
@@ -88,6 +101,12 @@ echo "[8/9] Applying Kubernetes manifests..."
 
 # Use AWS configmap
 kubectl apply -f "$SCRIPT_DIR/frontend/configmap-aws.yaml"
+if [ -f "$SCRIPT_DIR/frontend/secret.yaml" ]; then
+  kubectl apply -f "$SCRIPT_DIR/frontend/secret.yaml"
+  echo "  ✓ Secret applied"
+else
+  echo "  WARNING: secret.yaml not found. Copy secret.example.yaml → secret.yaml"
+fi
 
 # Create temp deployment with ECR image and Always pull policy
 DEPLOY_FILE="$SCRIPT_DIR/frontend/deployment.yaml"

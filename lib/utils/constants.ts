@@ -4,7 +4,7 @@
  * On the server, reads from process.env.
  * Falls back to build-time 'NEXT_PUBLIC_*' values.
  */
-function getRuntimeEnv(key: string): string | undefined {
+export function getRuntimeEnv(key: string): string | undefined {
   if (typeof window !== "undefined") {
     const windowEnv = (window as unknown as { __ENV?: Record<string, string> })
       .__ENV;

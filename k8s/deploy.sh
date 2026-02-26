@@ -16,6 +16,7 @@ NAMESPACE="thesis"
 IMAGE_NAME="thesis-frontend"
 IMAGE_TAG="latest"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ENV_FILE="${SCRIPT_DIR}/../.env.local"
 
 echo "========================================"
 echo "  Frontend Deployment — Minikube"
@@ -49,13 +50,31 @@ echo "  ✓ Docker configured for Minikube"
 # ── 4. Build Docker image inside Minikube ────────────────────────────────────
 echo ""
 echo "[4/7] Building Docker image '${IMAGE_NAME}:${IMAGE_TAG}'..."
-docker build -t "${IMAGE_NAME}:${IMAGE_TAG}" "${SCRIPT_DIR}/.."
+BUILD_ARGS=""
+if [ -f "$ENV_FILE" ]; then
+  echo "  Loading build args from .env.local..."
+  while IFS='=' read -r key value; do
+    key=$(echo "$key" | xargs)
+    [[ -z "$key" || "$key" == \#* ]] && continue
+    value=$(echo "$value" | sed 's/^"//;s/"$//')
+    BUILD_ARGS="$BUILD_ARGS --build-arg $key=$value"
+  done < "$ENV_FILE"
+else
+  echo "  WARNING: $ENV_FILE not found. Gemini env vars will not be baked into the build."
+fi
+docker build $BUILD_ARGS -t "${IMAGE_NAME}:${IMAGE_TAG}" "${SCRIPT_DIR}/.."
 echo "  ✓ Image built successfully"
 
 # ── 5. Apply Kubernetes manifests ────────────────────────────────────────────
 echo ""
 echo "[5/7] Applying Kubernetes manifests..."
 kubectl apply -f "${SCRIPT_DIR}/frontend/configmap.yaml"
+if [ -f "${SCRIPT_DIR}/frontend/secret.yaml" ]; then
+  kubectl apply -f "${SCRIPT_DIR}/frontend/secret.yaml"
+  echo "  ✓ Secret applied"
+else
+  echo "  WARNING: secret.yaml not found. Copy secret.example.yaml → secret.yaml"
+fi
 kubectl apply -f "${SCRIPT_DIR}/frontend/deployment.yaml"
 kubectl apply -f "${SCRIPT_DIR}/frontend/service.yaml"
 echo "  ✓ All manifests applied"

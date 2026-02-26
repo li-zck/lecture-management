@@ -17,6 +17,12 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
+# Build-time args for NEXT_PUBLIC_* vars (baked into JS bundle)
+ARG NEXT_PUBLIC_GEMINI_API_KEY
+ARG NEXT_PUBLIC_GEMINI_MODEL
+ENV NEXT_PUBLIC_GEMINI_API_KEY=$NEXT_PUBLIC_GEMINI_API_KEY
+ENV NEXT_PUBLIC_GEMINI_MODEL=$NEXT_PUBLIC_GEMINI_MODEL
+
 RUN bun run build
 
 # ── Stage 3: Production image ─────────────────────────────────────────────────

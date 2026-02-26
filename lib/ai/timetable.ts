@@ -11,9 +11,11 @@
  *   https://ai.google.dev/gemini-api/docs/models
  *   Or in Google AI Studio: create a prompt → model dropdown shows IDs
  */
+import { getRuntimeEnv } from "@/lib/utils/constants";
+
 const API_KEY =
-  process.env.NEXT_PUBLIC_GEMINI_API_KEY ?? "YOUR_GEMINI_API_KEY_HERE";
-const MODEL = process.env.NEXT_PUBLIC_GEMINI_MODEL ?? "gemini-1.5-flash";
+  getRuntimeEnv("NEXT_PUBLIC_GEMINI_API_KEY") ?? "YOUR_GEMINI_API_KEY_HERE";
+const MODEL = getRuntimeEnv("NEXT_PUBLIC_GEMINI_MODEL") ?? "gemini-2.5-flash";
 const API_BASE = "https://generativelanguage.googleapis.com/v1beta/models";
 
 export type ScheduleMode = "ONLINE" | "ON_CAMPUS" | "HYBRID";
