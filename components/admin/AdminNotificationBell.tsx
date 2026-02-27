@@ -42,7 +42,7 @@ function getNotificationBgColor(type: Notification["type"], isRead: boolean) {
       return "bg-yellow-500/5";
     case "ALERT":
       return "bg-red-500/5";
-    case "INFO":
+    // case "INFO":
     default:
       return "bg-blue-500/5";
   }
@@ -52,24 +52,17 @@ interface NotificationItemProps {
   notification: Notification;
   onDelete: (id: string) => void;
   isDeleting: boolean;
-  lang: string;
 }
 
 function NotificationItem({
   notification,
   onDelete,
   isDeleting,
-  lang,
 }: NotificationItemProps) {
+  const [expanded, setExpanded] = useState(false);
   const timeAgo = formatDistanceToNow(new Date(notification.createdAt), {
     addSuffix: true,
   });
-
-  const url = notification.url
-    ? notification.url.startsWith("/admin")
-      ? `/${lang}${notification.url}`
-      : notification.url
-    : null;
 
   const content = (
     <div
@@ -92,10 +85,30 @@ function NotificationItem({
           >
             {notification.title}
           </p>
-          <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
+          <p
+            className={cn(
+              "text-xs text-muted-foreground mt-0.5",
+              expanded ? "whitespace-pre-line" : "line-clamp-2",
+            )}
+          >
             {notification.message}
           </p>
-          <p className="text-xs text-muted-foreground/70 mt-1">{timeAgo}</p>
+          <div className="mt-1 flex items-center justify-between gap-2">
+            <p className="text-xs text-muted-foreground/70">{timeAgo}</p>
+            {notification.message.length > 120 && (
+              <button
+                type="button"
+                className="text-[11px] text-primary hover:underline"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setExpanded((prev) => !prev);
+                }}
+              >
+                {expanded ? "Collapse" : "Expand"}
+              </button>
+            )}
+          </div>
         </div>
         <Button
           variant="ghost"
@@ -114,15 +127,6 @@ function NotificationItem({
       </div>
     </div>
   );
-
-  if (url) {
-    return (
-      <Link href={url} className="block">
-        {content}
-      </Link>
-    );
-  }
-
   return content;
 }
 
@@ -199,7 +203,6 @@ export function AdminNotificationBell() {
                   notification={notification}
                   onDelete={handleDelete}
                   isDeleting={deleteNotification.isPending}
-                  lang={lang}
                 />
               ))}
             </div>

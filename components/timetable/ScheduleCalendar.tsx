@@ -1,13 +1,32 @@
 "use client";
 
+import {
+  CalendarBody,
+  CalendarDate,
+  CalendarDatePagination,
+  CalendarDatePicker,
+  CalendarHeader,
+  CalendarItem,
+  CalendarMonthPicker,
+  CalendarProvider,
+  CalendarYearPicker,
+  type Feature,
+  type Status,
+  useCalendarMonth,
+  useCalendarYear,
+} from "@/components/ui/calendar";
 import { Badge } from "@/components/ui/shadcn/badge";
-import { Calendar } from "@/components/ui/shadcn/calendar";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from "@/components/ui/shadcn/card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/shadcn/tooltip";
 import type { ScheduleSlot } from "@/lib/ai";
 import type { PublicExamSchedule } from "@/lib/api/exam-schedule";
 import {
@@ -15,37 +34,31 @@ import {
   addMonths,
   format,
   getDay,
-  isSameDay,
   parseISO,
   startOfMonth,
-  subMonths,
 } from "date-fns";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 
 export type ScheduleCalendarProps = {
-  /** Weekly schedule: dayOfWeek (0-6) -> slots */
   schedule: Record<number, ScheduleSlot[]>;
-  /** Exam schedules (with examDate) */
   exams?: PublicExamSchedule[];
-  /** Semester start date (ISO string) */
   semesterStart: string;
-  /** Semester end date (ISO string) */
   semesterEnd: string;
-  /** Optional localized day names */
   dayNames?: string[];
-  /** Optional labels */
   modeLabels?: { online: string; onCampus: string; hybrid: string };
   joinMeetingLabel?: string;
   emptyMessage?: string;
 };
 
-/** Backend stores time as minutes since midnight */
 function formatTime(minutes: number | null): string {
   if (minutes === null) return "–";
   const hours = Math.floor(minutes / 60);
   const mins = minutes % 60;
   return `${hours.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}`;
 }
+
+const CLASS_STATUS: Status = { id: "class", name: "Class", color: "#3b82f6" };
+const EXAM_STATUS: Status = { id: "exam", name: "Exam", color: "#ef4444" };
 
 type CalendarEvent = {
   type: "class" | "exam";
@@ -57,33 +70,50 @@ type CalendarEvent = {
   meetingUrl?: string | null;
 };
 
+function CalendarInitializer({
+  semesterStart,
+  semesterEnd,
+}: {
+  semesterStart: string;
+  semesterEnd: string;
+}) {
+  const [, setMonth] = useCalendarMonth();
+  const [, setYear] = useCalendarYear();
+
+  useEffect(() => {
+    const start = parseISO(semesterStart);
+    const end = parseISO(semesterEnd);
+    const today = new Date();
+    const target = today < start || today > end ? start : today;
+    setMonth(
+      target.getMonth() as 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11,
+    );
+    setYear(target.getFullYear());
+  }, [semesterStart, semesterEnd, setMonth, setYear]);
+
+  return null;
+}
+
 export function ScheduleCalendar({
   schedule,
   exams = [],
   semesterStart,
   semesterEnd,
-  dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
   modeLabels = { online: "Online", onCampus: "On campus", hybrid: "Hybrid" },
   joinMeetingLabel = "Join meeting",
   emptyMessage = "No scheduled classes or exams for this period.",
 }: ScheduleCalendarProps) {
-  const [selectedMonth, setSelectedMonth] = useState(() => new Date());
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
-
   const start = parseISO(semesterStart);
   const end = parseISO(semesterEnd);
 
-  // Build list of events for the displayed month
-  const eventsForMonth = useMemo(() => {
-    const events: CalendarEvent[] = [];
-    const monthStart = startOfMonth(selectedMonth);
-    const monthEnd = addMonths(monthStart, 1);
-    const rangeStart = start > monthStart ? start : monthStart;
-    const rangeEnd = end < monthEnd ? end : monthEnd;
+  const startYear = start.getFullYear();
+  const endYear = end.getFullYear();
 
-    // Add weekly class events
-    for (let d = new Date(rangeStart); d <= rangeEnd; d = addDays(d, 1)) {
-      const dayOfWeek = getDay(d); // 0=Sun, 1=Mon, ...
+  const allEvents = useMemo(() => {
+    const events: CalendarEvent[] = [];
+
+    for (let d = new Date(start); d <= end; d = addDays(d, 1)) {
+      const dayOfWeek = getDay(d);
       const slots = schedule[dayOfWeek] ?? [];
       for (const slot of slots) {
         events.push({
@@ -101,17 +131,16 @@ export function ScheduleCalendar({
       }
     }
 
-    // Add exam events
     for (const exam of exams) {
       if (!exam.examDate) continue;
       const examDate = parseISO(exam.examDate);
-      if (examDate >= rangeStart && examDate < rangeEnd) {
+      if (examDate >= start && examDate <= end) {
         const courseName = exam.courseOnSemester?.course?.name ?? "Exam";
         let timeStr: string | undefined;
         if (exam.startTime && exam.endTime) {
-          const start = parseISO(exam.startTime);
-          const end = parseISO(exam.endTime);
-          timeStr = `${format(start, "HH:mm")} – ${format(end, "HH:mm")}`;
+          const s = parseISO(exam.startTime);
+          const e = parseISO(exam.endTime);
+          timeStr = `${format(s, "HH:mm")} – ${format(e, "HH:mm")}`;
         }
         events.push({
           type: "exam",
@@ -125,77 +154,102 @@ export function ScheduleCalendar({
 
     events.sort((a, b) => a.date.getTime() - b.date.getTime());
     return events;
-  }, [schedule, exams, start, end, selectedMonth]);
+  }, [schedule, exams, start, end]);
 
-  const eventsForSelectedDate = useMemo(() => {
-    if (!selectedDate) return eventsForMonth;
-    return eventsForMonth.filter((e) => isSameDay(e.date, selectedDate));
-  }, [eventsForMonth, selectedDate]);
+  const features: Feature[] = useMemo(
+    () =>
+      allEvents.map((e, i) => ({
+        id: `${e.type}-${i}`,
+        name: e.title,
+        startAt: e.date,
+        endAt: e.date,
+        status: e.type === "exam" ? EXAM_STATUS : CLASS_STATUS,
+      })),
+    [allEvents],
+  );
 
-  const daysWithEvents = useMemo(() => {
-    const set = new Set<string>();
-    for (const e of eventsForMonth) {
-      set.add(format(e.date, "yyyy-MM-dd"));
-    }
-    return Array.from(set).map((s) => parseISO(s));
-  }, [eventsForMonth]);
+  const featureEvents = useMemo(() => {
+    const map = new Map<string, CalendarEvent>();
+    allEvents.forEach((e, i) => {
+      const id = `${e.type}-${i}`;
+      map.set(id, e);
+    });
+    return map;
+  }, [allEvents]);
 
-  const hasEvents = eventsForMonth.length > 0;
+  const [month] = useCalendarMonth();
+  const [year] = useCalendarYear();
+
+  const eventsForMonth = useMemo(() => {
+    const monthStart = startOfMonth(new Date(year, month, 1));
+    const monthEnd = addMonths(monthStart, 1);
+    return allEvents.filter((e) => e.date >= monthStart && e.date < monthEnd);
+  }, [allEvents, month, year]);
 
   return (
     <div className="space-y-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Monthly Schedule</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            View classes and exams for the semester
-          </p>
-        </CardHeader>
-        <CardContent>
-          <Calendar
-            mode="single"
-            selected={selectedDate}
-            onSelect={setSelectedDate}
-            month={selectedMonth}
-            onMonthChange={setSelectedMonth}
-            disabled={(date) =>
-              date < subMonths(start, 1) || date > addMonths(end, 1)
-            }
-            modifiers={{
-              hasEvents: daysWithEvents,
-            }}
-            modifiersClassNames={{
-              hasEvents: "bg-primary/10 font-semibold",
-            }}
-          />
-        </CardContent>
-      </Card>
+      <CalendarProvider className="border rounded-lg">
+        <CalendarInitializer
+          semesterStart={semesterStart}
+          semesterEnd={semesterEnd}
+        />
+        <CalendarDate>
+          <CalendarDatePicker>
+            <CalendarMonthPicker />
+            <CalendarYearPicker
+              start={Math.min(startYear, endYear)}
+              end={Math.max(startYear, endYear) + 1}
+            />
+          </CalendarDatePicker>
+          <CalendarDatePagination />
+        </CalendarDate>
+        <CalendarHeader />
+        <CalendarBody features={features}>
+          {({ feature }) => {
+            const event = featureEvents.get(feature.id);
+
+            return (
+              <Tooltip key={feature.id}>
+                <TooltipTrigger asChild>
+                  <div className="cursor-pointer">
+                    <CalendarItem feature={feature} className="py-1" />
+                  </div>
+                </TooltipTrigger>
+                {event && (
+                  <TooltipContent side="top">
+                    <div className="space-y-1">
+                      <p className="font-medium">{event.title}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {format(event.date, "EEE, MMM d")}
+                        {event.time ? ` • ${event.time}` : ""}
+                        {event.location ? ` • ${event.location}` : ""}
+                      </p>
+                    </div>
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            );
+          }}
+        </CalendarBody>
+      </CalendarProvider>
 
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">
-            {selectedDate
-              ? `Events on ${format(selectedDate, "EEEE, MMM d")}`
-              : `Events in ${format(selectedMonth, "MMMM yyyy")}`}
+            Events in {format(new Date(year, month, 1), "MMMM yyyy")}
           </CardTitle>
           <p className="text-sm text-muted-foreground">
-            {selectedDate
-              ? "Classes and exams on this day"
-              : "All classes and exams this month"}
+            All classes and exams this month
           </p>
         </CardHeader>
         <CardContent>
-          {!hasEvents ? (
+          {eventsForMonth.length === 0 ? (
             <p className="text-center text-muted-foreground py-6">
               {emptyMessage}
             </p>
-          ) : eventsForSelectedDate.length === 0 ? (
-            <p className="text-center text-muted-foreground py-6">
-              No events on this day.
-            </p>
           ) : (
             <ul className="space-y-3">
-              {eventsForSelectedDate.map((event, i) => (
+              {eventsForMonth.map((event, i) => (
                 <li
                   key={`${event.type}-${event.title}-${event.date.toISOString()}-${i}`}
                   className="rounded-lg border p-3"

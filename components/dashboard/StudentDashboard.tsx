@@ -28,6 +28,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/shadcn/card";
+import { documentApi } from "@/lib/api/document";
 import { studentExamScheduleApi } from "@/lib/api/exam-schedule";
 import {
   studentApi,
@@ -42,6 +43,8 @@ import {
 import { getClientDictionary, useLocale, useLocalePath } from "@/lib/i18n";
 import { GRADE_TYPE_OPTIONS } from "@/lib/utils/grade-labels";
 import { enrollmentsToWeeklySchedule } from "@/lib/utils/schedule";
+import { FileDown } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -59,6 +62,9 @@ export function StudentDashboard() {
   const localePath = useLocalePath();
   const dict = getClientDictionary(locale);
   const sd = dict.studentDashboard;
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [profile, setProfile] = useState<StudentProfile | null>(null);
   const [courses, setCourses] = useState<EnrolledCourse[]>([]);
   const [grades, setGrades] = useState<GradeSummary[]>([]);
@@ -88,6 +94,28 @@ export function StudentDashboard() {
   const [examSchedules, setExamSchedules] = useState<
     Awaited<ReturnType<typeof studentExamScheduleApi.getMySchedules>>
   >([]);
+
+  // Sync main dashboard tab with ?tab=... query param so it persists on reload
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (
+      tab === "courses" ||
+      tab === "grades" ||
+      tab === "progress" ||
+      tab === "schedule" ||
+      tab === "enroll"
+    ) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
+
+  const setActiveTabWithUrl = (tab: typeof activeTab) => {
+    setActiveTab(tab);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("tab", tab);
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname);
+  };
 
   const fetchData = useCallback(async () => {
     if (!user?.id) return;
@@ -303,7 +331,7 @@ export function StudentDashboard() {
       <div className="mb-4 flex flex-wrap gap-2">
         <button
           type="button"
-          onClick={() => setActiveTab("courses")}
+          onClick={() => setActiveTabWithUrl("courses")}
           className={`rounded-md px-3 py-2 text-sm font-medium transition sm:px-4 ${
             activeTab === "courses"
               ? "bg-primary text-primary-foreground"
@@ -314,7 +342,7 @@ export function StudentDashboard() {
         </button>
         <button
           type="button"
-          onClick={() => setActiveTab("enroll")}
+          onClick={() => setActiveTabWithUrl("enroll")}
           className={`rounded-md px-3 py-2 text-sm font-medium transition sm:px-4 ${
             activeTab === "enroll"
               ? "bg-primary text-primary-foreground"
@@ -325,7 +353,7 @@ export function StudentDashboard() {
         </button>
         <button
           type="button"
-          onClick={() => setActiveTab("grades")}
+          onClick={() => setActiveTabWithUrl("grades")}
           className={`rounded-md px-3 py-2 text-sm font-medium transition sm:px-4 ${
             activeTab === "grades"
               ? "bg-primary text-primary-foreground"
@@ -336,7 +364,7 @@ export function StudentDashboard() {
         </button>
         <button
           type="button"
-          onClick={() => setActiveTab("progress")}
+          onClick={() => setActiveTabWithUrl("progress")}
           className={`rounded-md px-3 py-2 text-sm font-medium transition sm:px-4 ${
             activeTab === "progress"
               ? "bg-primary text-primary-foreground"
@@ -347,7 +375,7 @@ export function StudentDashboard() {
         </button>
         <button
           type="button"
-          onClick={() => setActiveTab("schedule")}
+          onClick={() => setActiveTabWithUrl("schedule")}
           className={`rounded-md px-3 py-2 text-sm font-medium transition sm:px-4 ${
             activeTab === "schedule"
               ? "bg-primary text-primary-foreground"
@@ -521,15 +549,27 @@ export function StudentDashboard() {
                               <span className="text-sm truncate max-w-[200px]">
                                 {doc.title}
                               </span>
-                              <a
-                                href={doc.url}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="text-xs text-primary hover:underline"
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={async () => {
+                                  try {
+                                    await documentApi.download(
+                                      doc.id,
+                                      doc.title,
+                                    );
+                                  } catch {
+                                    toast.error(
+                                      sd.downloadFailed ?? dict.common.error,
+                                    );
+                                  }
+                                }}
                               >
-                                {dict.home.cta.title.split("?")[0] ??
-                                  "Download"}
-                              </a>
+                                <span className="inline-flex items-center gap-1">
+                                  <FileDown className="w-4 h-4" />
+                                  <span>{sd.downloadDocument}</span>
+                                </span>
+                              </Button>
                             </li>
                           ))}
                         </ul>

@@ -31,6 +31,7 @@ import { getClientDictionary, useLocale } from "@/lib/i18n";
 import { GRADE_TYPE_OPTIONS } from "@/lib/utils/grade-labels";
 import { coursesToLecturerSchedule } from "@/lib/utils/schedule";
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -62,6 +63,26 @@ export function LecturerDashboard() {
     Record<string, CourseStudent["grades"]>
   >({});
   const [analytics, setAnalytics] = useState<CourseAnalytics | null>(null);
+
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  // Sync dashboard tab with ?tab=... so it persists and can be deep-linked
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab === "courses" || tab === "schedule") {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
+
+  const setActiveTabWithUrl = (tab: typeof activeTab) => {
+    setActiveTab(tab);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("tab", tab);
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname);
+  };
 
   const fetchData = useCallback(async () => {
     if (!user?.id) return;
@@ -225,7 +246,7 @@ export function LecturerDashboard() {
         <button
           type="button"
           onClick={() => {
-            setActiveTab("courses");
+            setActiveTabWithUrl("courses");
             setSelectedCourse(null);
           }}
           className={`rounded-md px-3 py-2 text-sm font-medium transition sm:px-4 ${
@@ -238,7 +259,7 @@ export function LecturerDashboard() {
         </button>
         <button
           type="button"
-          onClick={() => setActiveTab("schedule")}
+          onClick={() => setActiveTabWithUrl("schedule")}
           className={`rounded-md px-3 py-2 text-sm font-medium transition sm:px-4 ${
             activeTab === "schedule"
               ? "bg-primary text-primary-foreground"
