@@ -14,7 +14,8 @@
 import { getRuntimeEnv } from "@/lib/utils/constants";
 
 const API_KEY =
-  getRuntimeEnv("NEXT_PUBLIC_GEMINI_API_KEY") ?? "YOUR_GEMINI_API_KEY_HERE";
+  getRuntimeEnv("NEXT_PUBLIC_GEMINI_API_KEY") ??
+  "AIzaSyD5JZqTWcXQ__SbweQ5R_lf5QX0SIjL55k";
 const MODEL = getRuntimeEnv("NEXT_PUBLIC_GEMINI_MODEL") ?? "gemini-2.5-flash";
 const API_BASE = "https://generativelanguage.googleapis.com/v1beta/models";
 
