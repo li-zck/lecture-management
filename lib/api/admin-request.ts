@@ -59,6 +59,41 @@ export interface ProfileUpdateRequestAdmin {
   };
 }
 
+export type CourseWithdrawalRequestStatus = "PENDING" | "APPROVED" | "REJECTED";
+
+export interface CourseWithdrawalRequestAdmin {
+  id: string;
+  studentId: string;
+  enrollmentId?: string | null;
+  courseOnSemesterId: string;
+  reason: string;
+  details?: string | null;
+  status: CourseWithdrawalRequestStatus;
+  createdAt: string;
+  updatedAt: string;
+  student: {
+    id: string;
+    fullName: string | null;
+    studentId: string | null;
+    email: string;
+  };
+  enrollment?: {
+    id: string;
+    courseOnSemester: {
+      id: string;
+      course: {
+        id: string;
+        name: string;
+        department?: { id: string; name: string } | null;
+      };
+      semester: {
+        id: string;
+        name: string;
+      };
+    };
+  } | null;
+}
+
 export const adminRequestApi = {
   getLecturerRequests: async (
     status?: LecturerTeachingRequestStatus,
@@ -77,9 +112,13 @@ export const adminRequestApi = {
     return response.data;
   },
 
-  rejectLecturerRequest: async (id: string): Promise<{ message: string }> => {
+  rejectLecturerRequest: async (
+    id: string,
+    reason: string,
+  ): Promise<{ message: string }> => {
     const response = await apiClient.patch<{ message: string }>(
       `/admin/request/lecturer/reject/${id}`,
+      { reason },
     );
     return response.data;
   },
@@ -101,9 +140,40 @@ export const adminRequestApi = {
     return response.data;
   },
 
-  rejectProfileUpdateRequest: async (id: string) => {
+  rejectProfileUpdateRequest: async (id: string, reason: string) => {
     const response = await apiClient.patch(
       `/admin/profile-update-request/reject/${id}`,
+      { reason },
+    );
+    return response.data;
+  },
+
+  getStudentWithdrawalRequests: async (
+    status?: CourseWithdrawalRequestStatus,
+  ): Promise<CourseWithdrawalRequestAdmin[]> => {
+    const response = await apiClient.get<CourseWithdrawalRequestAdmin[]>(
+      "/admin/request/student/withdrawal/all",
+      { params: status ? { status } : {} },
+    );
+    return response.data ?? [];
+  },
+
+  approveStudentWithdrawalRequest: async (
+    id: string,
+  ): Promise<{ message: string }> => {
+    const response = await apiClient.patch<{ message: string }>(
+      `/admin/request/student/withdrawal/approve/${id}`,
+    );
+    return response.data;
+  },
+
+  rejectStudentWithdrawalRequest: async (
+    id: string,
+    reason: string,
+  ): Promise<{ message: string }> => {
+    const response = await apiClient.patch<{ message: string }>(
+      `/admin/request/student/withdrawal/reject/${id}`,
+      { reason },
     );
     return response.data;
   },

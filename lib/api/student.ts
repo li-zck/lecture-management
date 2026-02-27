@@ -370,6 +370,56 @@ export const studentApi = {
   },
 
   /**
+   * Request withdrawal from a course (requires admin approval)
+   * Uses POST /request/student/withdrawal endpoint
+   */
+  requestCourseWithdrawal: async (
+    courseOnSemesterId: string,
+    payload: { reason: string; details?: string },
+  ): Promise<unknown> => {
+    const response = await apiClient.post<
+      unknown,
+      { courseOnSemesterId: string; reason: string; details?: string }
+    >("/request/student/withdrawal", {
+      courseOnSemesterId,
+      reason: payload.reason,
+      details: payload.details,
+    });
+    return response.data;
+  },
+
+  getWithdrawalRequestById: async (
+    id: string,
+  ): Promise<{
+    id: string;
+    courseOnSemesterId: string;
+    reason: string;
+    details?: string | null;
+    rejectionReason?: string | null;
+    enrollment: {
+      courseOnSemester: {
+        course: { id: string; name: string };
+        semester: { id: string; name: string };
+      };
+    };
+  }> => {
+    const response = await apiClient.get<{
+      id: string;
+      courseOnSemesterId: string;
+      reason: string;
+      details?: string | null;
+      rejectionReason?: string | null;
+      enrollment: {
+        courseOnSemester: {
+          course: { id: string; name: string };
+          semester: { id: string; name: string };
+        };
+      };
+    }>(`/request/student/withdrawal/${id}`);
+    return response.data;
+  },
+
+  /**
    * Get documents for a course (by courseOnSemesterId)
    * Uses documentApi.getAll() and filters by courseOnSemesterId
    */
