@@ -13,7 +13,19 @@ import {
   SelectValue,
 } from "@/components/ui/shadcn";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/shadcn/dialog";
+import { Label } from "@/components/ui/shadcn/label";
+import { Textarea } from "@/components/ui/shadcn/textarea";
+import {
   adminRequestApi,
+  type CourseWithdrawalRequestAdmin,
+  type CourseWithdrawalRequestStatus,
   type LecturerTeachingRequestAdmin,
   type LecturerTeachingRequestStatus,
   type ProfileUpdateRequestAdmin,
@@ -23,10 +35,16 @@ import { getErrorInfo } from "@/lib/api/error";
 import { getClientDictionary } from "@/lib/i18n";
 import { useLocale } from "@/lib/i18n/use-locale";
 import { GraduationCap, Send, UserCog, Users } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
+import { z } from "zod";
 
 type EntityTab = "lecturer" | "student" | "profile";
+
+const rejectReasonSchema = z.object({
+  reason: z.string().min(10, "Reason must be at least 10 characters").trim(),
+});
 
 function formatTime(minutes: number | null): string {
   if (minutes === null) return "TBA";
@@ -50,7 +68,11 @@ export default function RequestsManagementPage() {
   const dict = getClientDictionary(locale);
   const t = dict.admin.requests;
 
-  const [entityTab, setEntityTab] = useState<EntityTab>("lecturer");
+  const searchParams = useSearchParams();
+  const initialTabFromUrl =
+    (searchParams.get("tab") as EntityTab | null) ?? "lecturer";
+
+  const [entityTab, setEntityTab] = useState<EntityTab>(initialTabFromUrl);
   const [statusFilter, setStatusFilter] = useState<
     LecturerTeachingRequestStatus | "all"
   >("all");
@@ -63,8 +85,21 @@ export default function RequestsManagementPage() {
   const [profileRequests, setProfileRequests] = useState<
     ProfileUpdateRequestAdmin[]
   >([]);
+  const [studentStatusFilter, setStudentStatusFilter] = useState<
+    CourseWithdrawalRequestStatus | "all"
+  >("all");
+  const [studentRequests, setStudentRequests] = useState<
+    CourseWithdrawalRequestAdmin[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [actingId, setActingId] = useState<string | null>(null);
+  const [rejectContext, setRejectContext] = useState<{
+    type: EntityTab | null;
+    id: string | null;
+  }>({ type: null, id: null });
+  const [rejectReason, setRejectReason] = useState("");
+  const [rejectError, setRejectError] = useState<string | null>(null);
+  const [submittingReject, setSubmittingReject] = useState(false);
 
   const fetchLecturerRequests = useCallback(async () => {
     setLoading(true);
@@ -95,10 +130,31 @@ export default function RequestsManagementPage() {
     }
   }, [profileStatusFilter, t]);
 
+  const fetchStudentRequests = useCallback(async () => {
+    setLoading(true);
+    try {
+      const status =
+        studentStatusFilter === "all" ? undefined : studentStatusFilter;
+      const data = await adminRequestApi.getStudentWithdrawalRequests(status);
+      setStudentRequests(data);
+    } catch {
+      toast.error(t.loadStudentFailed ?? t.loadLecturerFailed);
+      setStudentRequests([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [studentStatusFilter, t]);
+
   useEffect(() => {
     if (entityTab === "lecturer") fetchLecturerRequests();
     if (entityTab === "profile") fetchProfileRequests();
-  }, [entityTab, fetchLecturerRequests, fetchProfileRequests]);
+    if (entityTab === "student") fetchStudentRequests();
+  }, [
+    entityTab,
+    fetchLecturerRequests,
+    fetchProfileRequests,
+    fetchStudentRequests,
+  ]);
 
   const handleApprove = async (id: string) => {
     setActingId(id);
@@ -114,17 +170,61 @@ export default function RequestsManagementPage() {
     }
   };
 
-  const handleReject = async (id: string) => {
-    setActingId(id);
+  const openRejectDialog = (type: EntityTab, id: string) => {
+    setRejectContext({ type, id });
+    setRejectReason("");
+    setRejectError(null);
+  };
+
+  const closeRejectDialog = () => {
+    setRejectContext({ type: null, id: null });
+    setRejectReason("");
+    setRejectError(null);
+    setSubmittingReject(false);
+  };
+
+  const handleConfirmReject = async () => {
+    if (!rejectContext.type || !rejectContext.id) return;
+
+    const parsed = rejectReasonSchema.safeParse({ reason: rejectReason });
+    if (!parsed.success) {
+      const issue = parsed.error.issues[0];
+      setRejectError(issue?.message ?? "Reason must be at least 10 characters");
+      return;
+    }
+
+    setSubmittingReject(true);
+    setActingId(rejectContext.id);
+
     try {
-      await adminRequestApi.rejectLecturerRequest(id);
-      toast.success(t.rejectedSuccess);
-      fetchLecturerRequests();
+      if (rejectContext.type === "lecturer") {
+        await adminRequestApi.rejectLecturerRequest(
+          rejectContext.id,
+          parsed.data.reason,
+        );
+        toast.success(t.rejectedSuccess);
+        await fetchLecturerRequests();
+      } else if (rejectContext.type === "student") {
+        await adminRequestApi.rejectStudentWithdrawalRequest(
+          rejectContext.id,
+          parsed.data.reason,
+        );
+        toast.success(t.rejected);
+        await fetchStudentRequests();
+      } else if (rejectContext.type === "profile") {
+        await adminRequestApi.rejectProfileUpdateRequest(
+          rejectContext.id,
+          parsed.data.reason,
+        );
+        toast.success(t.profileRejected);
+        await fetchProfileRequests();
+      }
     } catch (err: unknown) {
       const { message } = getErrorInfo(err);
       toast.error(message ?? t.rejectedFailed);
     } finally {
       setActingId(null);
+      closeRejectDialog();
     }
   };
 
@@ -137,20 +237,6 @@ export default function RequestsManagementPage() {
     } catch (err: unknown) {
       const { message } = getErrorInfo(err);
       toast.error(message ?? t.profileApprovedFailed);
-    } finally {
-      setActingId(null);
-    }
-  };
-
-  const handleRejectProfile = async (id: string) => {
-    setActingId(id);
-    try {
-      await adminRequestApi.rejectProfileUpdateRequest(id);
-      toast.success(t.profileRejected);
-      fetchProfileRequests();
-    } catch (err: unknown) {
-      const { message } = getErrorInfo(err);
-      toast.error(message ?? t.profileRejectedFailed);
     } finally {
       setActingId(null);
     }
@@ -214,6 +300,24 @@ export default function RequestsManagementPage() {
             value={statusFilter}
             onValueChange={(v) =>
               setStatusFilter(v as LecturerTeachingRequestStatus | "all")
+            }
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder={t.filterByStatus} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t.allStatuses}</SelectItem>
+              <SelectItem value="PENDING">{t.pending}</SelectItem>
+              <SelectItem value="APPROVED">{t.approved}</SelectItem>
+              <SelectItem value="REJECTED">{t.rejected}</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
+        {entityTab === "student" && (
+          <Select
+            value={studentStatusFilter}
+            onValueChange={(v) =>
+              setStudentStatusFilter(v as CourseWithdrawalRequestStatus | "all")
             }
           >
             <SelectTrigger className="w-[180px]">
@@ -308,7 +412,9 @@ export default function RequestsManagementPage() {
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => handleReject(req.id)}
+                              onClick={() =>
+                                openRejectDialog("lecturer", req.id)
+                              }
                               disabled={actingId !== null}
                             >
                               {actingId === req.id ? t.rejecting : t.reject}
@@ -326,12 +432,121 @@ export default function RequestsManagementPage() {
       )}
 
       {entityTab === "student" && (
-        <Card>
-          <CardContent className="p-12 text-center">
-            <GraduationCap className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">{t.studentNotConfigured}</p>
-          </CardContent>
-        </Card>
+        <div className="w-full">
+          {loading ? (
+            <div className="flex items-center justify-center p-12 text-muted-foreground">
+              {t.loadingRequests}
+            </div>
+          ) : studentRequests.length === 0 ? (
+            <Card>
+              <CardContent className="p-12 text-center">
+                <GraduationCap className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                <p className="text-muted-foreground">
+                  {t.noStudentRequests}
+                  {studentStatusFilter !== "all"
+                    ? ` ${t.withStatus} ${studentStatusFilter}`
+                    : ""}
+                  .
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-4">
+              {studentRequests.map((req) => {
+                const courseOnSemester = req.enrollment?.courseOnSemester;
+                const course = courseOnSemester?.course;
+                const semester = courseOnSemester?.semester;
+
+                return (
+                  <Card key={req.id}>
+                    <CardContent className="p-4">
+                      <div className="flex flex-wrap items-center justify-between gap-4">
+                        <div className="space-y-1">
+                          <p className="font-medium">
+                            {req.student.fullName ??
+                              req.student.studentId ??
+                              req.student.email}{" "}
+                            ({req.student.email})
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {course?.name ?? "Unknown course"}
+                            {course?.department && (
+                              <span> · {course.department.name}</span>
+                            )}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {semester?.name ?? "Unknown semester"}
+                          </p>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            <span className="font-medium">Reason:</span>
+                            {req.reason}
+                          </p>
+                          {req.details && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {req.details}
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge
+                            variant={
+                              req.status === "PENDING"
+                                ? "secondary"
+                                : req.status === "APPROVED"
+                                  ? "default"
+                                  : "destructive"
+                            }
+                          >
+                            {req.status === "PENDING"
+                              ? t.pending
+                              : req.status === "APPROVED"
+                                ? t.approved
+                                : t.rejected}
+                          </Badge>
+                          {req.status === "PENDING" && (
+                            <>
+                              <Button
+                                size="sm"
+                                onClick={async () => {
+                                  setActingId(req.id);
+                                  try {
+                                    await adminRequestApi.approveStudentWithdrawalRequest(
+                                      req.id,
+                                    );
+                                    toast.success(t.approved);
+                                    fetchStudentRequests();
+                                  } catch (err: unknown) {
+                                    const { message } = getErrorInfo(err);
+                                    toast.error(message ?? t.approvedFailed);
+                                  } finally {
+                                    setActingId(null);
+                                  }
+                                }}
+                                disabled={actingId !== null}
+                              >
+                                {actingId === req.id ? t.approving : t.approve}
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() =>
+                                  openRejectDialog("student", req.id)
+                                }
+                                disabled={actingId !== null}
+                              >
+                                {actingId === req.id ? t.rejecting : t.reject}
+                              </Button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
+        </div>
       )}
 
       {entityTab === "profile" && (
@@ -406,7 +621,9 @@ export default function RequestsManagementPage() {
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => handleRejectProfile(req.id)}
+                              onClick={() =>
+                                openRejectDialog("profile", req.id)
+                              }
                               disabled={actingId !== null}
                             >
                               {actingId === req.id ? t.rejecting : t.reject}
@@ -422,6 +639,59 @@ export default function RequestsManagementPage() {
           )}
         </div>
       )}
+
+      <Dialog
+        open={rejectContext.type !== null}
+        onOpenChange={(open) => {
+          if (!open) closeRejectDialog();
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reject request</DialogTitle>
+            <DialogDescription>
+              Please provide a brief explanation for this rejection. This reason
+              may be shown to the requester.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="reject-reason">Reason</Label>
+              <Textarea
+                id="reject-reason"
+                value={rejectReason}
+                onChange={(e) => {
+                  setRejectReason(e.target.value);
+                  if (rejectError) setRejectError(null);
+                }}
+                rows={4}
+                placeholder="Reason must be at least 10 characters"
+              />
+              {rejectError && (
+                <p className="text-sm text-destructive">{rejectError}</p>
+              )}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={closeRejectDialog}
+              disabled={submittingReject}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={handleConfirmReject}
+              disabled={submittingReject}
+            >
+              {submittingReject ? t.rejecting : t.reject}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
