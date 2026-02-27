@@ -28,7 +28,6 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -85,7 +84,7 @@ function NotificationCard({
   });
   const fullDate = format(new Date(notification.createdAt), "PPpp");
 
-  const content = (
+  return (
     <Card
       className={cn(
         "relative group transition-colors",
@@ -132,16 +131,6 @@ function NotificationCard({
       </CardContent>
     </Card>
   );
-
-  if (notification.url) {
-    return (
-      <Link href={notification.url} className="block">
-        {content}
-      </Link>
-    );
-  }
-
-  return content;
 }
 
 function NotificationsSkeleton() {
