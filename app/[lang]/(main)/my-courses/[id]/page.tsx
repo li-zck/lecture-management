@@ -350,25 +350,28 @@ export default function LecturerCourseDetailPage({
                     {course.schedule.location || "—"}
                   </span>
                 </p>
-                <p className="text-sm">
-                  <span className="text-muted-foreground">
-                    {dict.lecturerCourseDetail.meetingUrlShortLabel}{" "}
-                  </span>
-                  {course.schedule.meetingUrl ? (
-                    <a
-                      href={course.schedule.meetingUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-primary hover:underline font-medium"
-                    >
-                      {course.schedule.meetingUrl}
-                    </a>
-                  ) : (
-                    <span className="font-medium">
-                      {dict.lecturerCourseDetail.meetingUrlNotSet}
+                {(course.schedule.mode === "ONLINE" ||
+                  course.schedule.mode === "HYBRID") && (
+                  <p className="text-sm">
+                    <span className="text-muted-foreground">
+                      {dict.lecturerCourseDetail.meetingUrlShortLabel}{" "}
                     </span>
-                  )}
-                </p>
+                    {course.schedule.meetingUrl ? (
+                      <a
+                        href={course.schedule.meetingUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-primary hover:underline font-medium"
+                      >
+                        {course.schedule.meetingUrl}
+                      </a>
+                    ) : (
+                      <span className="font-medium">
+                        {dict.lecturerCourseDetail.meetingUrlNotSet}
+                      </span>
+                    )}
+                  </p>
+                )}
                 <Button
                   variant="outline"
                   size="sm"
@@ -437,28 +440,31 @@ export default function LecturerCourseDetailPage({
                     placeholder={dict.lecturerCourseDetail.locationPlaceholder}
                   />
                 </div>
-                <div>
-                  <label
-                    htmlFor="lecturer-schedule-meetingUrl"
-                    className="text-sm font-medium mb-2 block"
-                  >
-                    {dict.lecturerCourseDetail.meetingUrlFieldLabel}
-                  </label>
-                  <Input
-                    id="lecturer-schedule-meetingUrl"
-                    type="url"
-                    value={scheduleForm.meetingUrl}
-                    onChange={(e) =>
-                      setScheduleForm((prev) => ({
-                        ...prev,
-                        meetingUrl: e.target.value,
-                      }))
-                    }
-                    placeholder={
-                      dict.lecturerCourseDetail.meetingUrlPlaceholder
-                    }
-                  />
-                </div>
+                {(scheduleForm.mode === "ONLINE" ||
+                  scheduleForm.mode === "HYBRID") && (
+                  <div>
+                    <label
+                      htmlFor="lecturer-schedule-meetingUrl"
+                      className="text-sm font-medium mb-2 block"
+                    >
+                      {dict.lecturerCourseDetail.meetingUrlFieldLabel}
+                    </label>
+                    <Input
+                      id="lecturer-schedule-meetingUrl"
+                      type="url"
+                      value={scheduleForm.meetingUrl}
+                      onChange={(e) =>
+                        setScheduleForm((prev) => ({
+                          ...prev,
+                          meetingUrl: e.target.value,
+                        }))
+                      }
+                      placeholder={
+                        dict.lecturerCourseDetail.meetingUrlPlaceholder
+                      }
+                    />
+                  </div>
+                )}
                 <div className="flex gap-2">
                   <Button
                     size="sm"
@@ -471,7 +477,11 @@ export default function LecturerCourseDetailPage({
                           {
                             mode: scheduleForm.mode,
                             location: scheduleForm.location.trim() || null,
-                            meetingUrl: scheduleForm.meetingUrl.trim() || null,
+                            meetingUrl:
+                              scheduleForm.mode === "ONLINE" ||
+                              scheduleForm.mode === "HYBRID"
+                                ? scheduleForm.meetingUrl.trim() || null
+                                : null,
                           },
                         );
                         await refetchCourse();
