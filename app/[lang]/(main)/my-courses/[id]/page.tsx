@@ -38,6 +38,7 @@ import {
   type AssignedCourse,
   type CourseStudent,
 } from "@/lib/api/lecturer";
+import { getClientDictionary, useLocale, useLocalePath } from "@/lib/i18n";
 import { useCreateDocument, useDeleteDocument } from "@/lib/query/mutations";
 import { GRADE_TYPE_OPTIONS } from "@/lib/utils/grade-labels";
 import {
@@ -60,23 +61,6 @@ import { useRouter } from "next/navigation";
 import { use, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
-const DAYS_OF_WEEK = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-];
-
-function formatTime(minutes: number | null): string {
-  if (minutes === null) return "TBA";
-  const hours = Math.floor(minutes / 60);
-  const mins = minutes % 60;
-  return `${hours.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}`;
-}
-
 function bucketGrade(finalGrade: number | null): string {
   if (finalGrade === null) return "No grade";
   if (finalGrade >= 90) return "A (90+)";
@@ -94,6 +78,9 @@ export default function LecturerCourseDetailPage({
   params,
 }: LecturerCourseDetailPageProps) {
   const { id: courseOnSemesterId } = use(params);
+  const locale = useLocale();
+  const localePath = useLocalePath();
+  const dict = getClientDictionary(locale);
   const router = useRouter();
   const { role, isAuthenticated, isLoading: sessionLoading } = useSession();
   const [course, setCourse] = useState<AssignedCourse | null>(null);
@@ -108,6 +95,22 @@ export default function LecturerCourseDetailPage({
     location: "",
     meetingUrl: "",
   });
+
+  const formatTime = (minutes: number | null): string => {
+    if (minutes === null) return dict.common.tba;
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${hours.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}`;
+  };
+
+  const resolveModeLabel = (
+    mode: "ONLINE" | "ON_CAMPUS" | "HYBRID" | null | undefined,
+  ): string => {
+    if (mode === "ONLINE") return dict.common.online ?? "Online";
+    if (mode === "HYBRID") return dict.common.hybrid ?? "Hybrid";
+    if (mode === "ON_CAMPUS") return dict.common.onCampus ?? "On campus";
+    return dict.common.tba;
+  };
 
   const refetchCourse = async () => {
     const coursesRes = await lecturerApi.getCourses();
@@ -134,7 +137,7 @@ export default function LecturerCourseDetailPage({
           (c) => c.courseOnSemesterId === courseOnSemesterId,
         );
         if (!found) {
-          setError("Course not found or you are not assigned to teach it.");
+          setError("not-found");
           setCourse(null);
           setStudents([]);
           setExamSchedules([]);
@@ -150,7 +153,7 @@ export default function LecturerCourseDetailPage({
         );
       } catch (err) {
         console.error(err);
-        setError("Failed to load course data.");
+        setError("load-failed");
         setCourse(null);
         setStudents([]);
         setExamSchedules([]);
@@ -189,7 +192,7 @@ export default function LecturerCourseDetailPage({
   }
 
   if (!isAuthenticated || role !== "lecturer") {
-    router.replace("/my-courses");
+    router.replace(localePath("my-courses"));
     return null;
   }
 
@@ -206,17 +209,23 @@ export default function LecturerCourseDetailPage({
   }
 
   if (error || !course) {
+    const resolvedError =
+      error === "not-found"
+        ? dict.lecturerCourseDetail.notFoundDescription
+        : error === "load-failed"
+          ? dict.common.error
+          : (error ?? dict.common.error);
     return (
       <div className="min-h-screen bg-background py-12 px-6">
         <div className="container mx-auto max-w-5xl text-center">
-          <h1 className="text-2xl font-bold mb-4">Course not found</h1>
-          <p className="text-muted-foreground mb-6">
-            {error ?? "Unknown error"}
-          </p>
+          <h1 className="text-2xl font-bold mb-4">
+            {dict.lecturerCourseDetail.notFoundTitle}
+          </h1>
+          <p className="text-muted-foreground mb-6">{resolvedError}</p>
           <Button asChild>
-            <Link href="/my-courses">
+            <Link href={localePath("my-courses")}>
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to My Courses
+              {dict.lecturerCourseDetail.backToMyCourses}
             </Link>
           </Button>
         </div>
@@ -230,7 +239,7 @@ export default function LecturerCourseDetailPage({
         {/* Back + Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <Button variant="ghost" size="icon" asChild>
-            <Link href="/my-courses">
+            <Link href={localePath("my-courses")}>
               <ArrowLeft className="h-4 w-4" />
             </Link>
           </Button>
@@ -240,7 +249,9 @@ export default function LecturerCourseDetailPage({
             </h1>
             <p className="text-muted-foreground">{course.semester.name}</p>
             <div className="flex flex-wrap items-center gap-2 mt-2 justify-center sm:justify-start">
-              <Badge variant="outline">{course.course.credits} Credits</Badge>
+              <Badge variant="outline">
+                {course.course.credits} {dict.myCoursesList.credits}
+              </Badge>
               {course.course.department && (
                 <Badge variant="secondary">{course.course.department}</Badge>
               )}
@@ -256,7 +267,7 @@ export default function LecturerCourseDetailPage({
               <div className="min-w-0">
                 <p className="text-2xl font-bold">{students.length}</p>
                 <p className="text-xs text-muted-foreground">
-                  Enrolled students
+                  {dict.lecturerCourseDetail.enrolledStudents}
                 </p>
               </div>
             </CardContent>
@@ -270,7 +281,9 @@ export default function LecturerCourseDetailPage({
                     ? `${course.enrolledCount} / ${course.capacity}`
                     : course.enrolledCount}
                 </p>
-                <p className="text-xs text-muted-foreground">Capacity</p>
+                <p className="text-xs text-muted-foreground">
+                  {dict.lecturerCourseDetail.capacity}
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -280,8 +293,9 @@ export default function LecturerCourseDetailPage({
               <div className="min-w-0">
                 <p className="text-sm font-bold">
                   {course.schedule.dayOfWeek != null
-                    ? DAYS_OF_WEEK[course.schedule.dayOfWeek]
-                    : "TBA"}
+                    ? (dict.daysOfWeek[course.schedule.dayOfWeek] ??
+                      dict.common.tba)
+                    : dict.common.tba}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {course.schedule.startTime != null
@@ -296,9 +310,11 @@ export default function LecturerCourseDetailPage({
               <MapPin className="h-8 w-8 text-primary shrink-0" />
               <div className="min-w-0">
                 <p className="text-sm font-bold line-clamp-1">
-                  {course.schedule.location || "TBA"}
+                  {course.schedule.location || dict.common.tba}
                 </p>
-                <p className="text-xs text-muted-foreground">Location</p>
+                <p className="text-xs text-muted-foreground">
+                  {dict.common.location}
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -309,34 +325,35 @@ export default function LecturerCourseDetailPage({
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Video className="h-5 w-5" />
-              Meeting link & session
+              {dict.lecturerCourseDetail.meetingCardTitle}
             </CardTitle>
             <CardDescription>
-              Set or update the meeting URL and mode for online/hybrid classes.
-              Students will see a &quot;Join meeting&quot; button when set.
+              {dict.lecturerCourseDetail.meetingCardDescription}
             </CardDescription>
           </CardHeader>
           <CardContent>
             {!editingSchedule ? (
               <div className="space-y-2">
                 <p className="text-sm">
-                  <span className="text-muted-foreground">Mode: </span>
+                  <span className="text-muted-foreground">
+                    {dict.lecturerCourseDetail.modeShortLabel}{" "}
+                  </span>
                   <span className="font-medium">
-                    {course.schedule.mode === "ONLINE"
-                      ? "Online"
-                      : course.schedule.mode === "HYBRID"
-                        ? "Hybrid"
-                        : "On campus"}
+                    {resolveModeLabel(course.schedule.mode ?? null)}
                   </span>
                 </p>
                 <p className="text-sm">
-                  <span className="text-muted-foreground">Location: </span>
+                  <span className="text-muted-foreground">
+                    {dict.lecturerCourseDetail.locationShortLabel}{" "}
+                  </span>
                   <span className="font-medium">
                     {course.schedule.location || "—"}
                   </span>
                 </p>
                 <p className="text-sm">
-                  <span className="text-muted-foreground">Meeting URL: </span>
+                  <span className="text-muted-foreground">
+                    {dict.lecturerCourseDetail.meetingUrlShortLabel}{" "}
+                  </span>
                   {course.schedule.meetingUrl ? (
                     <a
                       href={course.schedule.meetingUrl}
@@ -347,7 +364,9 @@ export default function LecturerCourseDetailPage({
                       {course.schedule.meetingUrl}
                     </a>
                   ) : (
-                    <span className="font-medium">Not set</span>
+                    <span className="font-medium">
+                      {dict.lecturerCourseDetail.meetingUrlNotSet}
+                    </span>
                   )}
                 </p>
                 <Button
@@ -362,7 +381,7 @@ export default function LecturerCourseDetailPage({
                     setEditingSchedule(true);
                   }}
                 >
-                  Edit
+                  {dict.lecturerCourseDetail.editButton}
                 </Button>
               </div>
             ) : (
@@ -372,7 +391,7 @@ export default function LecturerCourseDetailPage({
                     htmlFor="lecturer-schedule-mode"
                     className="text-sm font-medium mb-2 block"
                   >
-                    Mode
+                    {dict.lecturerCourseDetail.modeFieldLabel}
                   </label>
                   <Select
                     value={scheduleForm.mode}
@@ -387,9 +406,15 @@ export default function LecturerCourseDetailPage({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="ON_CAMPUS">On campus</SelectItem>
-                      <SelectItem value="ONLINE">Online</SelectItem>
-                      <SelectItem value="HYBRID">Hybrid</SelectItem>
+                      <SelectItem value="ON_CAMPUS">
+                        {resolveModeLabel("ON_CAMPUS")}
+                      </SelectItem>
+                      <SelectItem value="ONLINE">
+                        {resolveModeLabel("ONLINE")}
+                      </SelectItem>
+                      <SelectItem value="HYBRID">
+                        {resolveModeLabel("HYBRID")}
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -398,7 +423,7 @@ export default function LecturerCourseDetailPage({
                     htmlFor="lecturer-schedule-location"
                     className="text-sm font-medium mb-2 block"
                   >
-                    Location (optional)
+                    {dict.lecturerCourseDetail.locationFieldLabel}
                   </label>
                   <Input
                     id="lecturer-schedule-location"
@@ -409,7 +434,7 @@ export default function LecturerCourseDetailPage({
                         location: e.target.value,
                       }))
                     }
-                    placeholder="Room A101"
+                    placeholder={dict.lecturerCourseDetail.locationPlaceholder}
                   />
                 </div>
                 <div>
@@ -417,7 +442,7 @@ export default function LecturerCourseDetailPage({
                     htmlFor="lecturer-schedule-meetingUrl"
                     className="text-sm font-medium mb-2 block"
                   >
-                    Meeting URL (for online/hybrid)
+                    {dict.lecturerCourseDetail.meetingUrlFieldLabel}
                   </label>
                   <Input
                     id="lecturer-schedule-meetingUrl"
@@ -429,7 +454,9 @@ export default function LecturerCourseDetailPage({
                         meetingUrl: e.target.value,
                       }))
                     }
-                    placeholder="https://meet.google.com/xxx-xxxx-xxx"
+                    placeholder={
+                      dict.lecturerCourseDetail.meetingUrlPlaceholder
+                    }
                   />
                 </div>
                 <div className="flex gap-2">
@@ -449,18 +476,18 @@ export default function LecturerCourseDetailPage({
                         );
                         await refetchCourse();
                         setEditingSchedule(false);
-                        toast.success(
-                          "Meeting link and session details updated.",
-                        );
+                        toast.success(dict.lecturerCourseDetail.updateSuccess);
                       } catch (err) {
                         console.error(err);
-                        toast.error("Failed to update. Please try again.");
+                        toast.error(dict.lecturerCourseDetail.updateError);
                       } finally {
                         setScheduleSaving(false);
                       }
                     }}
                   >
-                    {scheduleSaving ? "Saving…" : "Save"}
+                    {scheduleSaving
+                      ? dict.lecturerCourseDetail.savingLabel
+                      : dict.lecturerCourseDetail.saveButton}
                   </Button>
                   <Button
                     variant="outline"
@@ -468,7 +495,7 @@ export default function LecturerCourseDetailPage({
                     disabled={scheduleSaving}
                     onClick={() => setEditingSchedule(false)}
                   >
-                    Cancel
+                    {dict.lecturerCourseDetail.cancelButton}
                   </Button>
                 </div>
               </div>
@@ -482,16 +509,18 @@ export default function LecturerCourseDetailPage({
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <BookOpen className="h-5 w-5" />
-                Grade distribution
+                {dict.lecturerCourseDetail.gradeDistributionTitle}
               </CardTitle>
               <CardDescription>
-                Final grade breakdown (by letter band)
+                {dict.lecturerCourseDetail.gradeDistributionDescription}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <GradeDistributionDonut
                 data={gradeDistributionData}
-                totalLabel="Students"
+                totalLabel={
+                  dict.lecturerCourseDetail.gradeDistributionTotalLabel
+                }
                 totalValue={students.length}
                 height={280}
               />
@@ -504,30 +533,36 @@ export default function LecturerCourseDetailPage({
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Users className="h-5 w-5" />
-              Students ({students.length})
+              {dict.lecturerCourseDetail.studentsTableTitle} ({students.length})
             </CardTitle>
             <CardDescription>
-              Name, student ID, and grades for this course
+              {dict.lecturerCourseDetail.studentsTableDescription}
             </CardDescription>
           </CardHeader>
           <CardContent>
             {students.length === 0 ? (
               <p className="text-muted-foreground text-center py-8">
-                No students enrolled yet.
+                {dict.lecturerCourseDetail.studentsTableEmpty}
               </p>
             ) : (
               <div className="rounded-md border overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Student ID</TableHead>
+                      <TableHead>
+                        {dict.lecturerCourseDetail.studentsTableName}
+                      </TableHead>
+                      <TableHead>
+                        {dict.lecturerCourseDetail.studentsTableStudentId}
+                      </TableHead>
                       {GRADE_TYPE_OPTIONS.map((opt) => (
                         <TableHead key={opt.key} className="text-right">
                           {opt.label}
                         </TableHead>
                       ))}
-                      <TableHead className="text-right">Final</TableHead>
+                      <TableHead className="text-right">
+                        {dict.lecturerCourseDetail.studentsTableFinal}
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -561,16 +596,16 @@ export default function LecturerCourseDetailPage({
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FileQuestion className="h-5 w-5" />
-              Exam schedule
+              {dict.lecturerCourseDetail.examScheduleTitle}
             </CardTitle>
             <CardDescription>
-              Test/exam dates and times for this course
+              {dict.lecturerCourseDetail.examScheduleDescription}
             </CardDescription>
           </CardHeader>
           <CardContent>
             {examSchedules.length === 0 ? (
               <p className="text-muted-foreground text-center py-6">
-                No exam schedule set for this course.
+                {dict.lecturerCourseDetail.examScheduleEmpty}
               </p>
             ) : (
               <ul className="space-y-4">
@@ -589,7 +624,7 @@ export default function LecturerCourseDetailPage({
                                 dateStyle: "medium",
                               },
                             )
-                          : "TBA"}
+                          : dict.common.tba}
                       </span>
                     </div>
                     {(exam.startTime || exam.endTime) && (
@@ -628,6 +663,9 @@ function LecturerCourseDocuments({
 }: {
   courseOnSemesterId: string;
 }) {
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
+
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
@@ -683,16 +721,16 @@ function LecturerCourseDocuments({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <FileUp className="h-5 w-5" />
-          Documents
+          {dict.lecturerCourseDetail.documentsTitle}
         </CardTitle>
         <CardDescription>
-          Upload and manage course materials for students
+          {dict.lecturerCourseDetail.documentsDescription}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Upload zone: browse + drag-drop */}
         <section
-          aria-label="File upload drop zone"
+          aria-label={dict.lecturerCourseDetail.uploadDropzoneAria}
           className={`relative rounded-lg border-2 border-dashed p-8 text-center transition-colors ${
             isDragging
               ? "border-primary bg-primary/5"
@@ -714,7 +752,7 @@ function LecturerCourseDocuments({
           />
           <FileUp className="mx-auto h-12 w-12 text-muted-foreground" />
           <p className="mt-2 text-sm text-muted-foreground">
-            Drag and drop a file here, or
+            {dict.lecturerCourseDetail.uploadDropzoneText}
           </p>
           <Button
             type="button"
@@ -725,18 +763,18 @@ function LecturerCourseDocuments({
             disabled={createDoc.isPending}
           >
             <Upload className="mr-2 h-4 w-4" />
-            Browse file
+            {dict.lecturerCourseDetail.uploadBrowseButton}
           </Button>
         </section>
 
         {/* Document list */}
         {loading ? (
           <p className="text-sm text-muted-foreground text-center py-4">
-            Loading documents…
+            {dict.lecturerCourseDetail.documentsLoading}
           </p>
         ) : courseDocuments.length === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-4">
-            No documents uploaded yet.
+            {dict.lecturerCourseDetail.documentsEmpty}
           </p>
         ) : (
           <ul className="space-y-2">

@@ -78,6 +78,7 @@ export default function PostsPage() {
                           .replace(/<[^>]*>/g, " ")
                           .replace(/\s+/g, " ")
                           .trim();
+
                         return text.length > 160
                           ? `${text.slice(0, 160)}...`
                           : text;
