@@ -1124,7 +1124,9 @@
       "profileRejectedFailed": "Không thể từ chối",
       "loadLecturerFailed": "Không thể tải yêu cầu giảng viên",
       "loadProfileFailed": "Không thể tải yêu cầu cập nhật hồ sơ",
-      "studentNotConfigured": "Các danh mục yêu cầu sinh viên chưa được cấu hình."
+      "studentNotConfigured": "Các danh mục yêu cầu sinh viên chưa được cấu hình.",
+      "noStudentRequests": "Không có yêu cầu rút môn học",
+      "loadStudentFailed": "Không thể tải yêu cầu rút môn học của sinh viên"
     }
   },
   "myCourses": {
@@ -1135,7 +1137,14 @@
     "useAdminDashboard": "Vui lòng sử dụng bảng quản trị để quản lý môn học.",
     "goToAdmin": "Đi đến Bảng quản trị",
     "unknownRole": "Vai trò không xác định",
-    "roleNoView": "Vai trò của bạn ({role}) không có chế độ xem khóa học."
+    "roleNoView": "Vai trò của bạn ({role}) không có chế độ xem khóa học.",
+    "studentSubtitle": "Xem các môn đã đăng ký và theo dõi tiến độ học tập của bạn.",
+    "studentEmptyDesc": "Bạn chưa đăng ký môn học nào. Hãy xem danh sách môn học và đăng ký để bắt đầu hành trình học tập.",
+    "browseAvailableCourses": "Xem các môn học hiện có",
+    "gpaLabel": "GPA (4.0)",
+    "passedLabel": "Đậu",
+    "inProgressLabel": "Đang học",
+    "finalGradeLabel": "Điểm cuối kỳ"
   },
   "studentDashboard": {
     "title": "Bảng điều khiển sinh viên",
@@ -1215,6 +1224,49 @@
     "upcoming": "Sắp tới",
     "completed": "Hoàn thành"
   },
+  "lecturerCourseDetail": {
+    "notFoundTitle": "Không tìm thấy môn học",
+    "notFoundDescription": "Không tìm thấy môn học hoặc bạn không được phân công giảng dạy môn này.",
+    "backToMyCourses": "Quay lại Môn học của tôi",
+    "enrolledStudents": "Sinh viên đã đăng ký",
+    "capacity": "Sĩ số",
+    "meetingCardTitle": "Liên kết và buổi học trực tuyến",
+    "meetingCardDescription": "Thiết lập hoặc cập nhật đường dẫn họp và chế độ học cho lớp online/kết hợp. Sinh viên sẽ thấy nút \"Tham gia buổi học\" khi đã được cấu hình.",
+    "modeShortLabel": "Chế độ:",
+    "locationShortLabel": "Địa điểm:",
+    "meetingUrlShortLabel": "Đường dẫn họp:",
+    "meetingUrlNotSet": "Chưa thiết lập",
+    "editButton": "Chỉnh sửa",
+    "modeFieldLabel": "Chế độ",
+    "locationFieldLabel": "Địa điểm (tùy chọn)",
+    "locationPlaceholder": "Phòng A101",
+    "meetingUrlFieldLabel": "Đường dẫn họp (cho lớp online/kết hợp)",
+    "meetingUrlPlaceholder": "https://meet.google.com/xxx-xxxx-xxx",
+    "saveButton": "Lưu",
+    "savingLabel": "Đang lưu…",
+    "cancelButton": "Hủy",
+    "updateSuccess": "Đã cập nhật liên kết và thông tin buổi học.",
+    "updateError": "Cập nhật thất bại. Vui lòng thử lại.",
+    "gradeDistributionTitle": "Phân bố điểm",
+    "gradeDistributionDescription": "Tổng quan điểm cuối kỳ theo thang chữ",
+    "gradeDistributionTotalLabel": "Sinh viên",
+    "studentsTableTitle": "Sinh viên",
+    "studentsTableDescription": "Họ tên, mã số sinh viên và điểm của môn học này",
+    "studentsTableEmpty": "Chưa có sinh viên đăng ký.",
+    "studentsTableName": "Họ tên",
+    "studentsTableStudentId": "Mã sinh viên",
+    "studentsTableFinal": "Điểm cuối kỳ",
+    "examScheduleTitle": "Lịch kiểm tra/thi",
+    "examScheduleDescription": "Ngày giờ kiểm tra/thi của môn học này",
+    "examScheduleEmpty": "Chưa có lịch kiểm tra/thi cho môn học này.",
+    "documentsTitle": "Tài liệu",
+    "documentsDescription": "Tải lên và quản lý tài liệu môn học cho sinh viên",
+    "uploadDropzoneAria": "Khu vực kéo thả tệp",
+    "uploadDropzoneText": "Kéo và thả tệp vào đây, hoặc",
+    "uploadBrowseButton": "Chọn tệp",
+    "documentsLoading": "Đang tải tài liệu…",
+    "documentsEmpty": "Chưa có tài liệu nào được tải lên."
+  },
   "notifications": {
     "title": "Thông báo",
     "subtitle": "Thông báo gần đây của bạn",
@@ -1232,6 +1284,27 @@
     "failedDeleteAll": "Không thể xóa thông báo",
     "signInRequired": "Vui lòng đăng nhập với tư cách sinh viên hoặc giảng viên để xem thông báo.",
     "deleteSrOnly": "Xóa thông báo"
+  },
+  "withdrawalRequest": {
+    "formTitle": "Yêu cầu rút môn học",
+    "formSubtitle": "Gửi yêu cầu rút khỏi môn học này. Phòng đào tạo sẽ xem xét và phê duyệt yêu cầu của bạn.",
+    "courseLabel": "Môn học",
+    "reasonLabel": "Lý do rút môn",
+    "reasonRequired": "Vui lòng chọn lý do rút môn.",
+    "reasonOptions": {
+      "schedule": "Trùng lịch học",
+      "workload": "Khối lượng học tập quá nặng",
+      "health": "Sức khỏe hoặc tinh thần",
+      "personal": "Hoàn cảnh cá nhân hoặc gia đình",
+      "other": "Khác"
+    },
+    "detailsLabel": "Chi tiết bổ sung (không bắt buộc)",
+    "detailsPlaceholder": "Hãy cung cấp thêm thông tin để phòng đào tạo dễ dàng xem xét yêu cầu của bạn.",
+    "submitButton": "Gửi yêu cầu rút môn",
+    "submitting": "Đang gửi...",
+    "successTitle": "Đã gửi yêu cầu rút môn",
+    "successDescription": "Yêu cầu rút môn của bạn đã được gửi. Bạn sẽ nhận được thông báo khi phòng đào tạo phê duyệt hoặc từ chối yêu cầu.",
+    "backToMyCourses": "Quay lại Môn học của tôi"
   },
   "privacy": {
     "title": "Chính sách bảo mật",

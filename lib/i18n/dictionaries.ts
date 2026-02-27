@@ -889,6 +889,8 @@ export type Dictionary = {
       loadLecturerFailed: string;
       loadProfileFailed: string;
       studentNotConfigured: string;
+      noStudentRequests: string;
+      loadStudentFailed: string;
     };
   };
   myCourses: {
@@ -900,6 +902,13 @@ export type Dictionary = {
     goToAdmin: string;
     unknownRole: string;
     roleNoView: string;
+    studentSubtitle: string;
+    studentEmptyDesc: string;
+    browseAvailableCourses: string;
+    gpaLabel: string;
+    passedLabel: string;
+    inProgressLabel: string;
+    finalGradeLabel: string;
   };
   studentDashboard: {
     title: string;
@@ -979,6 +988,49 @@ export type Dictionary = {
     upcoming: string;
     completed: string;
   };
+  lecturerCourseDetail: {
+    notFoundTitle: string;
+    notFoundDescription: string;
+    backToMyCourses: string;
+    enrolledStudents: string;
+    capacity: string;
+    meetingCardTitle: string;
+    meetingCardDescription: string;
+    modeShortLabel: string;
+    locationShortLabel: string;
+    meetingUrlShortLabel: string;
+    meetingUrlNotSet: string;
+    editButton: string;
+    modeFieldLabel: string;
+    locationFieldLabel: string;
+    locationPlaceholder: string;
+    meetingUrlFieldLabel: string;
+    meetingUrlPlaceholder: string;
+    saveButton: string;
+    savingLabel: string;
+    cancelButton: string;
+    updateSuccess: string;
+    updateError: string;
+    gradeDistributionTitle: string;
+    gradeDistributionDescription: string;
+    gradeDistributionTotalLabel: string;
+    studentsTableTitle: string;
+    studentsTableDescription: string;
+    studentsTableEmpty: string;
+    studentsTableName: string;
+    studentsTableStudentId: string;
+    studentsTableFinal: string;
+    examScheduleTitle: string;
+    examScheduleDescription: string;
+    examScheduleEmpty: string;
+    documentsTitle: string;
+    documentsDescription: string;
+    uploadDropzoneAria: string;
+    uploadDropzoneText: string;
+    uploadBrowseButton: string;
+    documentsLoading: string;
+    documentsEmpty: string;
+  };
   notifications: {
     title: string;
     subtitle: string;
@@ -996,6 +1048,27 @@ export type Dictionary = {
     failedDeleteAll: string;
     signInRequired: string;
     deleteSrOnly: string;
+  };
+  withdrawalRequest: {
+    formTitle: string;
+    formSubtitle: string;
+    courseLabel: string;
+    reasonLabel: string;
+    reasonRequired: string;
+    reasonOptions: {
+      schedule: string;
+      workload: string;
+      health: string;
+      personal: string;
+      other: string;
+    };
+    detailsLabel: string;
+    detailsPlaceholder: string;
+    submitButton: string;
+    submitting: string;
+    successTitle: string;
+    successDescription: string;
+    backToMyCourses: string;
   };
   privacy: {
     title: string;

@@ -1128,7 +1128,9 @@
       "profileRejectedFailed": "Failed to reject",
       "loadLecturerFailed": "Failed to load lecturer requests",
       "loadProfileFailed": "Failed to load profile update requests",
-      "studentNotConfigured": "Student request categories are not configured yet."
+      "studentNotConfigured": "Student request categories are not configured yet.",
+      "noStudentRequests": "No student withdrawal requests",
+      "loadStudentFailed": "Failed to load student withdrawal requests"
     }
   },
   "myCourses": {
@@ -1139,7 +1141,14 @@
     "useAdminDashboard": "Please use the admin dashboard to manage courses.",
     "goToAdmin": "Go to Admin Dashboard",
     "unknownRole": "Unknown Role",
-    "roleNoView": "Your role ({role}) does not have a courses view."
+    "roleNoView": "Your role ({role}) does not have a courses view.",
+    "studentSubtitle": "View your enrolled courses and track your progress",
+    "studentEmptyDesc": "You haven't enrolled in any courses yet. Browse available courses and enroll to start your learning journey.",
+    "browseAvailableCourses": "Browse Available Courses",
+    "gpaLabel": "GPA (4.0)",
+    "passedLabel": "Passed",
+    "inProgressLabel": "In Progress",
+    "finalGradeLabel": "Final Grade"
   },
   "studentDashboard": {
     "title": "Student Dashboard",
@@ -1219,6 +1228,49 @@
     "upcoming": "Upcoming",
     "completed": "Completed"
   },
+  "lecturerCourseDetail": {
+    "notFoundTitle": "Course not found",
+    "notFoundDescription": "Course not found or you are not assigned to teach it.",
+    "backToMyCourses": "Back to My Courses",
+    "enrolledStudents": "Enrolled students",
+    "capacity": "Capacity",
+    "meetingCardTitle": "Meeting link & session",
+    "meetingCardDescription": "Set or update the meeting URL and mode for online/hybrid classes. Students will see a \"Join meeting\" button when set.",
+    "modeShortLabel": "Mode:",
+    "locationShortLabel": "Location:",
+    "meetingUrlShortLabel": "Meeting URL:",
+    "meetingUrlNotSet": "Not set",
+    "editButton": "Edit",
+    "modeFieldLabel": "Mode",
+    "locationFieldLabel": "Location (optional)",
+    "locationPlaceholder": "Room A101",
+    "meetingUrlFieldLabel": "Meeting URL (for online/hybrid)",
+    "meetingUrlPlaceholder": "https://meet.google.com/xxx-xxxx-xxx",
+    "saveButton": "Save",
+    "savingLabel": "Saving…",
+    "cancelButton": "Cancel",
+    "updateSuccess": "Meeting link and session details updated.",
+    "updateError": "Failed to update. Please try again.",
+    "gradeDistributionTitle": "Grade distribution",
+    "gradeDistributionDescription": "Final grade breakdown (by letter band)",
+    "gradeDistributionTotalLabel": "Students",
+    "studentsTableTitle": "Students",
+    "studentsTableDescription": "Name, student ID, and grades for this course",
+    "studentsTableEmpty": "No students enrolled yet.",
+    "studentsTableName": "Name",
+    "studentsTableStudentId": "Student ID",
+    "studentsTableFinal": "Final",
+    "examScheduleTitle": "Exam schedule",
+    "examScheduleDescription": "Test/exam dates and times for this course",
+    "examScheduleEmpty": "No exam schedule set for this course.",
+    "documentsTitle": "Documents",
+    "documentsDescription": "Upload and manage course materials for students",
+    "uploadDropzoneAria": "File upload drop zone",
+    "uploadDropzoneText": "Drag and drop a file here, or",
+    "uploadBrowseButton": "Browse file",
+    "documentsLoading": "Loading documents…",
+    "documentsEmpty": "No documents uploaded yet."
+  },
   "notifications": {
     "title": "Notifications",
     "subtitle": "Your recent notifications",
@@ -1236,6 +1288,27 @@
     "failedDeleteAll": "Failed to delete notifications",
     "signInRequired": "Please sign in as a student or lecturer to view notifications.",
     "deleteSrOnly": "Delete notification"
+  },
+  "withdrawalRequest": {
+    "formTitle": "Course Withdrawal Request",
+    "formSubtitle": "Submit a request to withdraw from this course. Your request will be reviewed by the administration.",
+    "courseLabel": "Course",
+    "reasonLabel": "Reason for withdrawal",
+    "reasonRequired": "Please select a reason for your withdrawal.",
+    "reasonOptions": {
+      "schedule": "Schedule conflict",
+      "workload": "Course workload is too heavy",
+      "health": "Health or personal wellbeing",
+      "personal": "Personal or family circumstances",
+      "other": "Other"
+    },
+    "detailsLabel": "Additional details (optional)",
+    "detailsPlaceholder": "Provide any details that may help the administration review your request.",
+    "submitButton": "Submit withdrawal request",
+    "submitting": "Submitting...",
+    "successTitle": "Withdrawal request submitted",
+    "successDescription": "Your request to withdraw from this course has been submitted. You will receive a notification once the administration approves or declines the request.",
+    "backToMyCourses": "Back to My Courses"
   },
   "privacy": {
     "title": "Privacy Policy",
