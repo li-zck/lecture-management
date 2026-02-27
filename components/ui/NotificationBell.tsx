@@ -71,6 +71,7 @@ function NotificationItem({
   onDelete,
   isDeleting,
 }: NotificationItemProps) {
+  const [expanded, setExpanded] = useState(false);
   const timeAgo = formatDistanceToNow(new Date(notification.createdAt), {
     addSuffix: true,
   });
@@ -96,10 +97,30 @@ function NotificationItem({
           >
             {notification.title}
           </p>
-          <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
+          <p
+            className={cn(
+              "text-xs text-muted-foreground mt-0.5",
+              expanded ? "whitespace-pre-line" : "line-clamp-2",
+            )}
+          >
             {notification.message}
           </p>
-          <p className="text-xs text-muted-foreground/70 mt-1">{timeAgo}</p>
+          <div className="mt-1 flex items-center justify-between gap-2">
+            <p className="text-xs text-muted-foreground/70">{timeAgo}</p>
+            {notification.message.length > 120 && (
+              <button
+                type="button"
+                className="text-[11px] text-primary hover:underline"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setExpanded((prev) => !prev);
+                }}
+              >
+                {expanded ? "Collapse" : "Expand"}
+              </button>
+            )}
+          </div>
         </div>
         <Button
           variant="ghost"
@@ -118,15 +139,6 @@ function NotificationItem({
       </div>
     </div>
   );
-
-  if (notification.url) {
-    return (
-      <Link href={notification.url} className="block">
-        {content}
-      </Link>
-    );
-  }
-
   return content;
 }
 
