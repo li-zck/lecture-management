@@ -1180,7 +1180,9 @@
     "confirmWithdrawTitle": "Rút môn học?",
     "confirmWithdrawBody": "Bạn có chắc chắn muốn rút môn học này không? Thao tác này không thể hoàn tác.",
     "withdrawSuccess": "Đã rút môn học thành công.",
-    "withdrawFailed": "Rút môn học thất bại."
+    "withdrawFailed": "Rút môn học thất bại.",
+    "downloadDocument": "Tải tài liệu",
+    "downloadFailed": "Tải tài liệu thất bại."
   },
   "lecturerDashboard": {
     "title": "Bảng điều khiển giảng viên",

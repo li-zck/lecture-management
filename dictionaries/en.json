@@ -1184,7 +1184,9 @@
     "confirmWithdrawTitle": "Withdraw from course?",
     "confirmWithdrawBody": "Are you sure you want to withdraw from this course? This action cannot be undone.",
     "withdrawSuccess": "Successfully withdrawn from the course.",
-    "withdrawFailed": "Failed to withdraw from course."
+    "withdrawFailed": "Failed to withdraw from course.",
+    "downloadDocument": "Download",
+    "downloadFailed": "Failed to download document."
   },
   "lecturerDashboard": {
     "title": "Lecturer Dashboard",

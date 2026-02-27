@@ -945,6 +945,8 @@ export type Dictionary = {
     confirmWithdrawBody: string;
     withdrawSuccess: string;
     withdrawFailed: string;
+    downloadDocument: string;
+    downloadFailed: string;
   };
   lecturerDashboard: {
     title: string;
