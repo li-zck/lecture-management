@@ -4,9 +4,9 @@ import { Button } from "./shadcn/button";
 
 interface PageHeaderProps {
   title: string;
-  description?: string; // Optional description
-  action?: React.ReactNode; // Optional action button (e.g., "Create New")
-  backUrl?: string; // Optional back button URL
+  description?: string; // optional description
+  action?: React.ReactNode; // optional action button (e.g., "Create New")
+  backUrl?: string; // optional back button URL
 }
 
 export function PageHeader({
@@ -27,7 +27,7 @@ export function PageHeader({
               className="h-8 w-8 shrink-0 sm:mr-2"
               aria-label="Go back"
             >
-              <Link href={backUrl}>
+              <Link href={backUrl ?? "/"}>
                 <ArrowLeft className="h-4 w-4" />
               </Link>
             </Button>

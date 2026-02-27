@@ -39,7 +39,7 @@ import {
   type StudentProgress,
   type WeeklySchedule,
 } from "@/lib/api/student";
-import { getClientDictionary, useLocale } from "@/lib/i18n";
+import { getClientDictionary, useLocale, useLocalePath } from "@/lib/i18n";
 import { GRADE_TYPE_OPTIONS } from "@/lib/utils/grade-labels";
 import { enrollmentsToWeeklySchedule } from "@/lib/utils/schedule";
 import { useCallback, useEffect, useState } from "react";
@@ -56,6 +56,7 @@ function formatTime(minutes: number | null): string {
 export function StudentDashboard() {
   const { user } = useSession();
   const locale = useLocale();
+  const localePath = useLocalePath();
   const dict = getClientDictionary(locale);
   const sd = dict.studentDashboard;
   const [profile, setProfile] = useState<StudentProfile | null>(null);
@@ -79,9 +80,6 @@ export function StudentDashboard() {
   const [pendingEnrollCourse, setPendingEnrollCourse] = useState<string | null>(
     null,
   );
-  const [pendingWithdrawEnrollment, setPendingWithdrawEnrollment] = useState<
-    string | null
-  >(null);
 
   const [progress, setProgress] = useState<StudentProgress | null>(null);
   const [scheduleView, setScheduleView] = useState<"weekly" | "calendar">(
@@ -175,30 +173,11 @@ export function StudentDashboard() {
     }
   };
 
-  const confirmWithdraw = (enrollmentId: string) => {
-    setPendingWithdrawEnrollment(enrollmentId);
-  };
-
-  const handleWithdraw = async (enrollmentId: string) => {
-    try {
-      await studentApi.withdrawCourse(enrollmentId);
-      toast.success(sd.withdrawSuccess, { position: "top-center" });
-      const [enrollmentsData, progressData] = await Promise.all([
-        studentApi.getEnrollments(),
-        studentApi.getProgress(),
-      ]);
-      setCourses(enrollmentsData);
-      setGrades(studentApi.getGradesFromEnrollments(enrollmentsData));
-      setSchedule(enrollmentsToWeeklySchedule(enrollmentsData));
-      setProgress(progressData);
-    } catch (err: unknown) {
-      const msg =
-        err && typeof err === "object" && "response" in err
-          ? (err as { response?: { data?: { message?: string } } }).response
-              ?.data?.message
-          : sd.withdrawFailed;
-      toast.error(msg || sd.withdrawFailed, { position: "top-center" });
-    }
+  const confirmWithdraw = (courseOnSemesterId: string) => {
+    // Navigate to withdrawal request form page
+    window.location.href = localePath(
+      `my-courses/withdrawal/${courseOnSemesterId}`,
+    );
   };
 
   const handleViewDocuments = async (
@@ -269,39 +248,6 @@ export function StudentDashboard() {
               }}
             >
               {dict.courses.enrollInCourse}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      <AlertDialog
-        open={pendingWithdrawEnrollment !== null}
-        onOpenChange={(open) => {
-          if (!open) setPendingWithdrawEnrollment(null);
-        }}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{sd.confirmWithdrawTitle}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {sd.confirmWithdrawBody}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel
-              onClick={() => setPendingWithdrawEnrollment(null)}
-            >
-              {dict.common.cancel}
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={async () => {
-                if (!pendingWithdrawEnrollment) return;
-                const id = pendingWithdrawEnrollment;
-                setPendingWithdrawEnrollment(null);
-                await handleWithdraw(id);
-              }}
-            >
-              {sd.withdraw}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -534,7 +480,7 @@ export function StudentDashboard() {
                           variant="destructive"
                           size="sm"
                           onClick={() =>
-                            confirmWithdraw(enrollment.enrollmentId)
+                            confirmWithdraw(enrollment.courseOnSemesterId)
                           }
                         >
                           {sd.withdraw}

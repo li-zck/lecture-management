@@ -1,6 +1,7 @@
 "use client";
 
 import { type EnrolledCourse, studentApi } from "@/lib/api/student";
+import { getClientDictionary, useLocale, useLocalePath } from "@/lib/i18n";
 import {
   getGradeTypeLabelWithWeight,
   GRADE_TYPE_OPTIONS,
@@ -143,6 +144,10 @@ function computeGPA(
 }
 
 export function StudentCourses() {
+  const locale = useLocale();
+  const localePath = useLocalePath();
+  const dict = getClientDictionary(locale);
+
   const [courses, setCourses] = useState<EnrolledCourse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -202,7 +207,9 @@ export function StudentCourses() {
     return (
       <div className="min-h-screen bg-background px-4 py-8 sm:px-6 sm:py-12">
         <div className="container mx-auto max-w-5xl text-center">
-          <h1 className="text-2xl font-bold mb-4">Error</h1>
+          <h1 className="text-2xl font-bold mb-4">
+            {dict.common.error ?? "Error"}
+          </h1>
           <p className="text-muted-foreground">{error}</p>
         </div>
       </div>
@@ -217,9 +224,11 @@ export function StudentCourses() {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
             <BookOpen className="w-8 h-8 text-primary" />
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold mb-3">My Courses</h1>
+          <h1 className="text-3xl md:text-4xl font-bold mb-3">
+            {dict.nav.myCourses}
+          </h1>
           <p className="text-muted-foreground text-lg">
-            View your enrolled courses and track your progress
+            {dict.myCourses.studentSubtitle}
           </p>
         </div>
 
@@ -229,13 +238,16 @@ export function StudentCourses() {
               <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-muted mb-6">
                 <GraduationCap className="w-10 h-10 text-muted-foreground" />
               </div>
-              <h2 className="text-2xl font-bold mb-3">No Enrolled Courses</h2>
+              <h2 className="text-2xl font-bold mb-3">
+                {dict.studentDashboard.noEnrolledCourses}
+              </h2>
               <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                You haven't enrolled in any courses yet. Browse available
-                courses and enroll to start your learning journey.
+                {dict.myCourses.studentEmptyDesc}
               </p>
-              <Link href="/courses">
-                <Button size="lg">Browse Available Courses</Button>
+              <Link href={localePath("courses")}>
+                <Button size="lg">
+                  {dict.myCourses.browseAvailableCourses}
+                </Button>
               </Link>
             </CardContent>
           </Card>
@@ -248,7 +260,9 @@ export function StudentCourses() {
                   <p className="text-3xl font-bold text-primary">
                     {courses.length}
                   </p>
-                  <p className="text-sm text-muted-foreground">Total Courses</p>
+                  <p className="text-sm text-muted-foreground">
+                    {dict.myCoursesList.totalCourses}
+                  </p>
                 </CardContent>
               </Card>
               <Card className="border-border/50">
@@ -259,7 +273,9 @@ export function StudentCourses() {
                       0,
                     )}
                   </p>
-                  <p className="text-sm text-muted-foreground">Total Credits</p>
+                  <p className="text-sm text-muted-foreground">
+                    {dict.myCoursesList.totalCredits}
+                  </p>
                 </CardContent>
               </Card>
               <Card className="border-border/50">
@@ -267,7 +283,9 @@ export function StudentCourses() {
                   <p className="text-3xl font-bold text-primary">
                     {gpaResult ? gpaResult.gpa.toFixed(2) : "-"}
                   </p>
-                  <p className="text-sm text-muted-foreground">GPA (4.0)</p>
+                  <p className="text-sm text-muted-foreground">
+                    {dict.myCourses.gpaLabel}
+                  </p>
                 </CardContent>
               </Card>
               <Card className="border-border/50">
@@ -281,7 +299,9 @@ export function StudentCourses() {
                       ).length
                     }
                   </p>
-                  <p className="text-sm text-muted-foreground">Passed</p>
+                  <p className="text-sm text-muted-foreground">
+                    {dict.myCourses.passedLabel}
+                  </p>
                 </CardContent>
               </Card>
               <Card className="border-border/50">
@@ -289,7 +309,9 @@ export function StudentCourses() {
                   <p className="text-3xl font-bold text-amber-600">
                     {courses.filter((c) => c.grades.finalGrade === null).length}
                   </p>
-                  <p className="text-sm text-muted-foreground">In Progress</p>
+                  <p className="text-sm text-muted-foreground">
+                    {dict.myCourses.inProgressLabel}
+                  </p>
                 </CardContent>
               </Card>
             </div>
@@ -299,12 +321,18 @@ export function StudentCourses() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="pl-4">Course Name</TableHead>
-                    <TableHead className="text-center w-24">Credits</TableHead>
-                    <TableHead className="text-center w-32">
-                      Final Grade
+                    <TableHead className="pl-4">
+                      {dict.courses.tableCourse}
                     </TableHead>
-                    <TableHead className="text-center w-28">Status</TableHead>
+                    <TableHead className="text-center w-24">
+                      {dict.common.credits}
+                    </TableHead>
+                    <TableHead className="text-center w-32">
+                      {dict.myCourses.finalGradeLabel}
+                    </TableHead>
+                    <TableHead className="text-center w-28">
+                      {dict.myCoursesList.status}
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -400,7 +428,9 @@ export function StudentCourses() {
               <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
                 <Calendar className="w-5 h-5 text-muted-foreground shrink-0" />
                 <div>
-                  <p className="text-xs text-muted-foreground">Schedule</p>
+                  <p className="text-xs text-muted-foreground">
+                    {dict.common.schedule}
+                  </p>
                   <p className="font-medium">
                     {selectedCourse?.schedule.dayOfWeek !== null &&
                     selectedCourse?.schedule.dayOfWeek !== undefined
@@ -413,7 +443,9 @@ export function StudentCourses() {
               <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
                 <MapPin className="w-5 h-5 text-muted-foreground shrink-0" />
                 <div>
-                  <p className="text-xs text-muted-foreground">Location</p>
+                  <p className="text-xs text-muted-foreground">
+                    {dict.common.location}
+                  </p>
                   <p className="font-medium">
                     {selectedCourse?.schedule.location || "TBA"}
                   </p>
@@ -423,7 +455,9 @@ export function StudentCourses() {
               <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
                 <User className="w-5 h-5 text-muted-foreground shrink-0" />
                 <div>
-                  <p className="text-xs text-muted-foreground">Lecturer</p>
+                  <p className="text-xs text-muted-foreground">
+                    {dict.common.lecturer}
+                  </p>
                   <p className="font-medium">
                     {selectedCourse?.lecturer?.fullName || "TBA"}
                   </p>
@@ -433,7 +467,9 @@ export function StudentCourses() {
               <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
                 <GraduationCap className="w-5 h-5 text-muted-foreground shrink-0" />
                 <div>
-                  <p className="text-xs text-muted-foreground">Credits</p>
+                  <p className="text-xs text-muted-foreground">
+                    {dict.common.credits}
+                  </p>
                   <p className="font-medium">
                     {selectedCourse?.course?.credits ?? 0}
                   </p>
@@ -444,7 +480,9 @@ export function StudentCourses() {
             {/* Progress Bar */}
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Course Progress</span>
+                <span className="text-muted-foreground">
+                  {dict.studentDashboard.progress}
+                </span>
                 <span className="font-medium">
                   {selectedCourse
                     ? calculateProgress(selectedCourse.grades).toFixed(0)
@@ -464,7 +502,9 @@ export function StudentCourses() {
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <TrendingUp className="w-4 h-4 text-muted-foreground" />
-                <p className="text-sm font-medium">Grade Breakdown</p>
+                <p className="text-sm font-medium">
+                  {dict.myCourses.finalGradeLabel}
+                </p>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 {GRADE_TYPE_OPTIONS.map((opt) => (
@@ -482,7 +522,7 @@ export function StudentCourses() {
                 ))}
                 <div className="text-center p-3 bg-primary/10 rounded-lg border border-primary/20">
                   <p className="text-xs text-muted-foreground mb-1">
-                    Final Grade
+                    {dict.myCourses.finalGradeLabel}
                   </p>
                   <p
                     className={`text-lg ${getLetterGradeColor(selectedCourse?.grades.finalGrade ?? null)}`}
@@ -501,7 +541,9 @@ export function StudentCourses() {
 
             {/* Status Badge */}
             <div className="flex items-center justify-between pt-2 border-t">
-              <span className="text-sm text-muted-foreground">Status</span>
+              <span className="text-sm text-muted-foreground">
+                {dict.myCoursesList.status}
+              </span>
               <Badge
                 variant={
                   getGradeStatus(selectedCourse?.grades.finalGrade ?? null)

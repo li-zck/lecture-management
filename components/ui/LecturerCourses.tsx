@@ -1,6 +1,7 @@
 "use client";
 
 import { lecturerApi, type AssignedCourse } from "@/lib/api/lecturer";
+import { getClientDictionary, useLocale } from "@/lib/i18n";
 import {
   BookOpen,
   Calendar,
@@ -45,6 +46,9 @@ function getSemesterStatus(
 }
 
 export function LecturerCourses() {
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
+
   const [courses, setCourses] = useState<AssignedCourse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -81,7 +85,9 @@ export function LecturerCourses() {
     return (
       <div className="min-h-screen bg-background px-4 py-8 sm:px-6 sm:py-12">
         <div className="container mx-auto max-w-5xl text-center">
-          <h1 className="text-2xl font-bold mb-4">Error</h1>
+          <h1 className="text-2xl font-bold mb-4">
+            {dict.common.error ?? "Error"}
+          </h1>
           <p className="text-muted-foreground">{error}</p>
         </div>
       </div>
@@ -117,9 +123,11 @@ export function LecturerCourses() {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
             <BookOpen className="w-8 h-8 text-primary" />
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold mb-3">My Courses</h1>
+          <h1 className="text-3xl md:text-4xl font-bold mb-3">
+            {dict.myCoursesList.title}
+          </h1>
           <p className="text-muted-foreground text-lg">
-            Courses you are currently teaching
+            {dict.myCoursesList.subtitle}
           </p>
         </div>
 
@@ -129,10 +137,11 @@ export function LecturerCourses() {
               <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-muted mb-6">
                 <GraduationCap className="w-10 h-10 text-muted-foreground" />
               </div>
-              <h2 className="text-2xl font-bold mb-3">No Assigned Courses</h2>
+              <h2 className="text-2xl font-bold mb-3">
+                {dict.myCoursesList.noAssignedCourses}
+              </h2>
               <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                You are not currently assigned to teach any courses. Contact the
-                administration if you believe this is an error.
+                {dict.myCoursesList.noAssignedDesc}
               </p>
             </CardContent>
           </Card>
@@ -145,7 +154,9 @@ export function LecturerCourses() {
                   <p className="text-3xl font-bold text-primary">
                     {courses.length}
                   </p>
-                  <p className="text-sm text-muted-foreground">Total Courses</p>
+                  <p className="text-sm text-muted-foreground">
+                    {dict.myCoursesList.totalCourses}
+                  </p>
                 </CardContent>
               </Card>
               <Card className="border-border/50">
@@ -154,7 +165,7 @@ export function LecturerCourses() {
                     {totalStudents}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    Total Students
+                    {dict.myCoursesList.totalStudents}
                   </p>
                 </CardContent>
               </Card>
@@ -163,7 +174,9 @@ export function LecturerCourses() {
                   <p className="text-3xl font-bold text-primary">
                     {Object.keys(coursesBySemester).length}
                   </p>
-                  <p className="text-sm text-muted-foreground">Semesters</p>
+                  <p className="text-sm text-muted-foreground">
+                    {dict.myCoursesList.semesters}
+                  </p>
                 </CardContent>
               </Card>
               <Card className="border-border/50">
@@ -171,7 +184,9 @@ export function LecturerCourses() {
                   <p className="text-3xl font-bold text-primary">
                     {courses.reduce((sum, c) => sum + c.course.credits, 0)}
                   </p>
-                  <p className="text-sm text-muted-foreground">Total Credits</p>
+                  <p className="text-sm text-muted-foreground">
+                    {dict.myCoursesList.totalCredits}
+                  </p>
                 </CardContent>
               </Card>
             </div>
@@ -210,7 +225,8 @@ export function LecturerCourses() {
                                   </CardTitle>
                                   <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
                                     <Badge variant="outline">
-                                      {course.course.credits} Credits
+                                      {course.course.credits}{" "}
+                                      {dict.myCoursesList.credits}
                                     </Badge>
                                     {course.course.department && (
                                       <>
@@ -227,7 +243,7 @@ export function LecturerCourses() {
                                     {course.capacity && ` / ${course.capacity}`}
                                   </span>
                                   <span className="text-sm text-muted-foreground">
-                                    students
+                                    {dict.myCoursesList.students}
                                   </span>
                                 </div>
                               </div>
@@ -238,7 +254,7 @@ export function LecturerCourses() {
                                   <Clock className="w-5 h-5 text-muted-foreground" />
                                   <div>
                                     <p className="text-xs text-muted-foreground">
-                                      Schedule
+                                      {dict.common.schedule}
                                     </p>
                                     <p className="font-medium">
                                       {course.schedule.dayOfWeek !== null
@@ -253,6 +269,7 @@ export function LecturerCourses() {
                                   <Calendar className="w-5 h-5 text-muted-foreground" />
                                   <div>
                                     <p className="text-xs text-muted-foreground">
+                                      {/* No dedicated label; keep simple */}
                                       Time
                                     </p>
                                     <p className="font-medium">
@@ -266,7 +283,7 @@ export function LecturerCourses() {
                                   <MapPin className="w-5 h-5 text-muted-foreground" />
                                   <div>
                                     <p className="text-xs text-muted-foreground">
-                                      Location
+                                      {dict.common.location}
                                     </p>
                                     <p className="font-medium">
                                       {course.schedule.location || "TBA"}
