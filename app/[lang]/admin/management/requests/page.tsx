@@ -46,6 +46,15 @@ const rejectReasonSchema = z.object({
   reason: z.string().min(10, "Reason must be at least 10 characters").trim(),
 });
 
+const REQUEST_FIELD_KEYS = [
+  "fullName",
+  "phone",
+  "address",
+  "gender",
+  "birthDate",
+  "citizenId",
+] as const;
+
 function formatTime(minutes: number | null): string {
   if (minutes === null) return "TBA";
   const hours = Math.floor(minutes / 60);
@@ -584,13 +593,68 @@ export default function RequestsManagementPage() {
                         <p className="text-sm text-muted-foreground capitalize">
                           {req.role}
                         </p>
-                        <div className="text-sm text-muted-foreground mt-2">
-                          <span className="font-medium">
-                            {t.requestedChanges}{" "}
+                        <div className="text-sm text-muted-foreground mt-2 space-y-1">
+                          <span className="font-medium block">
+                            {t.requestedChanges}
                           </span>
-                          {Object.entries(req.requestedData)
-                            .map(([k, v]) => `${k}: ${String(v)}`)
-                            .join(", ")}
+                          <ul className="list-disc list-inside space-y-0.5 pl-2">
+                            {(
+                              Object.keys(req.requestedData) as Array<
+                                keyof typeof req.requestedData
+                              >
+                            )
+                              .filter(
+                                (k) =>
+                                  req.requestedData[k] !== undefined &&
+                                  req.requestedData[k] !== null,
+                              )
+                              .sort((a, b) => {
+                                const ia = REQUEST_FIELD_KEYS.indexOf(
+                                  a as (typeof REQUEST_FIELD_KEYS)[number],
+                                );
+                                const ib = REQUEST_FIELD_KEYS.indexOf(
+                                  b as (typeof REQUEST_FIELD_KEYS)[number],
+                                );
+                                if (ia >= 0 && ib >= 0) return ia - ib;
+                                if (ia >= 0) return -1;
+                                if (ib >= 0) return 1;
+                                return String(a).localeCompare(String(b));
+                              })
+                              .map((key) => {
+                                const value = req.requestedData[key];
+                                const st = dict.settings;
+                                const label =
+                                  key === "fullName"
+                                    ? st.fullName
+                                    : key === "phone"
+                                      ? st.phone
+                                      : key === "address"
+                                        ? st.address
+                                        : key === "gender"
+                                          ? st.gender
+                                          : key === "birthDate"
+                                            ? st.birthDate
+                                            : key === "citizenId"
+                                              ? st.citizenId
+                                              : key;
+                                const displayValue =
+                                  key === "gender"
+                                    ? value === "male"
+                                      ? st.genderMale
+                                      : value === "female"
+                                        ? st.genderFemale
+                                        : String(value)
+                                    : String(value);
+                                return (
+                                  <li key={key}>
+                                    <span className="font-medium">
+                                      {label}:
+                                    </span>{" "}
+                                    {displayValue}
+                                  </li>
+                                );
+                              })}
+                          </ul>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
