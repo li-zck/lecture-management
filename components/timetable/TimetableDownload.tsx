@@ -17,21 +17,32 @@ import {
 import { FileDown, FileSpreadsheet, FileText } from "lucide-react";
 import { useState } from "react";
 
+export type ScheduleExportView = "weekly" | "monthly" | "semester";
+
 export type TimetableDownloadProps = {
   schedule: ScheduleData;
   title?: string;
   /** Include lecturer (for student timetable) */
   includeLecturer?: boolean;
+  /** Which schedule view is being exported (affects title/filename) */
+  view?: ScheduleExportView;
   /** Localized button label (default: \"Download\") */
   buttonLabel?: string;
   /** Localized loading label (default: \"Downloading…\") */
   loadingLabel?: string;
 };
 
+const VIEW_SUFFIX: Record<ScheduleExportView, string> = {
+  weekly: "Weekly",
+  monthly: "Monthly",
+  semester: "Semester",
+};
+
 export function TimetableDownload({
   schedule,
   title = "Timetable",
   includeLecturer = true,
+  view,
   buttonLabel = "Download",
   loadingLabel = "Downloading…",
 }: TimetableDownloadProps) {
@@ -39,14 +50,15 @@ export function TimetableDownload({
 
   const hasSchedule = Object.values(schedule).some((slots) => slots.length > 0);
 
-  const baseFilename = `${title.replace(/\s+/g, "-").toLowerCase()}-${new Date().toISOString().slice(0, 10)}`;
+  const exportTitle = view != null ? `${title} - ${VIEW_SUFFIX[view]}` : title;
+  const baseFilename = `${exportTitle.replace(/\s+/g, "-").toLowerCase()}-${new Date().toISOString().slice(0, 10)}`;
 
   const handlePdf = async () => {
     setLoading("pdf");
     try {
       const bytes = await exportTimetableAsPdf({
         schedule,
-        title,
+        title: exportTitle,
         includeLecturer,
       });
       downloadBlob(
@@ -59,7 +71,11 @@ export function TimetableDownload({
   };
 
   const handleTxt = () => {
-    const text = exportTimetableAsText({ schedule, title, includeLecturer });
+    const text = exportTimetableAsText({
+      schedule,
+      title: exportTitle,
+      includeLecturer,
+    });
     downloadBlob(
       new Blob([text], { type: "text/plain" }),
       `${baseFilename}.txt`,

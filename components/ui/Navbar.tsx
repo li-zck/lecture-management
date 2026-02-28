@@ -79,6 +79,7 @@ export function Navbar() {
           { href: "/dashboard", labelKey: "dashboard" as const },
           { href: "/courses", labelKey: "courses" as const },
           { href: "/my-courses", labelKey: "myCourses" as const },
+          { href: "/ai-chat", labelKey: "aiAssistant" as const },
           { href: "/posts", labelKey: "posts" as const },
         ];
 
@@ -138,7 +139,7 @@ export function Navbar() {
               </SheetTrigger>
               <SheetContent side="left" className="w-64 sm:max-w-xs">
                 <SheetTitle className="sr-only">Navigation</SheetTitle>
-                <nav className="mt-6 flex flex-col gap-2">
+                <nav className="mt-12 flex flex-col gap-2">
                   {navItems.map((item) => {
                     const href = localePath(locale, item.href);
                     return (

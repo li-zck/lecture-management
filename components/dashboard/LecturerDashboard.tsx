@@ -2,8 +2,9 @@
 
 import { useSession } from "@/components/provider/SessionProvider";
 import {
-  AITimetableGenerator,
+  ScheduleCalendar,
   ScheduleChangesList,
+  ScheduleTable,
   TimetableDownload,
   TimetableGrid,
 } from "@/components/timetable";
@@ -27,7 +28,7 @@ import {
   type LecturerSchedule,
   lecturerApi,
 } from "@/lib/api/lecturer";
-import { getClientDictionary, useLocale } from "@/lib/i18n";
+import { getClientDictionary, useLocale, useLocalePath } from "@/lib/i18n";
 import { GRADE_TYPE_OPTIONS } from "@/lib/utils/grade-labels";
 import { coursesToLecturerSchedule } from "@/lib/utils/schedule";
 import Link from "next/link";
@@ -46,6 +47,7 @@ function formatTime(minutes: number | null): string {
 export function LecturerDashboard() {
   const { user } = useSession();
   const locale = useLocale();
+  const localePath = useLocalePath();
   const dict = getClientDictionary(locale);
   const d = dict.lecturerDashboard;
   const [profile, setProfile] = useState<LecturerProfile | null>(null);
@@ -59,6 +61,8 @@ export function LecturerDashboard() {
   const [studentsLoading, setStudentsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"courses" | "schedule">("courses");
+  type ScheduleView = "weekly" | "calendar" | "monthly" | "semester";
+  const [scheduleView, setScheduleView] = useState<ScheduleView>("weekly");
   const [editingGrades, setEditingGrades] = useState<
     Record<string, CourseStudent["grades"]>
   >({});
@@ -68,11 +72,20 @@ export function LecturerDashboard() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // Sync dashboard tab with ?tab=... so it persists and can be deep-linked
+  // Sync dashboard tab and schedule view with URL so they persist and can be deep-linked
   useEffect(() => {
     const tab = searchParams.get("tab");
     if (tab === "courses" || tab === "schedule") {
       setActiveTab(tab);
+    }
+    const view = searchParams.get("view");
+    if (
+      view === "weekly" ||
+      view === "calendar" ||
+      view === "monthly" ||
+      view === "semester"
+    ) {
+      setScheduleView(view);
     }
   }, [searchParams]);
 
@@ -82,6 +95,14 @@ export function LecturerDashboard() {
     params.set("tab", tab);
     const query = params.toString();
     router.replace(query ? `${pathname}?${query}` : pathname);
+  };
+
+  const setScheduleViewWithUrl = (view: ScheduleView) => {
+    setScheduleView(view);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("tab", "schedule");
+    params.set("view", view);
+    router.replace(`${pathname}?${params.toString()}`);
   };
 
   const fetchData = useCallback(async () => {
@@ -600,49 +621,202 @@ export function LecturerDashboard() {
       {/* Schedule Tab */}
       {activeTab === "schedule" && (
         <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>{dict.home.studentFeatures[2]?.title}</CardTitle>
-              <CardDescription>
-                {dict.home.studentFeatures[2]?.description}
-              </CardDescription>
-              <CardAction>
-                <TimetableDownload
-                  schedule={schedule}
-                  title={
-                    courses[0]?.semester?.name
-                      ? `${dict.home.studentFeatures[2]?.title} - ${courses[0].semester.name}`
-                      : (dict.home.studentFeatures[2]?.title ?? "Timetable")
-                  }
-                  includeLecturer={false}
-                  buttonLabel={d.exportTimetable}
-                  loadingLabel={d.exportTimetable}
-                />
-              </CardAction>
-            </CardHeader>
-            <CardContent>
-              {Object.keys(schedule).length === 0 ? (
-                <p className="text-center text-muted-foreground py-4">
-                  {dict.myCoursesList.noAssignedCourses}
-                </p>
-              ) : (
-                <TimetableGrid
-                  schedule={schedule}
-                  dayNames={dict.daysOfWeek}
-                  modeLabels={{
-                    online: dict.common.online ?? "Online",
-                    onCampus: dict.common.onCampus ?? "On campus",
-                    hybrid: dict.common.hybrid ?? "Hybrid",
-                  }}
-                  joinMeetingLabel={
-                    dict.admin?.courseSemesters?.joinMeeting ??
-                    dict.common.joinMeeting ??
-                    "Join meeting"
-                  }
-                />
-              )}
-            </CardContent>
-          </Card>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setScheduleViewWithUrl("weekly")}
+              className={`rounded-md px-3 py-2 text-sm font-medium transition sm:px-4 ${
+                scheduleView === "weekly"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted hover:bg-muted/80"
+              }`}
+            >
+              {d.weekly}
+            </button>
+            <button
+              type="button"
+              onClick={() => setScheduleViewWithUrl("calendar")}
+              className={`rounded-md px-3 py-2 text-sm font-medium transition sm:px-4 ${
+                scheduleView === "calendar"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted hover:bg-muted/80"
+              }`}
+            >
+              {d.calendar}
+            </button>
+            <button
+              type="button"
+              onClick={() => setScheduleViewWithUrl("monthly")}
+              className={`rounded-md px-3 py-2 text-sm font-medium transition sm:px-4 ${
+                scheduleView === "monthly"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted hover:bg-muted/80"
+              }`}
+            >
+              {d.monthly}
+            </button>
+            <button
+              type="button"
+              onClick={() => setScheduleViewWithUrl("semester")}
+              className={`rounded-md px-3 py-2 text-sm font-medium transition sm:px-4 ${
+                scheduleView === "semester"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted hover:bg-muted/80"
+              }`}
+            >
+              {d.semesterView}
+            </button>
+          </div>
+
+          {scheduleView === "weekly" && (
+            <Card>
+              <CardHeader>
+                <CardTitle>{dict.home.studentFeatures[2]?.title}</CardTitle>
+                <CardDescription>
+                  {dict.home.studentFeatures[2]?.description}
+                </CardDescription>
+                <CardAction>
+                  <TimetableDownload
+                    schedule={schedule}
+                    title={
+                      courses[0]?.semester?.name
+                        ? `${dict.home.studentFeatures[2]?.title} - ${courses[0].semester.name}`
+                        : (dict.home.studentFeatures[2]?.title ?? "Timetable")
+                    }
+                    view="weekly"
+                    includeLecturer={false}
+                    buttonLabel={d.exportTimetable}
+                    loadingLabel={d.exportTimetable}
+                  />
+                </CardAction>
+              </CardHeader>
+              <CardContent>
+                {Object.keys(schedule).length === 0 ? (
+                  <p className="text-center text-muted-foreground py-4">
+                    {dict.myCoursesList.noAssignedCourses}
+                  </p>
+                ) : (
+                  <TimetableGrid
+                    schedule={schedule}
+                    dayNames={dict.daysOfWeek}
+                    modeLabels={{
+                      online: dict.common.online ?? "Online",
+                      onCampus: dict.common.onCampus ?? "On campus",
+                      hybrid: dict.common.hybrid ?? "Hybrid",
+                    }}
+                    joinMeetingLabel={
+                      dict.admin?.courseSemesters?.joinMeeting ??
+                      dict.common.joinMeeting ??
+                      "Join meeting"
+                    }
+                  />
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {(scheduleView === "calendar" || scheduleView === "monthly") && (
+            <Card>
+              <CardHeader>
+                <CardTitle>{dict.home.studentFeatures[2]?.title}</CardTitle>
+                <CardDescription>
+                  {dict.home.studentFeatures[2]?.description}
+                </CardDescription>
+                {scheduleView === "monthly" && (
+                  <CardAction>
+                    <TimetableDownload
+                      schedule={schedule}
+                      title={
+                        courses[0]?.semester?.name
+                          ? `${dict.home.studentFeatures[2]?.title} - ${courses[0].semester.name}`
+                          : (dict.home.studentFeatures[2]?.title ?? "Timetable")
+                      }
+                      view="monthly"
+                      includeLecturer={false}
+                      buttonLabel={d.exportTimetable}
+                      loadingLabel={d.exportTimetable}
+                    />
+                  </CardAction>
+                )}
+              </CardHeader>
+              <CardContent>
+                {courses[0]?.semester?.startDate &&
+                courses[0]?.semester?.endDate ? (
+                  <ScheduleCalendar
+                    schedule={schedule}
+                    exams={[]}
+                    semesterStart={courses[0].semester.startDate}
+                    semesterEnd={courses[0].semester.endDate}
+                    dayNames={dict.daysOfWeek}
+                    modeLabels={{
+                      online: dict.common.online ?? "Online",
+                      onCampus: dict.common.onCampus ?? "On campus",
+                      hybrid: dict.common.hybrid ?? "Hybrid",
+                    }}
+                    joinMeetingLabel={
+                      dict.admin?.courseSemesters?.joinMeeting ??
+                      dict.common.joinMeeting ??
+                      "Join meeting"
+                    }
+                  />
+                ) : (
+                  <p className="text-center text-muted-foreground py-4">
+                    Semester dates not available for calendar view.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {scheduleView === "semester" && (
+            <Card>
+              <CardHeader>
+                <CardTitle>{dict.home.studentFeatures[2]?.title}</CardTitle>
+                <CardDescription>
+                  {dict.home.studentFeatures[2]?.description}
+                </CardDescription>
+                <CardAction>
+                  <TimetableDownload
+                    schedule={schedule}
+                    title={
+                      courses[0]?.semester?.name
+                        ? `${dict.home.studentFeatures[2]?.title} - ${courses[0].semester.name}`
+                        : (dict.home.studentFeatures[2]?.title ?? "Timetable")
+                    }
+                    view="semester"
+                    includeLecturer={false}
+                    buttonLabel={d.exportTimetable}
+                    loadingLabel={d.exportTimetable}
+                  />
+                </CardAction>
+              </CardHeader>
+              <CardContent>
+                {Object.keys(schedule).length === 0 ? (
+                  <p className="text-center text-muted-foreground py-4">
+                    {dict.myCoursesList.noAssignedCourses}
+                  </p>
+                ) : (
+                  <ScheduleTable
+                    schedule={schedule}
+                    dayNames={dict.daysOfWeek}
+                    modeLabels={{
+                      online: dict.common.online ?? "Online",
+                      onCampus: dict.common.onCampus ?? "On campus",
+                      hybrid: dict.common.hybrid ?? "Hybrid",
+                    }}
+                    includeLecturer={false}
+                    columnLabels={dict.scheduleTable}
+                    joinMeetingLabel={
+                      dict.admin?.courseSemesters?.joinMeeting ??
+                      dict.common.joinMeeting ??
+                      "Join meeting"
+                    }
+                  />
+                )}
+              </CardContent>
+            </Card>
+          )}
+
           <ScheduleChangesList
             courseOnSemesterIds={courses.map((c) => c.courseOnSemesterId)}
             courseNames={Object.fromEntries(
@@ -650,15 +824,17 @@ export function LecturerDashboard() {
             )}
             emptyMessage="No recent schedule changes."
           />
-          <AITimetableGenerator
-            schedule={schedule}
-            userRole="lecturer"
-            context={
-              courses[0]?.semester?.name
-                ? `Semester: ${courses[0].semester.name}`
-                : undefined
-            }
-          />
+          <div className="rounded-lg border bg-muted/30 p-4">
+            <p className="text-sm text-muted-foreground mb-2">
+              {dict.aiChat?.scheduleInsights ?? "Schedule Insights"} &{" "}
+              {dict.aiChat?.scheduleOptimizer ?? "Schedule Optimizer"}
+            </p>
+            <Button variant="outline" size="sm" asChild>
+              <Link href={localePath("/ai-chat")}>
+                {dict.aiChat?.quickStart ?? "Get AI insights"} →
+              </Link>
+            </Button>
+          </div>
         </div>
       )}
     </div>

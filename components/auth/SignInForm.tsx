@@ -128,9 +128,13 @@ export function SignInForm({
                     name={fieldItem.name}
                     control={form.control}
                     render={({ field, fieldState }) => {
+                      const fieldId = `${formId}-${fieldItem.name}`;
                       return (
                         <Field data-invalid={fieldState.invalid}>
-                          <FieldLabel className="text-sm font-medium text-foreground mb-1.5">
+                          <FieldLabel
+                            htmlFor={fieldId}
+                            className="text-sm font-medium text-foreground mb-1.5"
+                          >
                             {fieldItem.label}
                           </FieldLabel>
                           <div className="relative group">
@@ -139,6 +143,7 @@ export function SignInForm({
                             </div>
                             <Input
                               {...field}
+                              id={fieldId}
                               type={fieldItem.type || "text"}
                               aria-invalid={fieldState.invalid}
                               placeholder={fieldItem.placeholder}

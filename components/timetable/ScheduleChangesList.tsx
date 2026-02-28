@@ -10,6 +10,7 @@ import {
   courseSemesterApi,
   type ScheduleChange,
 } from "@/lib/api/course-semester";
+import { getClientDictionary, useLocale } from "@/lib/i18n";
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
 
@@ -20,15 +21,27 @@ export type ScheduleChangesListProps = {
   emptyMessage?: string;
 };
 
-function formatChangeDescription(change: ScheduleChange): string {
+type ScheduleChangesListLabels = {
+  dayLabel: string;
+  timeLabel: string;
+  locationLabel: string;
+  modeLabel: string;
+  meetingLinkUpdated: string;
+  scheduleUpdated: string;
+};
+
+function formatChangeDescription(
+  change: ScheduleChange,
+  labels: ScheduleChangesListLabels,
+  dayNames: string[],
+): string {
   const parts: string[] = [];
   if (
     change.oldDayOfWeek !== change.newDayOfWeek &&
     change.newDayOfWeek != null
   ) {
-    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     parts.push(
-      `Day: ${days[change.oldDayOfWeek ?? 0]} → ${days[change.newDayOfWeek]}`,
+      `${labels.dayLabel}: ${dayNames[change.oldDayOfWeek ?? 0]} → ${dayNames[change.newDayOfWeek]}`,
     );
   }
   if (
@@ -41,32 +54,47 @@ function formatChangeDescription(change: ScheduleChange): string {
       return `${h.toString().padStart(2, "0")}:${min.toString().padStart(2, "0")}`;
     };
     parts.push(
-      `Time: ${fmt(change.oldStartTime ?? 0)}–${fmt(change.oldEndTime ?? 0)} → ${fmt(change.newStartTime)}–${fmt(change.newEndTime ?? 0)}`,
+      `${labels.timeLabel}: ${fmt(change.oldStartTime ?? 0)}–${fmt(change.oldEndTime ?? 0)} → ${fmt(change.newStartTime)}–${fmt(change.newEndTime ?? 0)}`,
     );
   }
   if (change.oldLocation !== change.newLocation && change.newLocation != null) {
     parts.push(
-      `Location: ${change.oldLocation ?? "—"} → ${change.newLocation}`,
+      `${labels.locationLabel}: ${change.oldLocation ?? "—"} → ${change.newLocation}`,
     );
   }
   if (change.oldMode !== change.newMode && change.newMode != null) {
-    parts.push(`Mode: ${change.oldMode ?? "—"} → ${change.newMode}`);
+    parts.push(
+      `${labels.modeLabel}: ${change.oldMode ?? "—"} → ${change.newMode}`,
+    );
   }
   if (
     change.oldMeetingUrl !== change.newMeetingUrl &&
     change.newMeetingUrl != null
   ) {
-    parts.push("Meeting link updated");
+    parts.push(labels.meetingLinkUpdated);
   }
-  return parts.length > 0 ? parts.join("; ") : "Schedule updated";
+  return parts.length > 0 ? parts.join("; ") : labels.scheduleUpdated;
 }
 
 export function ScheduleChangesList({
   courseOnSemesterIds,
   courseNames = {},
   limitPerCourse = 5,
-  emptyMessage = "No recent schedule changes.",
+  emptyMessage,
 }: ScheduleChangesListProps) {
+  const locale = useLocale();
+  const dict = getClientDictionary(locale);
+  const sc = dict.scheduleChangesList;
+  const dayNames = dict.daysOfWeek ?? [
+    "Sun",
+    "Mon",
+    "Tue",
+    "Wed",
+    "Thu",
+    "Fri",
+    "Sat",
+  ];
+
   const [changes, setChanges] = useState<
     Array<ScheduleChange & { courseName?: string }>
   >([]);
@@ -108,7 +136,7 @@ export function ScheduleChangesList({
     return (
       <Card>
         <CardContent className="py-6 text-center text-muted-foreground">
-          Loading...
+          {sc.loading}
         </CardContent>
       </Card>
     );
@@ -118,7 +146,7 @@ export function ScheduleChangesList({
     return (
       <Card>
         <CardContent className="py-6 text-center text-muted-foreground">
-          {emptyMessage}
+          {emptyMessage ?? sc.noChanges}
         </CardContent>
       </Card>
     );
@@ -127,10 +155,8 @@ export function ScheduleChangesList({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg">Recent schedule changes</CardTitle>
-        <p className="text-sm text-muted-foreground">
-          Updates to your course schedules
-        </p>
+        <CardTitle className="text-lg">{sc.title}</CardTitle>
+        <p className="text-sm text-muted-foreground">{sc.description}</p>
       </CardHeader>
       <CardContent>
         <ul className="space-y-3">
@@ -140,7 +166,7 @@ export function ScheduleChangesList({
                 <p className="font-medium text-foreground">{c.courseName}</p>
               )}
               <p className="text-muted-foreground mt-1">
-                {formatChangeDescription(c)}
+                {formatChangeDescription(c, sc, dayNames)}
               </p>
               <p className="text-xs text-muted-foreground mt-1">
                 {format(new Date(c.createdAt), "MMM d, yyyy HH:mm")}

@@ -100,7 +100,10 @@ export function SettingsWebhooksSection({
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Add new webhook */}
-        <form onSubmit={handleCreate} className="flex flex-col gap-2 sm:flex-row">
+        <form
+          onSubmit={handleCreate}
+          className="flex flex-col gap-2 sm:flex-row"
+        >
           <div className="flex-1 space-y-2">
             <Label htmlFor="webhook-url" className="sr-only">
               {st.webhookUrl}
@@ -110,7 +113,7 @@ export function SettingsWebhooksSection({
               <Input
                 id="webhook-url"
                 type="url"
-                placeholder="https://your-server.com/webhook"
+                placeholder={st.webhookUrlPlaceholder}
                 value={newUrl}
                 onChange={(e) => setNewUrl(e.target.value)}
                 className="pl-10"

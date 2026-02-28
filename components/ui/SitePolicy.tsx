@@ -110,16 +110,28 @@ export function SitePolicyComponent() {
       {/* CTA Section */}
       <section className="py-16 px-6 border-t border-border/50">
         <div className="container mx-auto max-w-4xl text-center space-y-6">
-          <p className="text-muted-foreground">
-            {sp.cta.text}{" "}
-            <Link
-              href={`/${locale}/support`}
-              className="text-primary hover:underline font-medium"
-            >
-              {sp.cta.supportLink}
-            </Link>{" "}
-            page.
-          </p>
+          <div className="space-y-2 text-muted-foreground text-sm">
+            <p>
+              {sp.cta.text}{" "}
+              <Link
+                href={`/${locale}/support`}
+                className="text-primary hover:underline font-medium"
+              >
+                {sp.cta.supportLink}
+              </Link>{" "}
+              page.
+            </p>
+            <p>
+              {sp.cta.otherPoliciesLabel ?? "You can also review:"}{" "}
+              <Link
+                href={`/${locale}/ai-policy`}
+                className="text-primary hover:underline font-medium"
+              >
+                {sp.cta.aiPolicyLink ?? "AI Privacy & Usage Policy"}
+              </Link>
+              .
+            </p>
+          </div>
           <Link href={`/${locale}`}>
             <Button variant="outline" size="lg">
               {dict.nav.home}

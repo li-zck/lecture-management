@@ -13,6 +13,8 @@ import {
   ClipboardList,
   FileText,
   GraduationCap,
+  HeadphonesIcon,
+  KeyRound,
   LayoutDashboard,
   ListChecks,
   Send,
@@ -86,6 +88,16 @@ export function AdminSidebar({
       title: dict.admin.sidebar.requests,
       url: localePath("admin/management/requests"),
       icon: Send,
+    },
+    {
+      title: dict.admin.sidebar.profileUnlock,
+      url: localePath("admin/management/profile-unlock"),
+      icon: KeyRound,
+    },
+    {
+      title: dict.admin.sidebar.supportRequests,
+      url: localePath("admin/management/support-requests"),
+      icon: HeadphonesIcon,
     },
     {
       title: dict.admin.sidebar.posts,

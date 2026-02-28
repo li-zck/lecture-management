@@ -1,5 +1,6 @@
 "use client";
 
+import { useSession } from "@/components/provider/SessionProvider";
 import { Button } from "@/components/ui/shadcn/button";
 import {
   Card,
@@ -18,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/shadcn/select";
 import { Textarea } from "@/components/ui/shadcn/textarea";
+import { supportRequestApi } from "@/lib/api/support-request";
 import { getClientDictionary, isLocale } from "@/lib/i18n";
 import { ArrowRight, HelpCircle, Mail, Phone, User } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
@@ -27,6 +29,7 @@ import { toast } from "sonner";
 export function SupportForm() {
   const router = useRouter();
   const params = useParams();
+  const { user } = useSession();
   const lang = (params?.lang as string) || "en";
   const locale = isLocale(lang) ? lang : "en";
   const dict = getClientDictionary(locale);
@@ -44,17 +47,29 @@ export function SupportForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    // Show success toast
-    toast.success(s.successTitle, {
-      description: s.successDescription,
-    });
-
-    // Redirect to success page
-    router.push(`/${locale}/support/success`);
+    try {
+      await supportRequestApi.create({
+        name: formData.name,
+        email: formData.email,
+        role: formData.role,
+        category: formData.category,
+        subject: formData.subject,
+        message: formData.message,
+        ...(user?.id && { userId: user.id }),
+      });
+      toast.success(s.successTitle, {
+        description: s.successDescription,
+      });
+      router.push(`/${locale}/support/success`);
+    } catch (err: unknown) {
+      const message =
+        err && typeof err === "object" && "message" in err
+          ? String((err as { message: string }).message)
+          : (s.submitRequest ?? "Failed to submit request.");
+      toast.error(message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (field: string, value: string) => {

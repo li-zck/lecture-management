@@ -2,9 +2,9 @@
 
 import { useSession } from "@/components/provider/SessionProvider";
 import {
-  AITimetableGenerator,
   ScheduleCalendar,
   ScheduleChangesList,
+  ScheduleTable,
   TimetableDownload,
   TimetableGrid,
 } from "@/components/timetable";
@@ -44,6 +44,7 @@ import { getClientDictionary, useLocale, useLocalePath } from "@/lib/i18n";
 import { GRADE_TYPE_OPTIONS } from "@/lib/utils/grade-labels";
 import { enrollmentsToWeeklySchedule } from "@/lib/utils/schedule";
 import { FileDown } from "lucide-react";
+import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -88,14 +89,14 @@ export function StudentDashboard() {
   );
 
   const [progress, setProgress] = useState<StudentProgress | null>(null);
-  const [scheduleView, setScheduleView] = useState<"weekly" | "calendar">(
-    "weekly",
-  );
+  const [scheduleView, setScheduleView] = useState<
+    "weekly" | "calendar" | "monthly" | "semester"
+  >("weekly");
   const [examSchedules, setExamSchedules] = useState<
     Awaited<ReturnType<typeof studentExamScheduleApi.getMySchedules>>
   >([]);
 
-  // Sync main dashboard tab with ?tab=... query param so it persists on reload
+  // Sync main dashboard tab and schedule sub-view with query params so they persist on reload
   useEffect(() => {
     const tab = searchParams.get("tab");
     if (
@@ -107,6 +108,15 @@ export function StudentDashboard() {
     ) {
       setActiveTab(tab);
     }
+    const view = searchParams.get("view");
+    if (
+      view === "weekly" ||
+      view === "calendar" ||
+      view === "monthly" ||
+      view === "semester"
+    ) {
+      setScheduleView(view);
+    }
   }, [searchParams]);
 
   const setActiveTabWithUrl = (tab: typeof activeTab) => {
@@ -115,6 +125,16 @@ export function StudentDashboard() {
     params.set("tab", tab);
     const query = params.toString();
     router.replace(query ? `${pathname}?${query}` : pathname);
+  };
+
+  const setScheduleViewWithUrl = (
+    view: "weekly" | "monthly" | "semester" | "calendar",
+  ) => {
+    setScheduleView(view);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("tab", "schedule");
+    params.set("view", view);
+    router.replace(`${pathname}?${params.toString()}`);
   };
 
   const fetchData = useCallback(async () => {
@@ -787,20 +807,34 @@ export function StudentDashboard() {
       {/* Schedule Tab */}
       {activeTab === "schedule" && (
         <div className="space-y-6">
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button
               variant={scheduleView === "weekly" ? "default" : "outline"}
               size="sm"
-              onClick={() => setScheduleView("weekly")}
+              onClick={() => setScheduleViewWithUrl("weekly")}
             >
-              Weekly
+              {sd.weekly}
             </Button>
             <Button
               variant={scheduleView === "calendar" ? "default" : "outline"}
               size="sm"
-              onClick={() => setScheduleView("calendar")}
+              onClick={() => setScheduleViewWithUrl("calendar")}
             >
-              Calendar
+              {sd.calendar}
+            </Button>
+            <Button
+              variant={scheduleView === "monthly" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setScheduleViewWithUrl("monthly")}
+            >
+              {sd.monthly}
+            </Button>
+            <Button
+              variant={scheduleView === "semester" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setScheduleViewWithUrl("semester")}
+            >
+              {sd.semesterView}
             </Button>
           </div>
 
@@ -816,9 +850,10 @@ export function StudentDashboard() {
                     schedule={schedule}
                     title={
                       courses[0]?.semester?.name
-                        ? `${dict.home.studentFeatures[2]?.title} - ${courses[0].semester.name}`
+                        ? `${dict.home.studentFeatures[2]?.title ?? "Weekly Schedule"} - ${courses[0].semester.name}`
                         : (dict.home.studentFeatures[2]?.title ?? "Timetable")
                     }
+                    view="weekly"
                     includeLecturer
                     buttonLabel={sd.exportTimetable}
                     loadingLabel={sd.exportTimetable}
@@ -850,30 +885,53 @@ export function StudentDashboard() {
             </Card>
           )}
 
-          {scheduleView === "calendar" &&
+          {(scheduleView === "calendar" || scheduleView === "monthly") &&
             courses[0]?.semester?.startDate &&
             courses[0]?.semester?.endDate && (
-              <ScheduleCalendar
-                schedule={schedule}
-                exams={examSchedules}
-                semesterStart={courses[0].semester.startDate}
-                semesterEnd={courses[0].semester.endDate}
-                dayNames={dict.daysOfWeek}
-                modeLabels={{
-                  online: dict.common.online ?? "Online",
-                  onCampus: dict.common.onCampus ?? "On campus",
-                  hybrid: dict.common.hybrid ?? "Hybrid",
-                }}
-                joinMeetingLabel={
-                  dict.admin?.courseSemesters?.joinMeeting ??
-                  dict.common.joinMeeting ??
-                  "Join meeting"
-                }
-                emptyMessage={sd.noEnrolledCourses}
-              />
+              <Card>
+                <CardHeader>
+                  <CardTitle>{dict.home.studentFeatures[2]?.title}</CardTitle>
+                  <CardDescription>
+                    {dict.home.studentFeatures[2]?.description}
+                  </CardDescription>
+                  <CardAction>
+                    <TimetableDownload
+                      schedule={schedule}
+                      title={
+                        courses[0]?.semester?.name
+                          ? `${dict.home.studentFeatures[2]?.title ?? "Weekly Schedule"} - ${courses[0].semester.name}`
+                          : (dict.home.studentFeatures[2]?.title ?? "Timetable")
+                      }
+                      includeLecturer
+                      buttonLabel={sd.exportTimetable}
+                      loadingLabel={sd.exportTimetable}
+                    />
+                  </CardAction>
+                </CardHeader>
+                <CardContent>
+                  <ScheduleCalendar
+                    schedule={schedule}
+                    exams={examSchedules}
+                    semesterStart={courses[0].semester.startDate}
+                    semesterEnd={courses[0].semester.endDate}
+                    dayNames={dict.daysOfWeek}
+                    modeLabels={{
+                      online: dict.common.online ?? "Online",
+                      onCampus: dict.common.onCampus ?? "On campus",
+                      hybrid: dict.common.hybrid ?? "Hybrid",
+                    }}
+                    joinMeetingLabel={
+                      dict.admin?.courseSemesters?.joinMeeting ??
+                      dict.common.joinMeeting ??
+                      "Join meeting"
+                    }
+                    emptyMessage={sd.noEnrolledCourses}
+                  />
+                </CardContent>
+              </Card>
             )}
 
-          {scheduleView === "calendar" &&
+          {(scheduleView === "calendar" || scheduleView === "monthly") &&
             (!courses[0]?.semester?.startDate ||
               !courses[0]?.semester?.endDate) &&
             courses.length > 0 && (
@@ -884,6 +942,56 @@ export function StudentDashboard() {
               </Card>
             )}
 
+          {scheduleView === "semester" && (
+            <Card>
+              <CardHeader>
+                <CardTitle>{dict.home.studentFeatures[2]?.title}</CardTitle>
+                <CardDescription>
+                  {dict.home.studentFeatures[2]?.description}
+                </CardDescription>
+                <CardAction>
+                  <TimetableDownload
+                    schedule={schedule}
+                    title={
+                      courses[0]?.semester?.name
+                        ? `${dict.home.studentFeatures[2]?.title ?? "Weekly Schedule"} - ${courses[0].semester.name}`
+                        : (dict.home.studentFeatures[2]?.title ?? "Timetable")
+                    }
+                    view="semester"
+                    includeLecturer
+                    buttonLabel={sd.exportTimetable}
+                    loadingLabel={sd.exportTimetable}
+                  />
+                </CardAction>
+              </CardHeader>
+              <CardContent>
+                {Object.keys(schedule).length === 0 ? (
+                  <p className="text-center text-muted-foreground py-4">
+                    {sd.noEnrolledCourses}
+                  </p>
+                ) : (
+                  <ScheduleTable
+                    schedule={schedule}
+                    dayNames={dict.daysOfWeek}
+                    includeLecturer
+                    columnLabels={dict.scheduleTable}
+                    modeLabels={{
+                      online: dict.common.online ?? "Online",
+                      onCampus: dict.common.onCampus ?? "On campus",
+                      hybrid: dict.common.hybrid ?? "Hybrid",
+                    }}
+                    joinMeetingLabel={
+                      dict.admin?.courseSemesters?.joinMeeting ??
+                      dict.common.joinMeeting ??
+                      "Join meeting"
+                    }
+                    emptyMessage={sd.noEnrolledCourses}
+                  />
+                )}
+              </CardContent>
+            </Card>
+          )}
+
           <ScheduleChangesList
             courseOnSemesterIds={courses.map((c) => c.courseOnSemesterId)}
             courseNames={Object.fromEntries(
@@ -892,15 +1000,17 @@ export function StudentDashboard() {
             emptyMessage="No recent schedule changes."
           />
 
-          <AITimetableGenerator
-            schedule={schedule}
-            userRole="student"
-            context={
-              courses[0]?.semester?.name
-                ? `Semester: ${courses[0].semester.name}`
-                : undefined
-            }
-          />
+          <div className="rounded-lg border bg-muted/30 p-4">
+            <p className="text-sm text-muted-foreground mb-2">
+              {dict.aiChat?.scheduleInsights ?? "Schedule Insights"} &{" "}
+              {dict.aiChat?.scheduleOptimizer ?? "Schedule Optimizer"}
+            </p>
+            <Button variant="outline" size="sm" asChild>
+              <Link href={localePath("/ai-chat")}>
+                {dict.aiChat?.quickStart ?? "Get AI insights"} →
+              </Link>
+            </Button>
+          </div>
         </div>
       )}
     </div>
