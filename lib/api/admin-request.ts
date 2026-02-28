@@ -1,4 +1,5 @@
 import { apiClient } from "./client";
+import type { SupportRequestItem } from "./support-request";
 
 export type LecturerTeachingRequestStatus = "PENDING" | "APPROVED" | "REJECTED";
 
@@ -148,6 +149,18 @@ export const adminRequestApi = {
     return response.data;
   },
 
+  unlockProfileChangeCooldown: async (
+    userId: string,
+    role: "student" | "lecturer",
+  ): Promise<{ ok: boolean }> => {
+    const response = await apiClient.post<{ ok: boolean }>(
+      `/admin/profile-update-request/unlock/${userId}`,
+      undefined,
+      { params: { role } },
+    );
+    return response.data;
+  },
+
   getStudentWithdrawalRequests: async (
     status?: CourseWithdrawalRequestStatus,
   ): Promise<CourseWithdrawalRequestAdmin[]> => {
@@ -176,5 +189,12 @@ export const adminRequestApi = {
       { reason },
     );
     return response.data;
+  },
+
+  getSupportRequests: async (): Promise<SupportRequestItem[]> => {
+    const response = await apiClient.get<SupportRequestItem[]>(
+      "/admin/support-request/all",
+    );
+    return response.data ?? [];
   },
 };
