@@ -11,6 +11,7 @@ import {
 import { Badge } from "@/components/ui/shadcn/badge";
 import { DataTableColumnHeader } from "@/components/ui/table/DataTableColumnHeader";
 import { DataTablePagination } from "@/components/ui/table/DataTablePagination";
+import { DataTableViewOptions } from "@/components/ui/table/DataTableViewOptions";
 import type { CourseSemester } from "@/lib/api/course-semester";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
@@ -226,6 +227,9 @@ export function CoursesTable({
 
   return (
     <div className="space-y-4">
+      <div className="flex items-center justify-end">
+        <DataTableViewOptions table={table} />
+      </div>
       <div className="rounded-md border">
         <Table>
           <TableHeader>

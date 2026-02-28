@@ -12,6 +12,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  Label,
 } from "@/components/ui/shadcn";
 import { Input } from "@/components/ui/shadcn/input";
 import {
@@ -69,6 +70,16 @@ function bucketGrade(finalGrade: number | null): string {
   if (finalGrade >= 60) return "D (60-69)";
   return "F (<60)";
 }
+
+/** Fixed order for chart segments and colors: A, B, C, D, F, No grade */
+const GRADE_BAND_ORDER = [
+  "A (90+)",
+  "B (80-89)",
+  "C (70-79)",
+  "D (60-69)",
+  "F (<60)",
+  "No grade",
+] as const;
 
 interface LecturerCourseDetailPageProps {
   params: Promise<{ id: string }>;
@@ -167,20 +178,18 @@ export default function LecturerCourseDetailPage({
 
   const gradeDistributionData = useMemo((): GradeDistributionSegment[] => {
     const buckets: Record<string, number> = {
-      "No grade": 0,
       "A (90+)": 0,
       "B (80-89)": 0,
       "C (70-79)": 0,
       "D (60-69)": 0,
       "F (<60)": 0,
+      "No grade": 0,
     };
     for (const s of students) {
       const key = bucketGrade(s.grades?.finalGrade ?? null);
       buckets[key] = (buckets[key] ?? 0) + 1;
     }
-    return Object.entries(buckets)
-      .filter(([, value]) => value > 0)
-      .map(([name, value]) => ({ name, value }));
+    return GRADE_BAND_ORDER.map((name) => ({ name, value: buckets[name] }));
   }, [students]);
 
   if (sessionLoading || !role) {
@@ -443,12 +452,12 @@ export default function LecturerCourseDetailPage({
                 {(scheduleForm.mode === "ONLINE" ||
                   scheduleForm.mode === "HYBRID") && (
                   <div>
-                    <label
+                    <Label
                       htmlFor="lecturer-schedule-meetingUrl"
                       className="text-sm font-medium mb-2 block"
                     >
                       {dict.lecturerCourseDetail.meetingUrlFieldLabel}
-                    </label>
+                    </Label>
                     <Input
                       id="lecturer-schedule-meetingUrl"
                       type="url"

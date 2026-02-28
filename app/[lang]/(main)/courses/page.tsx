@@ -341,7 +341,9 @@ export default function CoursesPage() {
         {/* Search and Filter */}
         <div className="flex flex-col md:flex-row gap-4 mb-8">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <div className="absolute left-0 top-0 bottom-0 w-10 flex items-center justify-center pointer-events-none">
+              <Search className="h-4 w-4 text-muted-foreground" />
+            </div>
             <Input
               placeholder={c.searchPlaceholder}
               value={searchQuery}
@@ -428,6 +430,7 @@ export default function CoursesPage() {
             >
               <RefreshCw
                 className={`h-4 w-4 ${isRefetching ? "animate-spin" : ""}`}
+                aria-hidden
               />
             </Button>
           </div>
