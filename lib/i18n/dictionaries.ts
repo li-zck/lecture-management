@@ -22,13 +22,58 @@ export type Dictionary = {
     dashboard: string;
     myCourses: string;
     browseCourses: string;
+    aiAssistant: string;
     settings: string;
     loading: string;
+  };
+  aiChat?: {
+    title: string;
+    subtitle: string;
+    conversations: string;
+    new: string;
+    maxConversations: string;
+    noConversations: string;
+    deleteTitle: string;
+    deleteDescription: string;
+    quickStart: string;
+    scheduleInsights: string;
+    scheduleOptimizer: string;
+    academicAdvisor: string;
+    courseAnalytics: string;
+    generalHelp: string;
+    created: string;
+    deleted: string;
+    welcome: string;
+    welcomeDescription: string;
+    placeholder: string;
+    consentTitle?: string;
+    consentBodyStudent?: string;
+    consentBodyLecturer?: string;
+    consentPolicyText?: string;
+    consentPolicyLink?: string;
+    consentCheckbox?: string;
+    consentButton?: string;
+  };
+  aiPolicy?: {
+    title: string;
+    subtitle: string;
+    studentsTitle: string;
+    studentsBody: string;
+    lecturersTitle: string;
+    lecturersBody: string;
+    limitsTitle: string;
+    limits1: string;
+    limits2: string;
+    limits3: string;
+    limits4: string;
+    controlTitle: string;
+    controlBody: string;
   };
   common: {
     cancel: string;
     save: string;
     error: string;
+    delete: string;
     submit: string;
     back: string;
     refresh: string;
@@ -55,6 +100,26 @@ export type Dictionary = {
     signInToView: string;
     unknownRole: string;
     roleNoDashboard: string;
+  };
+  scheduleChangesList: {
+    title: string;
+    description: string;
+    meetingLinkUpdated: string;
+    scheduleUpdated: string;
+    loading: string;
+    noChanges: string;
+    dayLabel: string;
+    timeLabel: string;
+    locationLabel: string;
+    modeLabel: string;
+  };
+  scheduleTable: {
+    courseName: string;
+    day: string;
+    schedule: string;
+    type: string;
+    location: string;
+    lecturer: string;
   };
   courses: {
     title: string;
@@ -161,6 +226,9 @@ export type Dictionary = {
     currentInfoDesc: string;
     updateImmediate: string;
     updateImmediateDesc: string;
+    profileChangeCooldownDesc: string;
+    profileChangeCooldownUntil: string;
+    profileChangeCooldownContactSupport: string;
     requestUpdate: string;
     requestUpdateDesc: string;
     updateProfile: string;
@@ -185,7 +253,21 @@ export type Dictionary = {
     confirmPassword: string;
     passwordOldRequired: string;
     passwordTooShort: string;
+    passwordIncorrect: string;
+    passwordUpdateConfirmTitle: string;
+    passwordUpdateConfirmDesc: string;
+    remainAuthenticated: string;
+    logOutThisDevice: string;
     requestEmptyError: string;
+    validationFullNameMin: string;
+    validationFullNameMax: string;
+    validationPhoneInvalid: string;
+    validationAddressMin: string;
+    validationAddressMax: string;
+    validationBirthDateInvalid: string;
+    validationBirthDateFuture: string;
+    validationBirthDateRange: string;
+    validationCitizenIdInvalid: string;
     updateFailed: string;
     requestFailed: string;
     saveChanges: string;
@@ -204,6 +286,7 @@ export type Dictionary = {
     webhooks: string;
     webhooksDesc: string;
     webhookUrl: string;
+    webhookUrlPlaceholder: string;
     addWebhook: string;
     active: string;
     inactive: string;
@@ -339,6 +422,8 @@ export type Dictionary = {
       enrollmentSessions: string;
       enrollments: string;
       requests: string;
+      profileUnlock: string;
+      supportRequests: string;
       posts: string;
     };
     management: {
@@ -892,6 +977,34 @@ export type Dictionary = {
       noStudentRequests: string;
       loadStudentFailed: string;
     };
+    profileUnlock: {
+      title: string;
+      description: string;
+      userIdLabel: string;
+      userIdPlaceholder: string;
+      roleLabel: string;
+      student: string;
+      lecturer: string;
+      unlockButton: string;
+      unlocking: string;
+      unlockSuccess: string;
+      unlockFailed: string;
+      userNotFound: string;
+    };
+    supportRequests: {
+      title: string;
+      description: string;
+      loading: string;
+      empty: string;
+      name: string;
+      email: string;
+      role: string;
+      category: string;
+      subject: string;
+      message: string;
+      createdAt: string;
+      loadFailed: string;
+    };
   };
   myCourses: {
     unauthorized: string;
@@ -937,6 +1050,10 @@ export type Dictionary = {
     noGrades: string;
     generateAI: string;
     exportTimetable: string;
+    weekly: string;
+    calendar: string;
+    monthly: string;
+    semesterView: string;
     progress: string;
     progressDesc: string;
     confirmEnrollTitle: string;
@@ -965,6 +1082,10 @@ export type Dictionary = {
     gradesSaved: string;
     generateAI: string;
     exportTimetable: string;
+    weekly: string;
+    calendar: string;
+    monthly: string;
+    semesterView: string;
     courseAnalytics: string;
     viewProfile: string;
     avgGrade: string;
@@ -1124,7 +1245,12 @@ export type Dictionary = {
       sections: { title: string; body: string }[];
     };
     faq: { title: string; items: { question: string; answer: string }[] };
-    cta: { text: string; supportLink: string };
+    cta: {
+      text: string;
+      supportLink: string;
+      otherPoliciesLabel?: string;
+      aiPolicyLink?: string;
+    };
   };
   posts: {
     noPostsYet: string;
