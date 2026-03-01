@@ -28,28 +28,10 @@ import { useParams } from "next/navigation";
 import { useRef } from "react";
 
 const featureIcons = [GraduationCap, BookOpen, Shield];
-const featureColors = [
-  {
-    color: "text-blue-600 dark:text-blue-400",
-    bgColor: "bg-blue-50 dark:bg-blue-900/20",
-    borderColor: "border-blue-200 dark:border-blue-800",
-  },
-  {
-    color: "text-violet-600 dark:text-violet-400",
-    bgColor: "bg-violet-50 dark:bg-violet-900/20",
-    borderColor: "border-violet-200 dark:border-violet-800",
-  },
-  {
-    color: "text-emerald-600 dark:text-emerald-400",
-    bgColor: "bg-emerald-50 dark:bg-emerald-900/20",
-    borderColor: "border-emerald-200 dark:border-emerald-800",
-  },
-];
 
 const benefitIcons = [Clock, LayoutGrid, BarChart3, Calendar, FileText, Bell];
 
 const statIcons = [Users, BookOpen, LayoutGrid, Zap];
-const statValues = ["500+", "50+", "10+", "99.9%"] as const;
 const statKeys = [
   "activeStudents",
   "courses",
@@ -90,7 +72,6 @@ export default function Homepage() {
   const h = dict.home;
 
   const stats = statKeys.map((key, i) => ({
-    value: statValues[i],
     label: h.stats[key],
     icon: statIcons[i],
   }));
@@ -218,7 +199,7 @@ export default function Homepage() {
             >
               {h.trustItems.map((item) => (
                 <div key={item} className="flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5 text-emerald-500" />
+                  <CheckCircle className="h-5 w-5 text-muted-foreground" />
                   <span>{item}</span>
                 </div>
               ))}
@@ -234,10 +215,7 @@ export default function Homepage() {
             {stats.map((stat, index) => (
               <AnimatedSection key={stat.label} delay={index * 0.1}>
                 <div className="text-center space-y-2">
-                  <stat.icon className="h-8 w-8 mx-auto text-primary" />
-                  <div className="text-3xl font-bold text-primary md:text-4xl">
-                    {stat.value}
-                  </div>
+                  <stat.icon className="h-8 w-8 mx-auto text-muted-foreground" />
                   <div className="text-sm text-muted-foreground">
                     {stat.label}
                   </div>
@@ -265,15 +243,12 @@ export default function Homepage() {
           <div className="grid gap-8 md:grid-cols-3">
             {h.features.map((feature, index) => {
               const Icon = featureIcons[index];
-              const colors = featureColors[index];
               return (
                 <AnimatedSection key={feature.title} delay={index * 0.1}>
                   <Card className="group relative h-full border-border/50 hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
                     <CardContent className="p-8">
-                      <div
-                        className={`inline-flex h-14 w-14 items-center justify-center rounded-xl ${colors.bgColor} mb-6 group-hover:scale-110 transition-transform duration-300`}
-                      >
-                        <Icon className={`h-7 w-7 ${colors.color}`} />
+                      <div className="inline-flex h-14 w-14 items-center justify-center rounded-xl bg-muted mb-6 group-hover:scale-110 transition-transform duration-300">
+                        <Icon className="h-7 w-7 text-muted-foreground" />
                       </div>
                       <h3 className="text-xl font-semibold mb-3">
                         {feature.title}
@@ -312,11 +287,11 @@ export default function Homepage() {
               const Icon = studentFeatureIcons[index];
               return (
                 <AnimatedSection key={feature.title} delay={index * 0.1}>
-                  <Card className="hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 border-border/50 hover:border-blue-500/50">
+                  <Card className="hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 border-border/50 hover:border-primary/50">
                     <CardContent className="p-6 flex gap-4">
                       <div className="flex-shrink-0">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
-                          <Icon className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-muted">
+                          <Icon className="h-6 w-6 text-muted-foreground" />
                         </div>
                       </div>
                       <div>
@@ -356,11 +331,11 @@ export default function Homepage() {
               const Icon = lecturerFeatureIcons[index];
               return (
                 <AnimatedSection key={feature.title} delay={index * 0.1}>
-                  <Card className="hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 border-border/50 hover:border-violet-500/50">
+                  <Card className="hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 border-border/50 hover:border-primary/50">
                     <CardContent className="p-6 flex gap-4">
                       <div className="flex-shrink-0">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-violet-100 dark:bg-violet-900/30">
-                          <Icon className="h-6 w-6 text-violet-600 dark:text-violet-400" />
+                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-muted">
+                          <Icon className="h-6 w-6 text-muted-foreground" />
                         </div>
                       </div>
                       <div>
@@ -399,8 +374,8 @@ export default function Homepage() {
                 <AnimatedSection key={benefit.title} delay={index * 0.1}>
                   <div className="flex gap-4">
                     <div className="flex-shrink-0">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                        <Icon className="h-6 w-6" />
+                      <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-muted">
+                        <Icon className="h-6 w-6 text-muted-foreground" />
                       </div>
                     </div>
                     <div>
