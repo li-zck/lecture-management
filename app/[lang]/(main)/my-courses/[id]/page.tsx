@@ -550,13 +550,29 @@ export default function LecturerCourseDetailPage({
         {/* Students table */}
         <Card className="border-border/50">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5" />
-              {dict.lecturerCourseDetail.studentsTableTitle} ({students.length})
-            </CardTitle>
-            <CardDescription>
-              {dict.lecturerCourseDetail.studentsTableDescription}
-            </CardDescription>
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="h-5 w-5" />
+                  {dict.lecturerCourseDetail.studentsTableTitle} (
+                  {students.length})
+                </CardTitle>
+                <CardDescription>
+                  {dict.lecturerCourseDetail.studentsTableDescription}
+                </CardDescription>
+              </div>
+              {students.length > 0 && (
+                <Button asChild className="shrink-0">
+                  <Link
+                    href={`${localePath("dashboard")}?tab=courses&course=${courseOnSemesterId}`}
+                    title={dict.lecturerCourseDetail.gradeStudentsHint}
+                  >
+                    <GraduationCap className="h-4 w-4 mr-2" />
+                    {dict.lecturerCourseDetail.gradeStudentsButton}
+                  </Link>
+                </Button>
+              )}
+            </div>
           </CardHeader>
           <CardContent>
             {students.length === 0 ? (
