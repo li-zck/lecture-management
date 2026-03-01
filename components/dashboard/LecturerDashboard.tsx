@@ -33,7 +33,7 @@ import { GRADE_TYPE_OPTIONS } from "@/lib/utils/grade-labels";
 import { coursesToLecturerSchedule } from "@/lib/utils/schedule";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 /** Backend stores time as minutes since midnight (e.g. 8:00 = 480) */
@@ -131,7 +131,7 @@ export function LecturerDashboard() {
     }
   }, [user?.id, fetchData]);
 
-  const loadCourseStudents = async (course: AssignedCourse) => {
+  const loadCourseStudents = useCallback(async (course: AssignedCourse) => {
     try {
       setStudentsLoading(true);
       setSelectedCourse(course);
@@ -152,7 +152,29 @@ export function LecturerDashboard() {
     } finally {
       setStudentsLoading(false);
     }
-  };
+  }, []);
+
+  // When URL has ?tab=courses&course=courseOnSemesterId, preselect that course and load students (for "Grade students" link from course detail page)
+  const courseIdFromUrl = searchParams.get("course");
+  const hasAutoLoadedCourseRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (
+      !courseIdFromUrl ||
+      courses.length === 0 ||
+      loading ||
+      hasAutoLoadedCourseRef.current === courseIdFromUrl
+    ) {
+      return;
+    }
+    const course = courses.find(
+      (c) => c.courseOnSemesterId === courseIdFromUrl,
+    );
+    if (course) {
+      hasAutoLoadedCourseRef.current = courseIdFromUrl;
+      setActiveTab("courses");
+      loadCourseStudents(course);
+    }
+  }, [courseIdFromUrl, courses, loading, loadCourseStudents]);
 
   const handleGradeChange = (
     studentId: string,
