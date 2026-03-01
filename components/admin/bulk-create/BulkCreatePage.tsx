@@ -375,6 +375,21 @@ export function BulkCreatePage({
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            {errors.length > 0 && (
+              <div className="flex items-start gap-2 rounded-lg border border-destructive/50 bg-destructive/5 p-3 text-sm text-destructive">
+                <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
+                <div className="space-y-1">
+                  <p className="font-medium">{t.fixErrors}</p>
+                  <ul className="list-disc list-inside space-y-0.5 text-muted-foreground">
+                    {errors.map((err) => (
+                      <li key={`${err.rowIndex}-${err.field}`}>
+                        Row {err.rowIndex}: {err.field} — {err.message}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            )}
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
@@ -395,76 +410,124 @@ export function BulkCreatePage({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {formRows.map((row, rowIndex) => (
-                    <TableRow key={rowIndex.toString()}>
-                      <TableCell className="text-muted-foreground">
-                        {rowIndex}
-                      </TableCell>
-                      {config.fields
-                        .filter((f) => f.required || f.name !== "departmentId")
-                        .slice(0, 6)
-                        .map((field) => (
-                          <TableCell key={field.name}>
-                            {field.type === "select" && field.options ? (
-                              <Select
-                                value={String(row[field.name] ?? "")}
-                                onValueChange={(value) =>
-                                  handleFormRowChange(
-                                    rowIndex,
-                                    field.name,
-                                    value,
-                                  )
-                                }
-                              >
-                                <SelectTrigger className="h-8 text-sm">
-                                  <SelectValue placeholder={t.select} />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {field.options.map((opt) => (
-                                    <SelectItem
-                                      key={opt.value}
-                                      value={opt.value}
+                  {formRows.map((row, rowIndex) => {
+                    const rowErrors = getRowErrors(rowIndex);
+                    const hasRowError = rowErrors.length > 0;
+                    return (
+                      <TableRow
+                        key={rowIndex.toString()}
+                        className={hasRowError ? "bg-destructive/5" : ""}
+                      >
+                        <TableCell className="text-muted-foreground">
+                          {rowIndex}
+                        </TableCell>
+                        {config.fields
+                          .filter(
+                            (f) => f.required || f.name !== "departmentId",
+                          )
+                          .slice(0, 6)
+                          .map((field) => {
+                            const fieldError = rowErrors.find(
+                              (e) => e.field === field.name,
+                            );
+                            return (
+                              <TableCell key={field.name}>
+                                {field.type === "select" && field.options ? (
+                                  <div className="space-y-1">
+                                    <Select
+                                      value={String(row[field.name] ?? "")}
+                                      onValueChange={(value) => {
+                                        handleFormRowChange(
+                                          rowIndex,
+                                          field.name,
+                                          value,
+                                        );
+                                        setErrors((prev) =>
+                                          prev.filter(
+                                            (e) =>
+                                              !(
+                                                e.rowIndex === rowIndex &&
+                                                e.field === field.name
+                                              ),
+                                          ),
+                                        );
+                                      }}
                                     >
-                                      {opt.label}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            ) : (
-                              <Input
-                                type={
-                                  field.type === "password"
-                                    ? "password"
-                                    : field.type === "email"
-                                      ? "email"
-                                      : "text"
-                                }
-                                value={String(row[field.name] ?? "")}
-                                onChange={(e) =>
-                                  handleFormRowChange(
-                                    rowIndex,
-                                    field.name,
-                                    e.target.value,
-                                  )
-                                }
-                                placeholder={field.placeholder}
-                                className="h-8 text-sm"
-                              />
-                            )}
-                          </TableCell>
-                        ))}
-                      <TableCell>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeFormRow(rowIndex)}
-                          disabled={formRows.length <= 1}
-                        >
-                          <Trash2 className="h-4 w-4 text-muted-foreground" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                                      <SelectTrigger
+                                        className={`h-8 text-sm ${fieldError ? "border-destructive focus-visible:ring-destructive" : ""}`}
+                                      >
+                                        <SelectValue placeholder={t.select} />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {field.options.map((opt) => (
+                                          <SelectItem
+                                            key={opt.value}
+                                            value={opt.value}
+                                          >
+                                            {opt.label}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                    {fieldError && (
+                                      <p className="text-xs text-destructive">
+                                        {fieldError.message}
+                                      </p>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <div className="space-y-1">
+                                    <Input
+                                      type={
+                                        field.type === "password"
+                                          ? "password"
+                                          : field.type === "email"
+                                            ? "email"
+                                            : "text"
+                                      }
+                                      value={String(row[field.name] ?? "")}
+                                      onChange={(e) => {
+                                        handleFormRowChange(
+                                          rowIndex,
+                                          field.name,
+                                          e.target.value,
+                                        );
+                                        setErrors((prev) =>
+                                          prev.filter(
+                                            (e) =>
+                                              !(
+                                                e.rowIndex === rowIndex &&
+                                                e.field === field.name
+                                              ),
+                                          ),
+                                        );
+                                      }}
+                                      placeholder={field.placeholder}
+                                      className={`h-8 text-sm ${fieldError ? "border-destructive focus-visible:ring-destructive" : ""}`}
+                                    />
+                                    {fieldError && (
+                                      <p className="text-xs text-destructive">
+                                        {fieldError.message}
+                                      </p>
+                                    )}
+                                  </div>
+                                )}
+                              </TableCell>
+                            );
+                          })}
+                        <TableCell>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeFormRow(rowIndex)}
+                            disabled={formRows.length <= 1}
+                          >
+                            <Trash2 className="h-4 w-4 text-muted-foreground" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>
