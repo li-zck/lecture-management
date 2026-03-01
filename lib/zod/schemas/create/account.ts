@@ -45,4 +45,32 @@ export const createLecturerSchema = z.object({
   username: z.string().min(1, "Username cannot be empty"),
   // password: passwordSchema
   password: z.string().min(1, "Password cannot be empty"),
+  gender: z
+    .union([
+      z.literal("male"),
+      z.literal("female"),
+      z.literal("__none__"),
+      z.literal(""),
+    ])
+    .optional(),
+  birthDate: z
+    .string()
+    .optional()
+    .refine(
+      (val) => !val || val === "" || /^\d{4}-\d{2}-\d{2}$/.test(val),
+      "Invalid birth date format (YYYY-MM-DD)",
+    ),
+  citizenId: z.string().optional(),
+  phone: z
+    .string()
+    .refine(
+      (val) => {
+        if (!val || val.trim() === "") return true;
+        const num = parsePhoneNumberFromString(val, "VN");
+        return num?.isValid() && num.country === "VN";
+      },
+      { message: "Invalid phone number format" },
+    )
+    .optional(),
+  address: z.string().optional(),
 });
