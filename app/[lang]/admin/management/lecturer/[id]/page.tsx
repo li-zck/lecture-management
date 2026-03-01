@@ -2,7 +2,7 @@
 
 import { useLecturer } from "@/components/ui/hooks/use-lecturer";
 import { PageHeader } from "@/components/ui/page-header";
-import { adminLecturerApi } from "@/lib/api/admin-lecturer";
+import { adminLecturerApi, type LecturerAdmin } from "@/lib/api/admin-lecturer";
 import { getErrorInfo, logError } from "@/lib/api/error";
 import { getClientDictionary } from "@/lib/i18n";
 import { useLocale, useLocalePath } from "@/lib/i18n/use-locale";
@@ -68,6 +68,17 @@ export default function EditLecturerPage() {
       ) {
         payload.departmentHeadId = null;
       }
+      if (payload.gender === "__none__" || payload.gender === undefined) {
+        delete payload.gender;
+      } else if (payload.gender === "male") {
+        payload.gender = true;
+      } else if (payload.gender === "female") {
+        payload.gender = false;
+      }
+      if (!payload.birthDate?.trim()) delete payload.birthDate;
+      if (!payload.citizenId?.trim()) delete payload.citizenId;
+      if (!payload.phone?.trim()) delete payload.phone;
+      if (!payload.address?.trim()) delete payload.address;
 
       await adminLecturerApi.update(id, payload);
       await queryClient.invalidateQueries({
@@ -85,6 +96,9 @@ export default function EditLecturerPage() {
     }
   };
 
+  const lecturerWithExtras = lecturer as LecturerAdmin & {
+    departmentHead?: { id: string };
+  };
   const initialValues =
     lecturer && lecturer.id === id
       ? {
@@ -94,9 +108,17 @@ export default function EditLecturerPage() {
           lecturerId: lecturer.lecturerId ?? "",
           departmentHeadId:
             lecturer.departmentHeadId ??
-            (lecturer as { departmentHead?: { id: string } }).departmentHead
-              ?.id ??
+            lecturerWithExtras.departmentHead?.id ??
             "__none__",
+          gender: (lecturerWithExtras.gender === true
+            ? "male"
+            : lecturerWithExtras.gender === false
+              ? "female"
+              : "__none__") as "male" | "female" | "__none__",
+          birthDate: lecturerWithExtras.birthDate ?? "",
+          citizenId: lecturerWithExtras.citizenId ?? "",
+          phone: lecturerWithExtras.phone ?? "",
+          address: lecturerWithExtras.address ?? "",
         }
       : null;
 

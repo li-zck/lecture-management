@@ -34,7 +34,16 @@ export default function CreateLecturerPage() {
 
   const handleSubmit = async (values: any) => {
     try {
-      await adminLecturerApi.create(values);
+      const payload = { ...values };
+      if (payload.gender === "male") payload.gender = true;
+      else if (payload.gender === "female") payload.gender = false;
+      else delete payload.gender;
+      if (!payload.birthDate?.trim()) delete payload.birthDate;
+      if (!payload.citizenId?.trim()) delete payload.citizenId;
+      if (!payload.phone?.trim()) delete payload.phone;
+      if (!payload.address?.trim()) delete payload.address;
+
+      await adminLecturerApi.create(payload);
       toast.success(
         dict.admin.common.createdSuccess.replace("{entity}", "Lecturer"),
       );

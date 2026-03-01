@@ -53,6 +53,18 @@ export function LecturerForm({
   const { departments } = useDepartments();
   const schema = mode === "edit" ? editLecturerSchema : createLecturerSchema;
 
+  const init = initialValues as
+    | {
+        departmentHead?: { id: string };
+        departmentHeadId?: string;
+        gender?: boolean | null;
+        birthDate?: string | null;
+        citizenId?: string | null;
+        phone?: string | null;
+        address?: string | null;
+      }
+    | undefined;
+
   const form = useForm<LecturerFormValues>({
     resolver: zodResolver(schema) as any,
     defaultValues: {
@@ -62,12 +74,14 @@ export function LecturerForm({
       fullName: initialValues?.fullName ?? "",
       lecturerId: initialValues?.lecturerId ?? "",
       departmentHeadId:
-        (mode === "edit" &&
-          (initialValues as { departmentHead?: { id: string } })?.departmentHead
-            ?.id) ??
-        (mode === "edit" &&
-          (initialValues as { departmentHeadId?: string })?.departmentHeadId) ??
+        (mode === "edit" && init?.departmentHead?.id) ??
+        (mode === "edit" && init?.departmentHeadId) ??
         "__none__",
+      gender: init?.gender ?? undefined,
+      birthDate: init?.birthDate ? init.birthDate.slice(0, 10) : "",
+      citizenId: init?.citizenId ?? "",
+      phone: init?.phone ?? "",
+      address: init?.address ?? "",
     } as any,
   });
 
@@ -267,6 +281,143 @@ export function LecturerForm({
                   )}
                 />
               )}
+
+              <Controller
+                control={form.control}
+                name="phone"
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="lecturer-form-phone">
+                      {dict.admin.common.phone}
+                    </FieldLabel>
+                    <Input
+                      {...field}
+                      id="lecturer-form-phone"
+                      type="tel"
+                      aria-invalid={fieldState.invalid}
+                      placeholder={
+                        dict.admin.students?.phonePlaceholder ?? "+84..."
+                      }
+                      autoComplete="off"
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+              <Controller
+                control={form.control}
+                name="address"
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="lecturer-form-address">
+                      {dict.admin.common.address}
+                    </FieldLabel>
+                    <Input
+                      {...field}
+                      id="lecturer-form-address"
+                      aria-invalid={fieldState.invalid}
+                      placeholder={
+                        dict.admin.students?.addressPlaceholder ??
+                        "123 Street..."
+                      }
+                      autoComplete="off"
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+              <Controller
+                control={form.control}
+                name="gender"
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="lecturer-form-gender">
+                      {dict.admin.common.gender}
+                    </FieldLabel>
+                    <Select
+                      onValueChange={(v) =>
+                        field.onChange(
+                          v === "male"
+                            ? true
+                            : v === "female"
+                              ? false
+                              : undefined,
+                        )
+                      }
+                      value={
+                        (field.value as "male" | "female" | "__none__") ||
+                        "__none__"
+                      }
+                    >
+                      <SelectTrigger id="lecturer-form-gender">
+                        <SelectValue placeholder={dict.admin.common.none} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="__none__">
+                          {dict.admin.common.none}
+                        </SelectItem>
+                        <SelectItem value="male">
+                          {dict.settings.genderMale}
+                        </SelectItem>
+                        <SelectItem value="female">
+                          {dict.settings.genderFemale}
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+              <Controller
+                control={form.control}
+                name="birthDate"
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="lecturer-form-birthDate">
+                      {dict.admin.common.birthDate}
+                    </FieldLabel>
+                    <Input
+                      {...field}
+                      id="lecturer-form-birthDate"
+                      type="date"
+                      aria-invalid={fieldState.invalid}
+                      autoComplete="off"
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+              <Controller
+                control={form.control}
+                name="citizenId"
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="lecturer-form-citizenId">
+                      {dict.admin.common.citizenId}
+                    </FieldLabel>
+                    <Input
+                      {...field}
+                      id="lecturer-form-citizenId"
+                      aria-invalid={fieldState.invalid}
+                      placeholder={
+                        dict.admin.students?.citizenIdPlaceholder ?? "123456789"
+                      }
+                      autoComplete="off"
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
             </div>
           </form>
         </CardContent>
