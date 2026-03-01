@@ -511,6 +511,7 @@ export type Dictionary = {
       notFound: string;
       alreadyExists: string;
       invalidInfo: string;
+      accountInvalidOrSessionExpired: string;
       addToSystem: string;
       rowsPerPage: string;
       selectAll: string;
@@ -1153,6 +1154,8 @@ export type Dictionary = {
     gradeDistributionTotalLabel: string;
     studentsTableTitle: string;
     studentsTableDescription: string;
+    gradeStudentsButton: string;
+    gradeStudentsHint: string;
     studentsTableEmpty: string;
     studentsTableName: string;
     studentsTableStudentId: string;
