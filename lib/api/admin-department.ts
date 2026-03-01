@@ -79,8 +79,8 @@ export const adminDepartmentApi = {
   ): Promise<{ created: number; departments: Department[] }> => {
     const response = await apiClient.post<
       { created: number; departments: Department[] },
-      CreateDepartmentRequest[]
-    >("/admin/department/create/multiple", data);
+      { departments: CreateDepartmentRequest[] }
+    >("/admin/department/create/multiple", { departments: data });
     return response.data;
   },
 

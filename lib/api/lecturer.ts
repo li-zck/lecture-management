@@ -64,6 +64,11 @@ export interface LecturerProfile {
     id: string;
     name: string;
   } | null;
+  gender?: boolean | null;
+  birthDate?: string | null;
+  citizenId?: string | null;
+  phone?: string | null;
+  address?: string | null;
 }
 
 export interface AssignedCourse {

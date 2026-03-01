@@ -15,6 +15,11 @@ export interface LecturerAdmin {
     id: string;
     name: string;
   };
+  gender?: boolean | null;
+  birthDate?: string | null;
+  citizenId?: string | null;
+  phone?: string | null;
+  address?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -29,6 +34,11 @@ export interface CreateLecturerRequest {
   lecturerId: string;
   fullName?: string;
   departmentHeadId?: string;
+  gender?: boolean;
+  birthDate?: string;
+  citizenId?: string;
+  phone?: string;
+  address?: string;
 }
 
 /**
@@ -42,6 +52,11 @@ export interface UpdateLecturerRequest {
   fullName?: string;
   active?: boolean;
   departmentHeadId?: string | null;
+  gender?: boolean;
+  birthDate?: string;
+  citizenId?: string;
+  phone?: string;
+  address?: string;
 }
 
 /**
@@ -88,8 +103,8 @@ export const adminLecturerApi = {
   ): Promise<{ created: number; lecturers: LecturerAdmin[] }> => {
     const response = await apiClient.post<
       { created: number; lecturers: LecturerAdmin[] },
-      CreateLecturerRequest[]
-    >("/admin/lecturer/create/multiple", data);
+      { lecturers: CreateLecturerRequest[] }
+    >("/admin/lecturer/create/multiple", { lecturers: data });
     return response.data;
   },
 

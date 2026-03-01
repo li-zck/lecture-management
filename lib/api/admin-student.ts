@@ -97,15 +97,17 @@ export const adminStudentApi = {
 
   /**
    * GET /admin/student/find - Find students by email/studentId/username/citizenId/phone
+   * Backend returns a single student; we normalize to array for consistency.
    */
   search: async (params: StudentSearchParams): Promise<StudentAdmin[]> => {
-    const response = await apiClient.get<StudentAdmin[]>(
+    const response = await apiClient.get<StudentAdmin | StudentAdmin[]>(
       "/admin/student/find",
       {
         params,
       },
     );
-    return response.data;
+    const data = response.data;
+    return Array.isArray(data) ? data : data ? [data] : [];
   },
 
   /**
@@ -127,8 +129,8 @@ export const adminStudentApi = {
   ): Promise<{ created: number; students: StudentAdmin[] }> => {
     const response = await apiClient.post<
       { created: number; students: StudentAdmin[] },
-      CreateStudentRequest[]
-    >("/admin/student/create/multiple", data);
+      { students: CreateStudentRequest[] }
+    >("/admin/student/create/multiple", { students: data });
     return response.data;
   },
 

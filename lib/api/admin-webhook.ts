@@ -116,10 +116,10 @@ export const adminWebhookApi = {
   },
 
   /**
-   * GET /admin/webhook/:id - Get webhook by ID
+   * GET /admin/webhook/find/:id - Get webhook by ID
    */
   getById: async (id: string): Promise<Webhook> => {
-    const response = await apiClient.get<Webhook>(`/admin/webhook/${id}`);
+    const response = await apiClient.get<Webhook>(`/admin/webhook/find/${id}`);
     return response.data;
   },
 
@@ -137,11 +137,11 @@ export const adminWebhookApi = {
   },
 
   /**
-   * PATCH /admin/webhook/:id - Update webhook
+   * PATCH /admin/webhook/update/:id - Update webhook
    */
   update: async (id: string, data: UpdateWebhookRequest): Promise<Webhook> => {
     const response = await apiClient.patch<Webhook, UpdateWebhookRequest>(
-      `/admin/webhook/${id}`,
+      `/admin/webhook/update/${id}`,
       data,
     );
     return response.data;
@@ -159,13 +159,13 @@ export const adminWebhookApi = {
   },
 
   /**
-   * DELETE /admin/webhook/:id - Delete webhook
+   * DELETE /admin/webhook/delete/:id - Delete webhook
    *
    * Also deletes all associated webhook logs.
    */
   delete: async (id: string): Promise<{ message: string }> => {
     const response = await apiClient.delete<{ message: string }>(
-      `/admin/webhook/${id}`,
+      `/admin/webhook/delete/${id}`,
     );
     return response.data;
   },
