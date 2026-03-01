@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/shadcn/button";
 import { adminCourseApi } from "@/lib/api/admin-course";
 import { getClientDictionary } from "@/lib/i18n";
 import { useLocale, useLocalePath } from "@/lib/i18n/use-locale";
+import { queryKeys } from "@/lib/query";
+import { useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -18,6 +20,7 @@ export default function BulkCreateCoursePage() {
   const localePath = useLocalePath();
   const dict = getClientDictionary(locale);
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const handleSubmit = async (data: Record<string, unknown>[]) => {
     const payload = data.map((row) => ({
@@ -37,7 +40,8 @@ export default function BulkCreateCoursePage() {
     return { created: result.created };
   };
 
-  const handleSuccess = () => {
+  const handleSuccess = async () => {
+    await queryClient.invalidateQueries({ queryKey: queryKeys.courses.all });
     router.push(localePath("admin/management/course"));
     router.refresh();
   };

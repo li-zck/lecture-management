@@ -6,6 +6,8 @@ import { getErrorInfo, logError } from "@/lib/api/error";
 import { getClientDictionary } from "@/lib/i18n";
 import { useLocale } from "@/lib/i18n/use-locale";
 import { type CreatePostSchema } from "@/lib/zod/schemas/create/post";
+import { queryKeys } from "@/lib/query";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { PostForm } from "../_components/post-form";
@@ -14,6 +16,7 @@ export default function CreatePostPage() {
   const locale = useLocale();
   const dict = getClientDictionary(locale);
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const handleSubmit = async (values: CreatePostSchema) => {
     try {
@@ -32,6 +35,7 @@ export default function CreatePostPage() {
       };
 
       await adminPostApi.create(payload);
+      await queryClient.invalidateQueries({ queryKey: queryKeys.posts.all });
       toast.success(
         dict.admin.common.createdSuccess.replace("{entity}", "Post"),
       );

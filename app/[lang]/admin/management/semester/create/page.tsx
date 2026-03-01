@@ -5,6 +5,8 @@ import { adminSemesterApi } from "@/lib/api/admin-semester";
 import { getErrorInfo, logError } from "@/lib/api/error";
 import { getClientDictionary } from "@/lib/i18n";
 import { useLocale } from "@/lib/i18n/use-locale";
+import { queryKeys } from "@/lib/query";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { SemesterForm } from "../_components/semester-form";
@@ -13,6 +15,7 @@ export default function CreateSemesterPage() {
   const locale = useLocale();
   const dict = getClientDictionary(locale);
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const getSemesterErrorMessage = (
     status: number,
@@ -36,6 +39,7 @@ export default function CreateSemesterPage() {
       };
 
       await adminSemesterApi.create(payload);
+      await queryClient.invalidateQueries({ queryKey: queryKeys.semesters.all });
       toast.success(
         dict.admin.common.createdSuccess.replace("{entity}", "Semester"),
       );

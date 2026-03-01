@@ -44,19 +44,6 @@ type CourseOffering = {
 
 const EMPTY_OFFERINGS: CourseOffering[] = [];
 
-/** Semesters that are currently open (current date between startDate and endDate) */
-function useOpenSemesters() {
-  const { semesters } = useSemesters();
-  return useMemo(() => {
-    const now = new Date();
-    return semesters.filter((s) => {
-      const start = new Date(s.startDate);
-      const end = new Date(s.endDate);
-      return now >= start && now <= end;
-    });
-  }, [semesters]);
-}
-
 interface CourseFormProps {
   initialValues?: Partial<CourseFormValues>;
   onSubmit: (values: CourseFormValues) => Promise<void>;
@@ -78,7 +65,6 @@ export function CourseForm({
   const dict = getClientDictionary(locale);
   const queryClient = useQueryClient();
   const { departments } = useDepartments();
-  const openSemesters = useOpenSemesters();
   const { semesters: allSemesters } = useSemesters();
   const resolvedInitial = initialOfferings ?? EMPTY_OFFERINGS;
   const [offerings, setOfferings] = useState<CourseOffering[]>(resolvedInitial);
@@ -237,10 +223,9 @@ export function CourseForm({
                 name="recommendedSemester"
                 render={({ field, fieldState }) => {
                   const currentValue = field.value;
-                  const options = openSemesters.map((s) => ({
-                    value: s.name,
-                    label: s.name,
-                  }));
+                  const options = [...allSemesters]
+                    .sort((a, b) => b.name.localeCompare(a.name))
+                    .map((s) => ({ value: s.name, label: s.name }));
                   const hasCurrentInOptions = options.some(
                     (o) => o.value === currentValue,
                   );

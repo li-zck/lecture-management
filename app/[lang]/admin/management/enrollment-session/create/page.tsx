@@ -6,6 +6,8 @@ import { getErrorInfo, logError } from "@/lib/api/error";
 import { getClientDictionary } from "@/lib/i18n";
 import { useLocale } from "@/lib/i18n/use-locale";
 import type { CreateEnrollmentSessionFormValues } from "@/lib/zod/schemas/create/enrollment-session";
+import { queryKeys } from "@/lib/query";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { EnrollmentSessionForm } from "../_components/enrollment-session-form";
@@ -14,6 +16,7 @@ export default function CreateEnrollmentSessionPage() {
   const locale = useLocale();
   const dict = getClientDictionary(locale);
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const handleSubmit = async (values: CreateEnrollmentSessionFormValues) => {
     try {
@@ -21,6 +24,9 @@ export default function CreateEnrollmentSessionPage() {
         ...values,
         startDate: new Date(values.startDate).toISOString(),
         endDate: new Date(values.endDate).toISOString(),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.enrollmentSessions.all,
       });
       toast.success(
         dict.admin.common.createdSuccess.replace(

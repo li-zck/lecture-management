@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/shadcn/button";
 import { adminLecturerApi } from "@/lib/api/admin-lecturer";
 import { getClientDictionary } from "@/lib/i18n";
 import { useLocale, useLocalePath } from "@/lib/i18n/use-locale";
+import { queryKeys } from "@/lib/query";
+import { useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -18,6 +20,7 @@ export default function BulkCreateLecturerPage() {
   const localePath = useLocalePath();
   const dict = getClientDictionary(locale);
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const handleSubmit = async (data: Record<string, unknown>[]) => {
     const result = await adminLecturerApi.createMultiple(
@@ -26,7 +29,8 @@ export default function BulkCreateLecturerPage() {
     return { created: result.created };
   };
 
-  const handleSuccess = () => {
+  const handleSuccess = async () => {
+    await queryClient.invalidateQueries({ queryKey: queryKeys.lecturers.all });
     router.push(localePath("admin/management/lecturer"));
     router.refresh();
   };

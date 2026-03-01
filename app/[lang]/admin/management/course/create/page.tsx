@@ -5,6 +5,8 @@ import { adminCourseApi } from "@/lib/api/admin-course";
 import { getErrorInfo, logError } from "@/lib/api/error";
 import { getClientDictionary } from "@/lib/i18n";
 import { useLocale, useLocalePath } from "@/lib/i18n/use-locale";
+import { queryKeys } from "@/lib/query";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { CourseForm } from "../_components/course-form";
@@ -27,6 +29,7 @@ export default function CreateCoursePage() {
   const localePath = useLocalePath();
   const dict = getClientDictionary(locale);
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const handleSubmit = async (values: any) => {
     try {
@@ -39,6 +42,7 @@ export default function CreateCoursePage() {
         delete payload.semesterId;
       }
       await adminCourseApi.create(payload);
+      await queryClient.invalidateQueries({ queryKey: queryKeys.courses.all });
       toast.success(
         dict.admin.common.createdSuccess.replace("{entity}", "Course"),
       );

@@ -5,6 +5,8 @@ import { adminDepartmentApi } from "@/lib/api/admin-department";
 import { getErrorInfo, logError } from "@/lib/api/error";
 import { getClientDictionary } from "@/lib/i18n";
 import { useLocale, useLocalePath } from "@/lib/i18n/use-locale";
+import { queryKeys } from "@/lib/query";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { DepartmentForm } from "../_components/department-form";
@@ -14,6 +16,7 @@ export default function CreateDepartmentPage() {
   const localePath = useLocalePath();
   const dict = getClientDictionary(locale);
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const getDepartmentErrorMessage = (
     status: number,
@@ -40,6 +43,7 @@ export default function CreateDepartmentPage() {
       }
 
       await adminDepartmentApi.create(payload);
+      await queryClient.invalidateQueries({ queryKey: queryKeys.departments.all });
       toast.success(
         dict.admin.common.createdSuccess.replace("{entity}", "Department"),
       );
