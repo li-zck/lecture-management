@@ -662,7 +662,8 @@
       "requests": "Yêu cầu",
       "profileUnlock": "Mở khóa hồ sơ",
       "supportRequests": "Yêu cầu hỗ trợ",
-      "posts": "Bài viết"
+      "posts": "Bài viết",
+      "webhooks": "Webhooks"
     },
     "management": {
       "overview": "Tổng quan",
@@ -1228,6 +1229,19 @@
       "unlockSuccess": "Đã mở khóa. Người dùng có thể gửi thay đổi lại.",
       "unlockFailed": "Mở khóa thất bại",
       "userNotFound": "Không tìm thấy người dùng"
+    },
+    "webhooks": {
+      "title": "Webhooks",
+      "description": "Quản lý webhooks nhận thông báo khi có sự kiện xảy ra.",
+      "empty": "Chưa có webhook nào.",
+      "loading": "Đang tải webhooks...",
+      "loadFailed": "Không thể tải webhooks.",
+      "url": "URL",
+      "secret": "Secret",
+      "active": "Hoạt động",
+      "inactive": "Tắt",
+      "owner": "Chủ sở hữu",
+      "createdAt": "Ngày tạo"
     },
     "supportRequests": {
       "title": "Yêu cầu hỗ trợ",

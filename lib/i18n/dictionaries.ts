@@ -425,6 +425,7 @@ export type Dictionary = {
       profileUnlock: string;
       supportRequests: string;
       posts: string;
+      webhooks: string;
     };
     management: {
       overview: string;
@@ -990,6 +991,19 @@ export type Dictionary = {
       unlockSuccess: string;
       unlockFailed: string;
       userNotFound: string;
+    };
+    webhooks: {
+      title: string;
+      description: string;
+      empty: string;
+      loading: string;
+      loadFailed: string;
+      url: string;
+      secret: string;
+      active: string;
+      inactive: string;
+      owner: string;
+      createdAt: string;
     };
     supportRequests: {
       title: string;

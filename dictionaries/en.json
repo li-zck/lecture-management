@@ -666,7 +666,8 @@
       "requests": "Requests",
       "profileUnlock": "Profile unlock",
       "supportRequests": "Support requests",
-      "posts": "Posts"
+      "posts": "Posts",
+      "webhooks": "Webhooks"
     },
     "management": {
       "overview": "Overview",
@@ -1232,6 +1233,19 @@
       "unlockSuccess": "Profile cooldown unlocked. The user can submit changes again.",
       "unlockFailed": "Failed to unlock",
       "userNotFound": "User not found"
+    },
+    "webhooks": {
+      "title": "Webhooks",
+      "description": "Manage webhooks that receive notifications when events occur.",
+      "empty": "No webhooks yet.",
+      "loading": "Loading webhooks...",
+      "loadFailed": "Failed to load webhooks.",
+      "url": "URL",
+      "secret": "Secret",
+      "active": "Active",
+      "inactive": "Inactive",
+      "owner": "Owner",
+      "createdAt": "Created"
     },
     "supportRequests": {
       "title": "Support requests",
