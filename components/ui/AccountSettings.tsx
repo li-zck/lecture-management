@@ -533,18 +533,20 @@ export function AccountSettings() {
                 </div>
               </div>
               {isStudent && (
-                <>
-                  <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                    <Building className="w-5 h-5 text-muted-foreground" />
-                    <div>
-                      <p className="text-xs text-muted-foreground">
-                        {st.department}
-                      </p>
-                      <p className="font-medium">
-                        {profile.department?.name || st.notAssigned}
-                      </p>
-                    </div>
+                <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                  <Building className="w-5 h-5 text-muted-foreground" />
+                  <div>
+                    <p className="text-xs text-muted-foreground">
+                      {st.department}
+                    </p>
+                    <p className="font-medium">
+                      {profile.department?.name || st.notAssigned}
+                    </p>
                   </div>
+                </div>
+              )}
+              {(isStudent || profile.role === "lecturer") && (
+                <>
                   <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
                     <Phone className="w-5 h-5 text-muted-foreground" />
                     <div>
@@ -806,7 +808,7 @@ export function AccountSettings() {
                       </FormItem>
                     )}
                   />
-                  {isStudent && (
+                  {(isStudent || profile?.role === "lecturer") && (
                     <>
                       <FormField
                         control={requestForm.control}
@@ -857,7 +859,7 @@ export function AccountSettings() {
                     </>
                   )}
                 </div>
-                {isStudent && (
+                {(isStudent || profile?.role === "lecturer") && (
                   <div className="grid md:grid-cols-3 gap-4">
                     <FormField
                       control={requestForm.control}

@@ -1,13 +1,27 @@
 "use client";
 
-import { adminStudentApi } from "@/lib/api";
+import {
+  adminStudentApi,
+  type StudentSearchParams,
+} from "@/lib/api/admin-student";
 import { queryKeys } from "@/lib/query";
 import { useQuery } from "@tanstack/react-query";
 
-export const useStudents = () => {
+export const useStudents = (searchParams?: StudentSearchParams | null) => {
+  const hasSearch =
+    searchParams &&
+    (searchParams.email ||
+      searchParams.studentId ||
+      searchParams.username ||
+      searchParams.citizenId ||
+      searchParams.phone);
+
   const query = useQuery({
-    queryKey: queryKeys.students.lists(),
-    queryFn: () => adminStudentApi.getAll(),
+    queryKey: [...queryKeys.students.lists(), searchParams ?? {}],
+    queryFn: () =>
+      hasSearch
+        ? adminStudentApi.search(searchParams!)
+        : adminStudentApi.getAll(),
   });
 
   return {

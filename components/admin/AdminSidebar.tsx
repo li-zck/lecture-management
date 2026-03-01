@@ -21,6 +21,7 @@ import {
   Settings,
   Shield,
   Users,
+  Webhook,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -103,6 +104,11 @@ export function AdminSidebar({
       title: dict.admin.sidebar.posts,
       url: localePath("admin/management/post"),
       icon: FileText,
+    },
+    {
+      title: dict.admin.sidebar.webhooks,
+      url: localePath("admin/management/webhooks"),
+      icon: Webhook,
     },
   ];
 

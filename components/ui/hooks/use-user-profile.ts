@@ -93,6 +93,11 @@ export function useUserProfile(): UseUserProfileReturn {
           role: "lecturer",
           lecturerId: lecturerProfile.lecturerId,
           departmentHead: lecturerProfile.departmentHead,
+          phone: lecturerProfile.phone,
+          address: lecturerProfile.address,
+          gender: lecturerProfile.gender,
+          birthDate: lecturerProfile.birthDate,
+          citizenId: lecturerProfile.citizenId,
         });
       }
     } catch (err) {
